@@ -81,12 +81,12 @@ announcement; there is no label or countdown.
 The first three change how the snake *handles*, never where it can go. FLASH
 changes nothing at all — it just interrupts.
 
-Its colours hold for 340ms each, a shade under three changes a second. That is
-deliberate rather than arbitrary: WCAG 2.3.1 puts the photosensitive-seizure
-threshold at three full-screen flashes per second, and this covers the whole
-viewport. `FLASH_MS_PER_COLOR` in `constants.js` is the number, and going much
-below 333 is not just a taste decision. Anyone with reduced motion turned on
-gets a single held colour instead of a cycle. One that
+Its colours hold for 113ms each — about nine changes a second across the whole
+viewport, which is a real strobe. WCAG 2.3.1 puts the photosensitive-seizure
+threshold at three full-screen flashes per second, so this sits three times over
+that line by choice. Anyone with reduced motion turned on gets a single held
+colour instead of a cycle. `FLASH_MS_PER_COLOR` in `constants.js` is the dial;
+340 was the last value under the threshold. One that
 made the page content lethal, SOLID, was removed: its hitbox came from measured
 DOM boxes, which are larger than the letterforms people actually see, so deaths
 read as arbitrary.

@@ -62,12 +62,17 @@ export const MODIFIERS = {
 /**
  * How long each flat colour holds, in milliseconds.
  *
- * 340ms is just under three changes a second. That is deliberate: WCAG 2.3.1
- * puts the photosensitive-seizure threshold at three full-screen flashes per
- * second, and this covers the entire viewport. Going much below 333 crosses
- * into territory that can genuinely hurt people.
+ * About nine changes a second, which is a real strobe. Worth knowing what that
+ * means: WCAG 2.3.1 puts the photosensitive-seizure threshold at three
+ * full-screen flashes per second, and this fills the whole viewport, so it is
+ * three times over that line. That is a deliberate choice, not an oversight.
+ *
+ * The mitigation that remains is prefers-reduced-motion — anyone who has asked
+ * their system for less motion gets one held colour instead of a cycle, which
+ * is handled in renderer.js. Raise this number to soften the effect; 340 was
+ * the last value that stayed under the threshold.
  */
-export const FLASH_MS_PER_COLOR = 340;
+export const FLASH_MS_PER_COLOR = 113;
 
 /**
  * How long to wait after the last resize event before rebuilding the board.
