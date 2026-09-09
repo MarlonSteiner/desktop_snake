@@ -3,10 +3,10 @@
 ### → [marlonsteiner.studio](https://marlonsteiner.studio) — go play it
 
 The source for the site above: a landing page that is also a playable snake
-game. The page reads as a normal site first;
-the game lives on a canvas layered behind the content.
+game. The page reads as a normal site first — the game lives on a canvas
+layered behind the content, and everything works if it never starts.
 
-Desktop only for now. Mobile controls come later.
+Keyboard on desktop, swipe on touch.
 
 ## Stack
 
