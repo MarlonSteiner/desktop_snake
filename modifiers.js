@@ -10,9 +10,10 @@
 // instead of reaching for the board itself, which keeps the two modules from
 // importing each other in a circle.
 
-import { TWIST } from './constants.js';
+import { TWIST, MODIFIERS } from './constants.js';
 
-export const MODIFIER_NAMES = ['INVERTED', 'RUSH'];
+// Derived from the catalogue, so there is exactly one place to add one.
+export const MODIFIER_NAMES = Object.keys(MODIFIERS);
 
 /** The twist's own slice of the game state. */
 export function createTwist() {
@@ -84,7 +85,8 @@ export function isInverted(twist) {
 
 /** How much faster the snake should be moving right now. */
 export function speedMultiplier(twist) {
-  return activeModifier(twist) === 'RUSH' ? TWIST.rushMultiplier : 1;
+  const name = activeModifier(twist);
+  return name === null ? 1 : MODIFIERS[name].speed;
 }
 
 /** Whole seconds left on the modifier, for the HUD. */

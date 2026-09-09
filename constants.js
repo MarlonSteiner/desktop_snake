@@ -31,12 +31,23 @@ export const COLORS = {
   hud: '#a3a3a3',
   hint: '#000000',
   glitch: '#c026d3',
-  // The snake wears the colour of whatever modifier is running, so you can see
-  // the rules have changed without reading the HUD.
-  modifiers: {
-    INVERTED: '#4f46e5',
-    RUSH: '#ea580c',
-  },
+};
+
+/**
+ * Every modifier, one row each: what colour the snake turns and how much
+ * faster it moves (1 = normal). Adding a modifier that only changes speed
+ * needs nothing but a new row here — modifiers.js derives its list from this
+ * object. Anything with a stranger effect, like INVERTED, also needs a rule
+ * somewhere; INVERTED's lives in queueDirection.
+ *
+ * The yellow is a deep gold rather than a bright yellow because the same
+ * colour draws the 11px HUD countdown, and bright yellow on white is
+ * unreadable at that size.
+ */
+export const MODIFIERS = {
+  INVERTED: { color: '#4f46e5', speed: 1 },
+  RUSH: { color: '#ea580c', speed: 2 },
+  TURBO: { color: '#ca8a04', speed: 3 },
 };
 
 /** The glitch fruit and the modifiers it hands out. All times in ms. */
@@ -47,7 +58,6 @@ export const TWIST = {
   /** Below this much life left, the fruit blinks to say it is leaving. */
   blinkUnderMs: 1500,
   score: 5,
-  rushMultiplier: 2,
 };
 
 /**

@@ -69,13 +69,17 @@ colour, and the name and countdown appear under the score.
 
 | Modifier | Effect |
 | --- | --- |
-| INVERTED | Left and right are swapped. Up and down are left alone, so you can always get your bearings back. |
-| RUSH | The snake moves twice as fast. |
+| INVERTED | Indigo. Left and right are swapped. Up and down are left alone, so you can always get your bearings back. |
+| RUSH | Orange. The snake moves twice as fast. |
+| TURBO | Gold. Three times as fast. |
 
-Both modifiers change how the snake *handles*, never where it can go. A third,
-SOLID, made the page content lethal and was removed: its hitbox came from
-measured DOM boxes, which are larger than the letterforms people actually see,
-so deaths read as arbitrary.
+Every modifier changes how the snake *handles*, never where it can go. One that
+made the page content lethal, SOLID, was removed: its hitbox came from measured
+DOM boxes, which are larger than the letterforms people actually see, so deaths
+read as arbitrary.
+
+They live in one table in `constants.js`. A modifier that only changes speed
+needs nothing but a new row there.
 
 ## Parked
 

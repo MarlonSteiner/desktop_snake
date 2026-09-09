@@ -1,7 +1,7 @@
 // All canvas drawing lives here. This file never decides what happens in the
 // game — it only draws whatever state it is handed.
 
-import { CELL_SIZE, COLORS, HUD, STICKER_SCALE, TWIST } from './constants.js';
+import { CELL_SIZE, COLORS, HUD, STICKER_SCALE, TWIST, MODIFIERS } from './constants.js';
 import { pickSticker } from './stickers.js';
 import { activeModifier, secondsLeft } from './modifiers.js';
 
@@ -42,7 +42,7 @@ function drawSnake(ctx, state) {
   // The snake wears the running modifier's colour, so a glance at the board
   // tells you the rules have changed without reading the HUD.
   const modifier = activeModifier(state.twist);
-  ctx.fillStyle = modifier === null ? COLORS.snake : COLORS.modifiers[modifier];
+  ctx.fillStyle = modifier === null ? COLORS.snake : MODIFIERS[modifier].color;
 
   for (const cell of state.snake) {
     const { x, y } = cellToPixel(state.grid, cell);
@@ -143,7 +143,7 @@ function drawHud(ctx, state) {
   const modifier = activeModifier(state.twist);
   if (modifier === null) return;
 
-  ctx.fillStyle = COLORS.modifiers[modifier];
+  ctx.fillStyle = MODIFIERS[modifier].color;
   ctx.fillText(
     `${modifier} ${secondsLeft(state.twist)}s`,
     HUD.padding,
