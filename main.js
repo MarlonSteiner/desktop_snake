@@ -10,7 +10,7 @@ import {
   advanceTime,
   resizeGame,
 } from './game.js';
-import { computePageCells, measureHintAnchor } from './obstacles.js';
+import { computePageCells, measureHintAnchor, measureHudAnchor } from './obstacles.js';
 import { attachKeyboardInput } from './input.js';
 import { attachTouchInput } from './touch.js';
 import { attachMenu } from './menu.js';
@@ -55,7 +55,12 @@ function setPageHidden(hidden) {
 /** Measure the viewport and the page as they are right now. */
 function measure() {
   const grid = createGrid(window.innerWidth, window.innerHeight);
-  return { grid, pageCells: computePageCells(grid), hintAnchor: measureHintAnchor() };
+  return {
+    grid,
+    pageCells: computePageCells(grid),
+    hintAnchor: measureHintAnchor(),
+    hudAnchor: measureHudAnchor(),
+  };
 }
 
 /** Build the world for the first time. */

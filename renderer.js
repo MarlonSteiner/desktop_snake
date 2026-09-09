@@ -182,7 +182,7 @@ function drawControlHint(ctx, state) {
     ctx.fillStyle = COLORS.hud;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
-    ctx.fillText('SWIPE TO PLAY', anchor.x, anchor.y - HINT.gapAboveAnchor);
+    ctx.fillText('SWIPE TO PLAY', anchor.x, anchor.y - HINT.gapAboveAnchorText);
     ctx.restore();
     ctx.textAlign = 'left';
     return;
@@ -253,13 +253,18 @@ function drawGameOver(ctx, state) {
 }
 
 function drawHud(ctx, state) {
+  // Anchored to the CV button opposite so the two read as one row across the
+  // top, rather than as two things that happen to be near the same corner.
+  const anchor = state.hudAnchor ?? { x: HUD.padding, y: HUD.padding + HUD.lineHeight };
+
   ctx.fillStyle = COLORS.hud;
   ctx.font = HUD.font;
   ctx.letterSpacing = HUD.letterSpacing;
-  ctx.textBaseline = 'top';
+  // 'middle' so the two lines straddle the button's centre line evenly.
+  ctx.textBaseline = 'middle';
 
-  ctx.fillText(`SCORE ${state.score}`, HUD.padding, HUD.padding);
-  ctx.fillText(`BEST ${state.best}`, HUD.padding, HUD.padding + HUD.lineHeight);
+  ctx.fillText(`SCORE ${state.score}`, anchor.x, anchor.y - HUD.lineHeight / 2);
+  ctx.fillText(`BEST ${state.best}`, anchor.x, anchor.y + HUD.lineHeight / 2);
 }
 
 /** The whole viewport in one flat colour, cycling. */

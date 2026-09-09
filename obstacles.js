@@ -53,6 +53,24 @@ export function measureHintAnchor() {
 }
 
 /**
+ * Where the score readout should sit, so it lines up with the CV icon opposite.
+ *
+ * The x is the button's own inset mirrored to the left edge, so the two sit on
+ * matching margins however the page padding changes; the y is the button's
+ * centre line.
+ */
+export function measureHudAnchor() {
+  const button = document.querySelector('#menu-button');
+  if (button === null) return null;
+
+  const rect = button.getBoundingClientRect();
+  return {
+    x: window.innerWidth - rect.right,
+    y: rect.top + rect.height / 2,
+  };
+}
+
+/**
  * Measure the page and return the set of cells its content occupies.
  *
  * A Set of "x,y" strings, so checking a cell is one cheap lookup rather than a

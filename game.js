@@ -76,7 +76,7 @@ export function createSnake(grid, pageCells) {
  * The single object that holds everything the game knows. Passing this around
  * explicitly is what keeps us from accumulating loose global variables.
  */
-export function createGameState({ grid, pageCells, hintAnchor = null, best = 0 }) {
+export function createGameState({ grid, pageCells, hintAnchor = null, hudAnchor = null, best = 0 }) {
   const direction = { x: 1, y: 0 };
 
   const state = {
@@ -85,8 +85,10 @@ export function createGameState({ grid, pageCells, hintAnchor = null, best = 0 }
     // through them; they exist so apples never spawn somewhere unreachable or
     // hidden behind the headline.
     pageCells,
-    // Where the control prompt is drawn. Measured from the page, like pageCells.
+    // Where the control prompt and the score are drawn. Measured from the page,
+    // like pageCells.
     hintAnchor,
+    hudAnchor,
     snake: createSnake(grid, pageCells),
     // Direction is a unit vector so moving is just head.x + direction.x.
     direction,
@@ -186,10 +188,11 @@ function isStranded(state, cell) {
  * Food is only moved if it has to be — respawning an apple that is still
  * perfectly reachable would feel like the game cheating during a resize.
  */
-export function resizeGame(state, { grid, pageCells, hintAnchor }) {
+export function resizeGame(state, { grid, pageCells, hintAnchor, hudAnchor }) {
   state.grid = grid;
   state.pageCells = pageCells;
   state.hintAnchor = hintAnchor;
+  state.hudAnchor = hudAnchor;
   state.snake = state.snake.map((cell) => wrap(grid, cell));
 
   if (isStranded(state, state.apple)) state.apple = spawnApple(state);

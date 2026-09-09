@@ -56,7 +56,7 @@ export const MODIFIERS = {
    * runs, so the snake picks up exactly where it left off. `color` and `speed`
    * are never read for it — the board is not on screen to have a colour.
    */
-  FLASH: { color: '#ffffff', speed: 1, durationMs: 2400 },
+  FLASH: { color: '#ffffff', speed: 1, durationMs: 1500 },
 };
 
 /**
@@ -91,8 +91,14 @@ export const HINT = {
   stepMs: 450,
   /** How long the whole prompt takes to fade once the game starts. */
   fadeMs: 400,
-  /** Breathing room between the prompt and the contact link below it. */
+  /** Breathing room between the key cluster and the contact link below it. */
   gapAboveAnchor: 18,
+  /**
+   * The touch prompt sits further up than the key cluster. It is a single line
+   * of small text rather than a 48px-tall block, so the same 18px gap left it
+   * looking crowded against the link underneath.
+   */
+  gapAboveAnchorText: 44,
   font: '600 12px ui-sans-serif, system-ui, -apple-system, sans-serif',
 };
 
