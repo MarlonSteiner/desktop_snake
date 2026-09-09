@@ -108,10 +108,17 @@
       transition: transform 240ms cubic-bezier(0.2, 0.7, 0.3, 1);
     }
 
+    /* The shut eyes sit on top of the open ones and are simply revealed. No
+       transition: a blink is about a tenth of a second, and easing that long
+       would turn a blink into a slow squint. */
+    #avatar-blink { opacity: 0; }
+    #avatar-blink.is-blinking { opacity: 1; }
+
     /* Colour still flows, it just stops moving on its own. */
     @media (prefers-reduced-motion: reduce) {
       #headline { animation: none; }
       #avatar-head { transition: none; }
+      #avatar-blink { opacity: 0 !important; }
     }
   </style>
 </head>
@@ -206,7 +213,15 @@
         style="aspect-ratio: 640 / 620;"
       >
         <img src="assets/avatar/body.png" alt="" class="absolute inset-0 h-full w-full select-none" />
-        <img id="avatar-head" src="assets/avatar/head.png" alt="" class="absolute inset-0 h-full w-full select-none" />
+
+        <!-- The head and its closed eyes share a wrapper so the tilt carries
+             both — a blink drawn outside it would stay level while the head
+             turned. -->
+        <div id="avatar-head" class="absolute inset-0">
+          <img src="assets/avatar/head.png" alt="" class="absolute inset-0 h-full w-full select-none" />
+          <img id="avatar-blink" src="assets/avatar/blink.png" alt=""
+               class="absolute inset-0 h-full w-full select-none" />
+        </div>
       </div>
 
       <!-- Two elements, deliberately.

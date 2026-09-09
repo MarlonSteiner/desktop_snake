@@ -186,6 +186,96 @@ def write(path, rows):
 write('assets/avatar/body.png', layer(lambda y: y >= BASE_TOP))
 write('assets/avatar/head.png', layer(lambda y: y < HEAD_BOTTOM))
 
+# ── Closed eyes ──────────────────────────────────────────────────────────────
+#
+# A blink needs a shut eye to swap in, so we paint one: cover each eye with the
+# skin from just below it, then draw a thin dark line across the middle. That is
+# what a closed eye looks like in flat low-poly art, and taking the skin per
+# column rather than as one flat fill keeps the face's shading intact.
+FACE = (400, 200, 650, 330)     # where to look for eyes: below the hair, above the chin
+
+def find_eyes():
+    x0, y0, x1, y1 = FACE
+    seen = set(); blobs = []
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            i = (y*W+x)*CH
+            if (x, y) in seen or (PIX[i]+PIX[i+1]+PIX[i+2])/3 >= 95: continue
+            stack, pts = [(x, y)], []
+            seen.add((x, y))
+            while stack:
+                cx, cy = stack.pop(); pts.append((cx, cy))
+                for dx, dy in ((1,0),(-1,0),(0,1),(0,-1)):
+                    nx, ny = cx+dx, cy+dy
+                    j = (ny*W+nx)*CH
+                    if (x0 <= nx < x1 and y0 <= ny < y1 and (nx, ny) not in seen
+                            and (PIX[j]+PIX[j+1]+PIX[j+2])/3 < 95):
+                        seen.add((nx, ny)); stack.append((nx, ny))
+            # Eyes are small, roughly as tall as they are wide, and there are
+            # two of them the same size. Hair and eyebrows fail one of those.
+            if 150 < len(pts) < 1400:
+                xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
+                blobs.append((min(xs), min(ys), max(xs), max(ys), len(pts)))
+
+    blobs.sort(key=lambda b: b[0])
+    for a in blobs:
+        for b in blobs:
+            if b[0] <= a[0]: continue
+            same_size = abs(a[4]-b[4]) / max(a[4], b[4]) < 0.35
+            same_line = abs(a[1]-b[1]) < 12
+            if same_size and same_line: return a, b
+    return None
+
+eyes = find_eyes()
+if eyes is None:
+    print('no eye pair found — blink layer skipped')
+else:
+    PAD = 3
+    LID_THICKNESS = 3
+    closed = bytearray(W*H)          # 1 where the closed-eye paint goes
+    paint = {}
+    for (ex0, ey0, ex1, ey1, _n) in eyes:
+        print(f'  eye at x {ex0}-{ex1}, y {ey0}-{ey1}')
+        skin_y = min(H-1, ey1 + 6)   # cheek, just below the eye
+        mid = (ey0+ey1)//2
+        for y in range(ey0-PAD, ey1+PAD+1):
+            for x in range(ex0-PAD, ex1+PAD+1):
+                if not (0 <= x < W and 0 <= y < H): continue
+                si = (skin_y*W+x)*CH
+                skin = (PIX[si], PIX[si+1], PIX[si+2])
+                # The lid line, inset a little so it does not reach the corners.
+                on_lid = (abs(y-mid) < LID_THICKNESS/2
+                          and ex0+1 <= x <= ex1-1)
+                if on_lid:
+                    paint[(x, y)] = tuple(int(c*0.45) for c in skin)
+                else:
+                    paint[(x, y)] = skin
+                closed[y*W+x] = 1
+
+    def blink_layer():
+        rows = []
+        for ty in range(OUT_H):
+            row = bytearray()
+            y0, y1 = Y0+int(ty*scale), Y0+int((ty+1)*scale)
+            for tx in range(OUT_W):
+                x0, x1 = X0+int(tx*scale), X0+int((tx+1)*scale)
+                r = g = b = a = n = 0
+                for y in range(y0, max(y1, y0+1)):
+                    for x in range(x0, max(x1, x0+1)):
+                        if not (0 <= x < W and 0 <= y < H): continue
+                        n += 1
+                        if not closed[y*W+x]: continue
+                        cr, cg, cb = paint[(x, y)]
+                        r += cr; g += cg; b += cb; a += 255
+                if n == 0 or a == 0: row += bytes((0,0,0,0)); continue
+                cov = a/255
+                row += bytes((min(int(r/cov),255), min(int(g/cov),255), min(int(b/cov),255), a//n))
+            rows.append(row)
+        return rows
+
+    write('assets/avatar/blink.png', blink_layer())
+    print('wrote assets/avatar/blink.png')
+
 # Where the head pivots, as a percentage of the shared canvas — CSS
 # transform-origin wants it in those terms.
 print(f'canvas: {OUT_W}x{OUT_H}')

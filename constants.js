@@ -126,6 +126,22 @@ export const AVATAR = {
   maxLiftPx: 5,
 };
 
+/**
+ * Blinking.
+ *
+ * The gap is random rather than fixed. A blink on a metronome reads as a
+ * flicker in the page; an uneven one reads as a person. The occasional double
+ * is the same idea — real eyes do it, and it is the detail that stops the
+ * effect feeling like a loop.
+ */
+export const BLINK = {
+  closedMs: 110,
+  minGapMs: 2600,
+  maxGapMs: 7200,
+  doubleChance: 0.22,
+  doubleGapMs: 190,
+};
+
 /** The arrow-key prompt shown until the first keypress. */
 export const HINT = {
   keySize: 22,

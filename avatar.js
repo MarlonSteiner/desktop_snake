@@ -6,9 +6,39 @@
 // opens. Everything here is a CSS transform on one element — no canvas work, no
 // per-frame layout.
 
-import { AVATAR } from './constants.js';
+import { AVATAR, BLINK } from './constants.js';
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+/**
+ * Blink forever, at uneven intervals.
+ *
+ * Self-scheduling with setTimeout rather than a CSS animation, because a
+ * keyframe loop can only be regular, and regular is the one thing a blink must
+ * not be.
+ */
+export function startBlinking(element) {
+  if (prefersReducedMotion.matches) return;
+
+  const close = () => {
+    element.classList.add('is-blinking');
+    setTimeout(() => element.classList.remove('is-blinking'), BLINK.closedMs);
+  };
+
+  const next = () => {
+    const gap = BLINK.minGapMs + Math.random() * (BLINK.maxGapMs - BLINK.minGapMs);
+
+    setTimeout(() => {
+      close();
+      if (Math.random() < BLINK.doubleChance) {
+        setTimeout(close, BLINK.closedMs + BLINK.doubleGapMs);
+      }
+      next();
+    }, gap);
+  };
+
+  next();
+}
 
 /** Squash a value into -1..1 as it moves `range` away from `centre`. */
 function normalise(value, centre, range) {

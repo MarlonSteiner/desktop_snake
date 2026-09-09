@@ -16,7 +16,7 @@ import { attachTouchInput } from './touch.js';
 import { attachMenu } from './menu.js';
 import { speedMultiplier, isFlashing } from './modifiers.js';
 import { createHeadlineBurst } from './headline.js';
-import { createAvatarGaze } from './avatar.js';
+import { createAvatarGaze, startBlinking } from './avatar.js';
 import { loadStickers } from './stickers.js';
 import { resizeCanvas, render } from './renderer.js';
 
@@ -29,6 +29,7 @@ const lookAtSnake = createAvatarGaze(
   document.getElementById('avatar-head'),
   document.getElementById('avatar'),
 );
+startBlinking(document.getElementById('avatar-blink'));
 
 /** How much game time one tick represents at normal speed. */
 const BASE_TICK_MS = 1000 / TICKS_PER_SECOND;
