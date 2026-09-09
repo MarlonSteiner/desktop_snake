@@ -10,7 +10,6 @@ import {
   updateTwist,
   activateRandomModifier,
   isInverted,
-  isSolid,
 } from './modifiers.js';
 
 /**
@@ -239,8 +238,8 @@ export function step(state) {
   const ateGlitch = sameCell(target, state.twist.glitch);
   const ate = ateApple || ateGlitch;
 
-  // Biting yourself is normally the only way to die. Screen edges wrap, and the
-  // page's own content is scenery the snake glides through.
+  // Biting yourself is the only way to die. Screen edges wrap, and the page's
+  // own content is scenery the snake glides through.
   //
   // The tail is the subtle part: the last segment steps away this tick, so the
   // cell it is vacating is fair game — unless we are eating, because then the
@@ -250,19 +249,6 @@ export function step(state) {
   if (body.some((cell) => sameCell(cell, target))) {
     state.status = 'over';
     return false;
-  }
-
-  // SOLID inverts the usual rule: for its ten seconds the headline, the logos
-  // and the contact link are walls.
-  if (isSolid(state.twist)) {
-    const insidePage = state.pageCells.has(cellKey(target));
-
-    if (insidePage && !state.twist.modifier.graceInsidePage) {
-      state.status = 'over';
-      return false;
-    }
-    // Once clear of the page, the grace is spent.
-    if (!insidePage) state.twist.modifier.graceInsidePage = false;
   }
 
   // Grow at the front, shrink at the back — unless we just ate, in which case
@@ -281,7 +267,7 @@ export function step(state) {
     // segment every meal is worth.
     state.score += TWIST.score;
     state.twist.glitch = null;
-    activateRandomModifier(state.twist, state.pageCells.has(cellKey(target)));
+    activateRandomModifier(state.twist);
   }
 
   state.best = Math.max(state.best, state.score);

@@ -12,7 +12,7 @@
 
 import { TWIST } from './constants.js';
 
-export const MODIFIER_NAMES = ['INVERTED', 'RUSH', 'SOLID'];
+export const MODIFIER_NAMES = ['INVERTED', 'RUSH'];
 
 /** The twist's own slice of the game state. */
 export function createTwist() {
@@ -61,20 +61,15 @@ export function updateTwist(twist, elapsedMs, spawnCell) {
 /**
  * Start a random modifier, replacing whatever was running.
  *
- * `headIsOnPage` grants SOLID a grace period. Without it, activating SOLID
- * while the snake happens to be crossing the headline would kill it instantly
- * through no fault of the player. The grace lasts until the snake leaves the
- * page content; after that, re-entering is fatal like everything else.
+ * Every modifier here changes how the snake handles, never where it can go. A
+ * SOLID modifier that made the page content lethal was tried and removed: the
+ * hitbox came from measured DOM boxes, which are bigger than the letterforms
+ * people actually see, so deaths looked arbitrary.
  */
-export function activateRandomModifier(twist, headIsOnPage) {
+export function activateRandomModifier(twist) {
   const name = MODIFIER_NAMES[Math.floor(Math.random() * MODIFIER_NAMES.length)];
 
-  twist.modifier = {
-    name,
-    msLeft: TWIST.modifierMs,
-    graceInsidePage: name === 'SOLID' && headIsOnPage,
-  };
-
+  twist.modifier = { name, msLeft: TWIST.modifierMs };
   return name;
 }
 
@@ -85,10 +80,6 @@ export function activeModifier(twist) {
 
 export function isInverted(twist) {
   return activeModifier(twist) === 'INVERTED';
-}
-
-export function isSolid(twist) {
-  return activeModifier(twist) === 'SOLID';
 }
 
 /** How much faster the snake should be moving right now. */

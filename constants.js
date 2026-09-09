@@ -36,7 +36,6 @@ export const COLORS = {
   modifiers: {
     INVERTED: '#4f46e5',
     RUSH: '#ea580c',
-    SOLID: '#dc2626',
   },
 };
 

@@ -71,11 +71,11 @@ colour, and the name and countdown appear under the score.
 | --- | --- |
 | INVERTED | Left and right are swapped. Up and down are left alone, so you can always get your bearings back. |
 | RUSH | The snake moves twice as fast. |
-| SOLID | The headline, logos and contact link become lethal — the opposite of the usual rule. |
 
-SOLID replaced the originally planned PHASE, which would have let the snake pass
-through walls and text. That is the default behaviour now, so it had nothing
-left to do.
+Both modifiers change how the snake *handles*, never where it can go. A third,
+SOLID, made the page content lethal and was removed: its hitbox came from
+measured DOM boxes, which are larger than the letterforms people actually see,
+so deaths read as arbitrary.
 
 ## Parked
 
