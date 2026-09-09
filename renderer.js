@@ -3,7 +3,7 @@
 
 import { CELL_SIZE, COLORS, HUD, STICKER_SCALE, TWIST, MODIFIERS } from './constants.js';
 import { pickSticker } from './stickers.js';
-import { activeModifier } from './modifiers.js';
+import { activeModifier, isSpinning, spinProgress } from './modifiers.js';
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -148,10 +148,37 @@ function drawHud(ctx, state) {
   ctx.fillText(`BEST ${state.best}`, HUD.padding, HUD.padding + HUD.lineHeight);
 }
 
+/**
+ * Fill the page. Normally white; during SPIN, a rainbow that slides sideways.
+ *
+ * The slide is driven by how far through SPIN we are rather than by a clock of
+ * its own, so the colour and the modifier can never fall out of step — and the
+ * gradient is in exactly the same place on every machine.
+ */
+function drawBackground(ctx, state) {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  if (!isSpinning(state.twist)) {
+    ctx.fillStyle = COLORS.background;
+    ctx.fillRect(0, 0, width, height);
+    return;
+  }
+
+  const shift = prefersReducedMotion.matches ? 0 : spinProgress(state.twist) * width;
+  const gradient = ctx.createLinearGradient(shift - width, 0, shift + width, height);
+
+  COLORS.rainbow.forEach((color, i) => {
+    gradient.addColorStop(i / (COLORS.rainbow.length - 1), color);
+  });
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+}
+
 /** Draw one complete frame. */
 export function render(ctx, state, stickers) {
-  ctx.fillStyle = COLORS.background;
-  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+  drawBackground(ctx, state);
 
   drawApple(ctx, state, stickers);
   drawGlitch(ctx, state);

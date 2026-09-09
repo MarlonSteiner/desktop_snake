@@ -31,6 +31,16 @@ export const COLORS = {
   hud: '#a3a3a3',
   hint: '#000000',
   glitch: '#c026d3',
+  /**
+   * The background during SPIN. Mirrors the headline gradient in index.html —
+   * duplicated on purpose, because a canvas cannot read a CSS gradient and
+   * keeping eight hex codes in step by hand is cheaper than plumbing one into
+   * the other.
+   */
+  rainbow: [
+    '#e11d48', '#ea580c', '#ca8a04', '#16a34a',
+    '#0284c7', '#4f46e5', '#c026d3', '#e11d48',
+  ],
 };
 
 /**
@@ -45,16 +55,22 @@ export const COLORS = {
  * unreadable at that size.
  */
 export const MODIFIERS = {
-  INVERTED: { color: '#4f46e5', speed: 1 },
-  RUSH: { color: '#ea580c', speed: 2 },
-  TURBO: { color: '#ca8a04', speed: 3 },
+  INVERTED: { color: '#4f46e5', speed: 1, durationMs: 10000 },
+  RUSH: { color: '#ea580c', speed: 2, durationMs: 10000 },
+  TURBO: { color: '#ca8a04', speed: 3, durationMs: 10000 },
+  /**
+   * SPIN drives itself: the snake coils into a tight circle at speed while the
+   * background goes rainbow. It is short, because it takes the controls away —
+   * three seconds is a firework, ten would be a punishment. The snake turns
+   * white, which is invisible on the normal page and unmissable on the rainbow.
+   */
+  SPIN: { color: '#ffffff', speed: 3, durationMs: 3000 },
 };
 
-/** The glitch fruit and the modifiers it hands out. All times in ms. */
+/** The glitch fruit itself. Modifier durations live in MODIFIERS above. */
 export const TWIST = {
   spawnEveryMs: 15000,
   lifetimeMs: 6000,
-  modifierMs: 10000,
   /** Below this much life left, the fruit blinks to say it is leaving. */
   blinkUnderMs: 1500,
   score: 5,

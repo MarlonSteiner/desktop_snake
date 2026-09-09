@@ -75,14 +75,15 @@ announcement; there is no label or countdown.
 | INVERTED | Indigo. Left and right are swapped. Up and down are left alone, so you can always get your bearings back. |
 | RUSH | Orange. The snake moves twice as fast. |
 | TURBO | Gold. Three times as fast. |
+| SPIN | The whole page goes rainbow and the snake turns white and coils into a tight circle at speed. It drives itself and cannot die. Three seconds, purely for the look of it. |
 
-Every modifier changes how the snake *handles*, never where it can go. One that
+The first three change how the snake *handles*, never where it can go. One that
 made the page content lethal, SOLID, was removed: its hitbox came from measured
 DOM boxes, which are larger than the letterforms people actually see, so deaths
 read as arbitrary.
 
-They live in one table in `constants.js`. A modifier that only changes speed
-needs nothing but a new row there.
+They live in one table in `constants.js` holding each one's colour, speed and
+duration. A modifier that only changes speed needs nothing but a new row there.
 
 ## Parked
 

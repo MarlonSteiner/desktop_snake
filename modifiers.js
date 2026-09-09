@@ -67,10 +67,20 @@ export function updateTwist(twist, elapsedMs, spawnCell) {
  * hitbox came from measured DOM boxes, which are bigger than the letterforms
  * people actually see, so deaths looked arbitrary.
  */
-export function activateRandomModifier(twist) {
+export function activateRandomModifier(twist, snakeLength) {
   const name = MODIFIER_NAMES[Math.floor(Math.random() * MODIFIER_NAMES.length)];
 
-  twist.modifier = { name, msLeft: TWIST.modifierMs };
+  twist.modifier = {
+    name,
+    msLeft: MODIFIERS[name].durationMs,
+    // SPIN turns 90 degrees every `turnEvery` ticks, tracing a square. Sizing
+    // that square from the snake's own length is what makes it look like a
+    // snake chasing its tail instead of a knot: four sides of length/4 is a
+    // loop the body fits around almost exactly.
+    turnEvery: Math.max(2, Math.ceil(snakeLength / 4)),
+    ticksSinceTurn: 0,
+  };
+
   return name;
 }
 
@@ -81,6 +91,26 @@ export function activeModifier(twist) {
 
 export function isInverted(twist) {
   return activeModifier(twist) === 'INVERTED';
+}
+
+export function isSpinning(twist) {
+  return activeModifier(twist) === 'SPIN';
+}
+
+/** Turn a direction 90 degrees clockwise. On a y-down grid, right becomes down. */
+export function rotateClockwise(direction) {
+  return { x: -direction.y, y: direction.x };
+}
+
+/**
+ * How far through SPIN we are, 0 to 1. Drives the background gradient, so the
+ * animation is derived from the modifier's own clock rather than a separate
+ * timer that could drift away from it.
+ */
+export function spinProgress(twist) {
+  if (!isSpinning(twist)) return 0;
+
+  return 1 - twist.modifier.msLeft / MODIFIERS.SPIN.durationMs;
 }
 
 /** How much faster the snake should be moving right now. */
