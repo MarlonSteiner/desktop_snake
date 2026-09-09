@@ -55,9 +55,12 @@ GitHub Pages serves the repository root. `CNAME` points the site at
 
 ## Stickers
 
-The snake eats sticker images rather than fruit. See
+The snake eats cutouts of me rather than fruit — seven of them, one picked at
+random per apple. They are drawn three cells across while the hitbox stays a
+single cell, so aim for the middle. See
 [`assets/stickers/README.md`](assets/stickers/README.md) for what to drop in and
-how to register it. Falls back to a plain circle when no image is available.
+how to register it. Falls back to a plain circle when an image is missing or
+still loading, so the game is playable before the assets arrive.
 
 ## The twist
 

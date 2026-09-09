@@ -69,10 +69,17 @@ function drawApple(ctx, state, stickers) {
   const sticker = pickSticker(stickers, state.apple.variant);
 
   if (sticker !== null) {
-    // Drawn larger than the cell and centred on it. The hitbox is still the one
-    // cell underneath.
-    const size = CELL_SIZE * STICKER_SCALE;
-    ctx.drawImage(sticker, centreX - size / 2, centreY - size / 2, size, size);
+    // Fit inside a square box without stretching. Photos are all different
+    // shapes — a full-length one is roughly half as wide as it is tall — so
+    // forcing them into a square would squash every face differently. Scaling
+    // by the longest side keeps everyone the right shape.
+    const box = CELL_SIZE * STICKER_SCALE;
+    const scale = box / Math.max(sticker.naturalWidth, sticker.naturalHeight);
+    const width = sticker.naturalWidth * scale;
+    const height = sticker.naturalHeight * scale;
+
+    // Centred on the cell, so the sticker grows outward from its hitbox.
+    ctx.drawImage(sticker, centreX - width / 2, centreY - height / 2, width, height);
     return;
   }
 

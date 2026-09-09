@@ -68,18 +68,25 @@ export const TWIST = {
  * to a circle, so a missing file can never break the page.
  */
 export const STICKERS = [
-  'assets/stickers/placeholder.png',
+  'assets/stickers/cap.png',
+  'assets/stickers/shades.png',
+  'assets/stickers/hood.png',
+  'assets/stickers/backpack.png',
+  'assets/stickers/facemask.png',
+  'assets/stickers/redjacket.png',
+  'assets/stickers/reading.png',
 ];
 
 /**
- * How much bigger a sticker is drawn than the cell it sits in.
+ * The box a sticker is fitted into, in cells.
  *
  * A face rendered at 24px is an unreadable smudge, so the sticker overflows its
- * cell. Only the drawing is bigger — the snake still has to reach the one cell
- * the apple actually occupies. Sprites larger than their hitbox are normal in
- * games; it is the hitbox that has to stay honest.
+ * cell — three cells on its longest side. Only the drawing is bigger; the snake
+ * still has to reach the one cell the apple actually occupies. Sprites larger
+ * than their hitbox are normal in games, and it is the hitbox that has to stay
+ * honest.
  */
-export const STICKER_SCALE = 1.9;
+export const STICKER_SCALE = 3;
 
 /** Top-left score readout. */
 export const HUD = {

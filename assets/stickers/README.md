@@ -28,4 +28,22 @@ faces can appear over a run. Anything that fails to load is skipped with a
 console warning and that apple falls back to a plain black circle — a missing
 file can never break the page.
 
-`placeholder.png` is a generated stand-in. Delete it once you have real ones.
+## What is in here
+
+Seven cutouts, resized to 256px on the longest side with
+`sips -Z 256 in.png --out out.png` — the originals were 4000–9000px and 11–31MB
+each, which is a lot to ship for something drawn at 72px.
+
+| File | |
+| --- | --- |
+| `cap.png` | backwards cap, thumbs up |
+| `shades.png` | sunglasses and headphones |
+| `hood.png` | red hoodie, toothpick |
+| `backpack.png` | cap and backpack |
+| `facemask.png` | sheet mask |
+| `redjacket.png` | red jacket, mirror selfie |
+| `reading.png` | orange hoodie, reading |
+
+The last two are full-length shots, so most of the sticker is body and the face
+ends up around 15px. Cropping them to head-and-shoulders would make them read
+far better than any amount of scaling.
