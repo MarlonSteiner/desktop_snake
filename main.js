@@ -6,11 +6,12 @@ import { createGrid, createGameState, queueDirection, step, advanceTime } from '
 import { computePageCells } from './obstacles.js';
 import { attachKeyboardInput } from './input.js';
 import { attachMenu } from './menu.js';
-import { speedMultiplier } from './modifiers.js';
+import { speedMultiplier, isFlashing } from './modifiers.js';
 import { createHeadlineBurst } from './headline.js';
 import { loadStickers } from './stickers.js';
 import { resizeCanvas, render } from './renderer.js';
 
+const page = document.getElementById('page');
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const burstHeadline = createHeadlineBurst(document.getElementById('headline'));
@@ -24,6 +25,24 @@ let state = null;
 // Pausing is a page concern, not a game rule, so it lives here rather than on
 // the game state. The state object stays purely about the snake.
 let isPaused = false;
+
+// Tracked so the class is only touched when it actually changes, rather than
+// on every one of the sixty frames a second.
+let isPageHidden = false;
+
+/**
+ * Hide or restore the page content during FLASH.
+ *
+ * visibility, not display: the layout has to stay exactly where it is, because
+ * obstacles.js measures those same elements and a resize mid-flash would
+ * otherwise read every box as zero.
+ */
+function setPageHidden(hidden) {
+  if (hidden === isPageHidden) return;
+
+  isPageHidden = hidden;
+  page.classList.toggle('page-hidden', hidden);
+}
 
 /**
  * Build the world from the current viewport size and the page's real layout.
@@ -79,12 +98,19 @@ function frame(now) {
     // speed. Read once per frame, after the clocks have moved.
     const tickMs = BASE_TICK_MS / speedMultiplier(state.twist);
 
-    accumulator += elapsed;
+    if (isFlashing(state.twist)) {
+      // Nothing moves. Zeroing the accumulator rather than banking the time is
+      // what lets the snake resume from exactly where it stopped instead of
+      // catching up on everything it missed.
+      accumulator = 0;
+    } else {
+      accumulator += elapsed;
 
-    // `while`, not `if`: a slow frame may owe more than one tick.
-    while (accumulator >= tickMs) {
-      accumulator -= tickMs;
-      if (step(state)) burstHeadline();
+      // `while`, not `if`: a slow frame may owe more than one tick.
+      while (accumulator >= tickMs) {
+        accumulator -= tickMs;
+        if (step(state)) burstHeadline();
+      }
     }
   } else {
     // Don't bank time while idle or paused, or the game would lurch forward
@@ -92,6 +118,7 @@ function frame(now) {
     accumulator = 0;
   }
 
+  setPageHidden(isFlashing(state.twist));
   render(ctx, state, stickers);
   requestAnimationFrame(frame);
 }

@@ -74,6 +74,10 @@
       font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
     }
 
+    /* FLASH blanks the page. visibility rather than display so every element
+       keeps its position — obstacles.js measures these boxes. */
+    .page-hidden { visibility: hidden; }
+
     /* Repeated CV styles, so the markup above stays easy to edit. */
     .cv-heading {
       font-size: 0.6875rem; font-weight: 700; text-transform: uppercase;
@@ -106,7 +110,7 @@
   <canvas id="game" class="fixed inset-0 z-0 block" aria-hidden="true"></canvas>
 
   <!-- z-10 puts the real content above the canvas. -->
-  <div class="relative z-10 min-h-screen flex flex-col">
+  <div id="page" class="relative z-10 min-h-screen flex flex-col">
 
     <!-- ── Top right: hamburger ─────────────────────────────────────────── -->
     <header class="flex justify-end p-5 sm:p-8">

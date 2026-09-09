@@ -10,7 +10,7 @@
 // instead of reaching for the board itself, which keeps the two modules from
 // importing each other in a circle.
 
-import { TWIST, MODIFIERS } from './constants.js';
+import { TWIST, MODIFIERS, FLASH_MS_PER_COLOR } from './constants.js';
 
 // Derived from the catalogue, so there is exactly one place to add one.
 export const MODIFIER_NAMES = Object.keys(MODIFIERS);
@@ -67,18 +67,12 @@ export function updateTwist(twist, elapsedMs, spawnCell) {
  * hitbox came from measured DOM boxes, which are bigger than the letterforms
  * people actually see, so deaths looked arbitrary.
  */
-export function activateRandomModifier(twist, snakeLength) {
+export function activateRandomModifier(twist) {
   const name = MODIFIER_NAMES[Math.floor(Math.random() * MODIFIER_NAMES.length)];
 
   twist.modifier = {
     name,
     msLeft: MODIFIERS[name].durationMs,
-    // SPIN turns 90 degrees every `turnEvery` ticks, tracing a square. Sizing
-    // that square from the snake's own length is what makes it look like a
-    // snake chasing its tail instead of a knot: four sides of length/4 is a
-    // loop the body fits around almost exactly.
-    turnEvery: Math.max(2, Math.ceil(snakeLength / 4)),
-    ticksSinceTurn: 0,
   };
 
   return name;
@@ -93,24 +87,21 @@ export function isInverted(twist) {
   return activeModifier(twist) === 'INVERTED';
 }
 
-export function isSpinning(twist) {
-  return activeModifier(twist) === 'SPIN';
-}
-
-/** Turn a direction 90 degrees clockwise. On a y-down grid, right becomes down. */
-export function rotateClockwise(direction) {
-  return { x: -direction.y, y: direction.x };
+export function isFlashing(twist) {
+  return activeModifier(twist) === 'FLASH';
 }
 
 /**
- * How far through SPIN we are, 0 to 1. Drives the background gradient, so the
- * animation is derived from the modifier's own clock rather than a separate
- * timer that could drift away from it.
+ * Which colour of the cycle FLASH is showing, as an index that keeps counting
+ * up. Derived from the modifier's own clock rather than a separate timer, so
+ * the colour cannot drift away from the effect it belongs to, and the sequence
+ * is identical on every machine whatever the refresh rate.
  */
-export function spinProgress(twist) {
-  if (!isSpinning(twist)) return 0;
+export function flashIndex(twist) {
+  if (!isFlashing(twist)) return 0;
 
-  return 1 - twist.modifier.msLeft / MODIFIERS.SPIN.durationMs;
+  const elapsed = MODIFIERS.FLASH.durationMs - twist.modifier.msLeft;
+  return Math.floor(elapsed / FLASH_MS_PER_COLOR);
 }
 
 /** How much faster the snake should be moving right now. */

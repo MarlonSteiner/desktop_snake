@@ -10,8 +10,7 @@ import {
   updateTwist,
   activateRandomModifier,
   isInverted,
-  isSpinning,
-  rotateClockwise,
+  isFlashing,
 } from './modifiers.js';
 
 /**
@@ -208,8 +207,9 @@ export function queueDirection(state, direction) {
   // A dead snake does not take orders. Space restarts instead.
   if (state.status === 'over') return;
 
-  // Neither does a spinning one — SPIN drives itself for its three seconds.
-  if (isSpinning(state.twist)) return;
+  // Nor one nobody can see. FLASH blanks the screen, so a key pressed during it
+  // would be a turn the player could not have aimed.
+  if (isFlashing(state.twist)) return;
 
   // INVERTED swaps left and right only, so up and down stay a reliable way to
   // get your bearings back.
@@ -228,19 +228,8 @@ export function queueDirection(state, direction) {
  * main.js decide what the page does about it.
  */
 export function step(state) {
-  if (isSpinning(state.twist)) {
-    const spin = state.twist.modifier;
-    spin.ticksSinceTurn += 1;
-
-    if (spin.ticksSinceTurn >= spin.turnEvery) {
-      spin.ticksSinceTurn = 0;
-      state.direction = rotateClockwise(state.direction);
-    }
-    // Keep the pending turn in step with the real one, so the snake does not
-    // lurch back to a stale intent the moment SPIN ends.
-    state.nextDirection = state.direction;
-  } else if (!isOpposite(state.direction, state.nextDirection)) {
-    // Commit the pending turn, unless it would double back on the current one.
+  // Commit the pending turn, unless it would double back on the current one.
+  if (!isOpposite(state.direction, state.nextDirection)) {
     state.direction = state.nextDirection;
   }
 
@@ -262,9 +251,7 @@ export function step(state) {
   // tail stays put and the snake really does run into itself.
   const body = ate ? state.snake : state.snake.slice(0, -1);
 
-  // A tight circle means running over your own body, so SPIN suspends the one
-  // rule that could end the run. It is a firework, not a challenge.
-  if (!isSpinning(state.twist) && body.some((cell) => sameCell(cell, target))) {
+  if (body.some((cell) => sameCell(cell, target))) {
     state.status = 'over';
     return false;
   }
@@ -285,7 +272,7 @@ export function step(state) {
     // segment every meal is worth.
     state.score += TWIST.score;
     state.twist.glitch = null;
-    activateRandomModifier(state.twist, state.snake.length);
+    activateRandomModifier(state.twist);
   }
 
   state.best = Math.max(state.best, state.score);

@@ -31,16 +31,8 @@ export const COLORS = {
   hud: '#a3a3a3',
   hint: '#000000',
   glitch: '#c026d3',
-  /**
-   * The background during SPIN. Mirrors the headline gradient in index.html —
-   * duplicated on purpose, because a canvas cannot read a CSS gradient and
-   * keeping eight hex codes in step by hand is cheaper than plumbing one into
-   * the other.
-   */
-  rainbow: [
-    '#e11d48', '#ea580c', '#ca8a04', '#16a34a',
-    '#0284c7', '#4f46e5', '#c026d3', '#e11d48',
-  ],
+  /** Cycled one at a time as the whole page during FLASH. */
+  flash: ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7'],
 };
 
 /**
@@ -59,13 +51,23 @@ export const MODIFIERS = {
   RUSH: { color: '#ea580c', speed: 2, durationMs: 10000 },
   TURBO: { color: '#ca8a04', speed: 3, durationMs: 10000 },
   /**
-   * SPIN drives itself: the snake coils into a tight circle at speed while the
-   * background goes rainbow. It is short, because it takes the controls away —
-   * three seconds is a firework, ten would be a punishment. The snake turns
-   * white, which is invisible on the normal page and unmissable on the rainbow.
+   * FLASH empties the screen: the page, the snake and everything else vanish
+   * and the whole viewport cycles through flat colours. Nothing moves while it
+   * runs, so the snake picks up exactly where it left off. `color` and `speed`
+   * are never read for it — the board is not on screen to have a colour.
    */
-  SPIN: { color: '#ffffff', speed: 3, durationMs: 3000 },
+  FLASH: { color: '#ffffff', speed: 1, durationMs: 2400 },
 };
+
+/**
+ * How long each flat colour holds, in milliseconds.
+ *
+ * 340ms is just under three changes a second. That is deliberate: WCAG 2.3.1
+ * puts the photosensitive-seizure threshold at three full-screen flashes per
+ * second, and this covers the entire viewport. Going much below 333 crosses
+ * into territory that can genuinely hurt people.
+ */
+export const FLASH_MS_PER_COLOR = 340;
 
 /** The glitch fruit itself. Modifier durations live in MODIFIERS above. */
 export const TWIST = {

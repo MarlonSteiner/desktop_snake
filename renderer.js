@@ -3,7 +3,7 @@
 
 import { CELL_SIZE, COLORS, HUD, STICKER_SCALE, TWIST, MODIFIERS } from './constants.js';
 import { pickSticker } from './stickers.js';
-import { activeModifier, isSpinning, spinProgress } from './modifiers.js';
+import { activeModifier, isFlashing, flashIndex } from './modifiers.js';
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -148,37 +148,27 @@ function drawHud(ctx, state) {
   ctx.fillText(`BEST ${state.best}`, HUD.padding, HUD.padding + HUD.lineHeight);
 }
 
-/**
- * Fill the page. Normally white; during SPIN, a rainbow that slides sideways.
- *
- * The slide is driven by how far through SPIN we are rather than by a clock of
- * its own, so the colour and the modifier can never fall out of step — and the
- * gradient is in exactly the same place on every machine.
- */
-function drawBackground(ctx, state) {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
+/** The whole viewport in one flat colour, cycling. */
+function drawFlash(ctx, state) {
+  // Reduced motion gets the effect without the strobe: one colour, held.
+  const index = prefersReducedMotion.matches ? 0 : flashIndex(state.twist);
 
-  if (!isSpinning(state.twist)) {
-    ctx.fillStyle = COLORS.background;
-    ctx.fillRect(0, 0, width, height);
-    return;
-  }
-
-  const shift = prefersReducedMotion.matches ? 0 : spinProgress(state.twist) * width;
-  const gradient = ctx.createLinearGradient(shift - width, 0, shift + width, height);
-
-  COLORS.rainbow.forEach((color, i) => {
-    gradient.addColorStop(i / (COLORS.rainbow.length - 1), color);
-  });
-
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = COLORS.flash[index % COLORS.flash.length];
+  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 }
 
 /** Draw one complete frame. */
 export function render(ctx, state, stickers) {
-  drawBackground(ctx, state);
+  // FLASH is the whole frame. Returning here is what makes the snake, the
+  // apple and the score vanish — there is no hiding logic anywhere else,
+  // they simply are not drawn.
+  if (isFlashing(state.twist)) {
+    drawFlash(ctx, state);
+    return;
+  }
+
+  ctx.fillStyle = COLORS.background;
+  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   drawApple(ctx, state, stickers);
   drawGlitch(ctx, state);

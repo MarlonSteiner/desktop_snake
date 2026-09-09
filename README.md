@@ -75,9 +75,17 @@ announcement; there is no label or countdown.
 | INVERTED | Indigo. Left and right are swapped. Up and down are left alone, so you can always get your bearings back. |
 | RUSH | Orange. The snake moves twice as fast. |
 | TURBO | Gold. Three times as fast. |
-| SPIN | The whole page goes rainbow and the snake turns white and coils into a tight circle at speed. It drives itself and cannot die. Three seconds, purely for the look of it. |
+| FLASH | The page, the snake and everything else vanish and the whole screen cycles through flat colours. Nothing moves, and the snake picks up exactly where it left off. Two and a half seconds, purely for the look of it. |
 
-The first three change how the snake *handles*, never where it can go. One that
+The first three change how the snake *handles*, never where it can go. FLASH
+changes nothing at all — it just interrupts.
+
+Its colours hold for 340ms each, a shade under three changes a second. That is
+deliberate rather than arbitrary: WCAG 2.3.1 puts the photosensitive-seizure
+threshold at three full-screen flashes per second, and this covers the whole
+viewport. `FLASH_MS_PER_COLOR` in `constants.js` is the number, and going much
+below 333 is not just a taste decision. Anyone with reduced motion turned on
+gets a single held colour instead of a cycle. One that
 made the page content lethal, SOLID, was removed: its hitbox came from measured
 DOM boxes, which are larger than the letterforms people actually see, so deaths
 read as arbitrary.
