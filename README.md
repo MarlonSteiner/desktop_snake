@@ -1,7 +1,9 @@
 # desktop_snake
 
-The source for [marlonsteiner.studio](https://marlonsteiner.studio) — a landing
-page that is also a playable snake game. The page reads as a normal site first;
+### → [marlonsteiner.studio](https://marlonsteiner.studio) — go play it
+
+The source for the site above: a landing page that is also a playable snake
+game. The page reads as a normal site first;
 the game lives on a canvas layered behind the content.
 
 Desktop only for now. Mobile controls come later.
@@ -59,6 +61,20 @@ GitHub Pages serves the repository root. `CNAME` points the site at
 The panel holds the CV as editable HTML, and the download icon in its corner
 serves `assets/cv/Marlon_Steiner_CV.pdf` — the designed PDF, with no phone
 number in it. See [`assets/cv/README.md`](assets/cv/README.md).
+
+## The avatar
+
+`assets/avatar/body.png` and `head.png` are one illustration cut in two at the
+collar. `avatar.js` tilts the head layer toward the snake; the typing bounce is
+CSS. Regenerate the pair with:
+
+```bash
+sips -s format png source.jpeg --out /tmp/desk.png
+python3 scripts/mkavatar.py /tmp/desk.png
+```
+
+It prints the `transform-origin` to paste into `AVATAR.pivot` in
+`constants.js` — that is the point on the collar the head swings around.
 
 ## Stickers
 

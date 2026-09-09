@@ -19,7 +19,7 @@ import { cellKey } from './game.js';
  * but not its parent's — so measuring the wrapper keeps this box steady while
  * the headline pops.
  */
-const PAGE_SELECTORS = ['#contact-link', '#text-block', '#logo-row', '#menu-button', 'footer'];
+const PAGE_SELECTORS = ['#avatar', '#contact-link', '#text-block', '#logo-row', '#menu-button', 'footer'];
 
 /** Convert one viewport rectangle into the grid cells it covers. */
 function rectToCells(grid, rect, into) {
@@ -40,16 +40,25 @@ function rectToCells(grid, rect, into) {
 }
 
 /**
- * Where the control prompt should sit: centred on the contact link, just above
- * it. Measured from the DOM for the same reason the obstacle cells are — so it
- * follows the real layout instead of guessing at a fraction of the viewport.
+ * Where the control prompt should sit, described relative to the avatar.
+ *
+ * The prompt belongs next to the thing it explains, and the avatar is what a
+ * visitor is already looking at. Measured from the DOM for the same reason the
+ * page cells are: it follows the real layout instead of guessing at a fraction
+ * of the viewport.
  */
 export function measureHintAnchor() {
-  const element = document.querySelector('#contact-link');
+  const element = document.querySelector('#avatar');
   if (element === null) return null;
 
   const rect = element.getBoundingClientRect();
-  return { x: rect.left + rect.width / 2, y: rect.top };
+  return {
+    right: rect.right,
+    bottom: rect.bottom,
+    centreX: rect.left + rect.width / 2,
+    // Roughly eye level, which is where a prompt beside a figure wants to sit.
+    eyeY: rect.top + rect.height * 0.24,
+  };
 }
 
 /**

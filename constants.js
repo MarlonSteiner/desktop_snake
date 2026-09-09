@@ -102,6 +102,24 @@ export const FLASH_MS_PER_COLOR = 113;
  */
 export const RESIZE_SETTLE_MS = 120;
 
+/**
+ * The avatar's head-follow.
+ *
+ * `pivot` is where the head layer rotates: the point on the collar where the
+ * two images were cut, as a percentage of their shared canvas. It comes out of
+ * scripts/mkavatar.py — regenerate the layers and it will print the new value.
+ */
+export const AVATAR = {
+  pivot: '50.3% 32.1%',
+  /** Eye height as a fraction of the whole picture, which includes the desk. */
+  headHeightFraction: 0.22,
+  /** How far the snake travels before the head is turned as far as it goes. */
+  reachX: 420,
+  reachY: 300,
+  maxTiltDeg: 9,
+  maxLiftPx: 5,
+};
+
 /** The arrow-key prompt shown until the first keypress. */
 export const HINT = {
   keySize: 22,
@@ -110,14 +128,10 @@ export const HINT = {
   stepMs: 450,
   /** How long the whole prompt takes to fade once the game starts. */
   fadeMs: 400,
-  /** Breathing room between the key cluster and the contact link below it. */
-  gapAboveAnchor: 18,
-  /**
-   * The touch prompt sits further up than the key cluster. It is a single line
-   * of small text rather than a 48px-tall block, so the same 18px gap left it
-   * looking crowded against the link underneath.
-   */
-  gapAboveAnchorText: 44,
+  /** Space between the key cluster and the avatar it sits beside. */
+  gapBesideAvatar: 28,
+  /** Space between the touch prompt and the avatar above it. */
+  gapAboveAnchorText: 26,
   font: '600 12px ui-sans-serif, system-ui, -apple-system, sans-serif',
 };
 

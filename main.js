@@ -1,7 +1,7 @@
 // Entry point. This is the only file that talks to both the page and the game:
 // it owns the canvas, the loop, and the wiring between input, state and render.
 
-import { TICKS_PER_SECOND, MAX_FRAME_MS, STICKERS, RESIZE_SETTLE_MS } from './constants.js';
+import { TICKS_PER_SECOND, MAX_FRAME_MS, STICKERS, RESIZE_SETTLE_MS, CELL_SIZE } from './constants.js';
 import {
   createGrid,
   createGameState,
@@ -16,6 +16,7 @@ import { attachTouchInput } from './touch.js';
 import { attachMenu } from './menu.js';
 import { speedMultiplier, isFlashing } from './modifiers.js';
 import { createHeadlineBurst } from './headline.js';
+import { createAvatarGaze } from './avatar.js';
 import { loadStickers } from './stickers.js';
 import { resizeCanvas, render } from './renderer.js';
 
@@ -24,6 +25,10 @@ const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const burstHeadline = createHeadlineBurst(document.getElementById('headline'));
 const stickers = loadStickers(STICKERS);
+const lookAtSnake = createAvatarGaze(
+  document.getElementById('avatar-head'),
+  document.getElementById('avatar'),
+);
 
 /** How much game time one tick represents at normal speed. */
 const BASE_TICK_MS = 1000 / TICKS_PER_SECOND;
@@ -147,6 +152,14 @@ function frame(now) {
   }
 
   setPageHidden(isFlashing(state.twist));
+
+  // Aim the avatar at the snake's head, in viewport pixels.
+  const head = state.snake[0];
+  lookAtSnake(
+    state.grid.originX + head.x * CELL_SIZE + CELL_SIZE / 2,
+    state.grid.originY + head.y * CELL_SIZE + CELL_SIZE / 2,
+  );
+
   render(ctx, state, stickers);
   requestAnimationFrame(frame);
 }

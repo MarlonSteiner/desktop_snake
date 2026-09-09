@@ -201,11 +201,12 @@ function drawControlHint(ctx, state) {
     alpha = 1 - fade;
   }
 
-  // Centred on the contact link and sitting just above it, so the prompt is
-  // where the eye already is rather than off at the edge chasing the snake.
+  // Placed against the avatar, which is what a visitor is already looking at.
   const anchor = state.hintAnchor ?? {
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2,
+    right: window.innerWidth / 2,
+    bottom: window.innerHeight / 2,
+    centreX: window.innerWidth / 2,
+    eyeY: window.innerHeight / 2,
   };
 
   // Telling a phone user to press arrow keys would be worse than saying
@@ -218,7 +219,8 @@ function drawControlHint(ctx, state) {
     ctx.fillStyle = COLORS.hud;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
-    ctx.fillText('SWIPE TO PLAY', anchor.x, anchor.y - HINT.gapAboveAnchorText);
+    // Under the avatar on a phone: there is no room beside it.
+    ctx.fillText('SWIPE TO PLAY', anchor.centreX, anchor.bottom + HINT.gapAboveAnchorText);
     ctx.restore();
     ctx.textAlign = 'left';
     return;
@@ -228,8 +230,14 @@ function drawControlHint(ctx, state) {
   const clusterWidth = keySize * 3 + gap * 2;
   const clusterHeight = keySize * 2 + gap;
 
-  const left = anchor.x - clusterWidth / 2;
-  const top = anchor.y - HINT.gapAboveAnchor - clusterHeight;
+  // Beside the avatar at eye level, so it reads as something he is looking at
+  // too. Falls to the left of him if the window is too narrow for the right.
+  let left = anchor.right + HINT.gapBesideAvatar;
+  if (left + clusterWidth > window.innerWidth - 16) {
+    left = anchor.right - clusterWidth - HINT.gapBesideAvatar
+      - (anchor.right - anchor.centreX) * 2;
+  }
+  const top = anchor.eyeY - clusterHeight / 2;
 
   // Lighting one key at a time says "these are pressable" in a way a static
   // picture does not. Reduced motion gets the picture.
