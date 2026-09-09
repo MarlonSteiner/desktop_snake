@@ -30,6 +30,25 @@ export const COLORS = {
   apple: '#000000',
   hud: '#a3a3a3',
   hint: '#000000',
+  glitch: '#c026d3',
+  // The snake wears the colour of whatever modifier is running, so you can see
+  // the rules have changed without reading the HUD.
+  modifiers: {
+    INVERTED: '#4f46e5',
+    RUSH: '#ea580c',
+    SOLID: '#dc2626',
+  },
+};
+
+/** The glitch fruit and the modifiers it hands out. All times in ms. */
+export const TWIST = {
+  spawnEveryMs: 15000,
+  lifetimeMs: 6000,
+  modifierMs: 10000,
+  /** Below this much life left, the fruit blinks to say it is leaving. */
+  blinkUnderMs: 1500,
+  score: 5,
+  rushMultiplier: 2,
 };
 
 /**

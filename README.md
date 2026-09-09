@@ -49,8 +49,8 @@ GitHub Pages serves the repository root. `CNAME` points the site at
 3. ~~Movement, fixed-timestep loop, keyboard input~~
 4. ~~Apples, growth, scoring~~
 5. ~~Obstacles from DOM bounds, collision, game over, restart~~
-6. ~~CV panel and pause~~ ← *current*
-7. Glitch fruit and modifiers
+6. ~~CV panel and pause~~
+7. ~~Glitch fruit and modifiers~~ ← *current*
 8. Polish: colors, countdown UI, resize handling
 
 ## Stickers
@@ -59,13 +59,23 @@ The snake eats sticker images rather than fruit. See
 [`assets/stickers/README.md`](assets/stickers/README.md) for what to drop in and
 how to register it. Falls back to a plain circle when no image is available.
 
-## Open question for stage 7
+## The twist
 
-The three planned modifiers were INVERTED, RUSH and PHASE. PHASE let the snake
-pass through walls and the text block — which is now the default behaviour, so
-it no longer does anything. It needs replacing. The strongest candidate is
-SOLID: for ten seconds the headline and logos *do* become lethal, inverting the
-usual rule instead of removing it.
+Every 15 seconds a magenta diamond appears somewhere free and stays for 6,
+blinking over its last second and a half. Eating it is worth +5 and starts one
+random modifier for 10 seconds. Only one runs at a time — a new one replaces
+whatever was going and resets the clock. The snake takes on the modifier's
+colour, and the name and countdown appear under the score.
+
+| Modifier | Effect |
+| --- | --- |
+| INVERTED | Left and right are swapped. Up and down are left alone, so you can always get your bearings back. |
+| RUSH | The snake moves twice as fast. |
+| SOLID | The headline, logos and contact link become lethal — the opposite of the usual rule. |
+
+SOLID replaced the originally planned PHASE, which would have let the snake pass
+through walls and text. That is the default behaviour now, so it had nothing
+left to do.
 
 ## Parked
 

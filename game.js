@@ -4,7 +4,14 @@
 // returns plain objects out, which means you can reason about it (and later
 // test it) without a browser.
 
-import { CELL_SIZE, START_LENGTH, START_MARGIN } from './constants.js';
+import { CELL_SIZE, START_LENGTH, START_MARGIN, TWIST } from './constants.js';
+import {
+  createTwist,
+  updateTwist,
+  activateRandomModifier,
+  isInverted,
+  isSolid,
+} from './modifiers.js';
 
 /**
  * Work out how many whole cells fit in the viewport.
@@ -92,8 +99,11 @@ export function createGameState({ grid, pageCells, best = 0 }) {
     // Carried across restarts by the caller, so it lasts as long as the tab.
     best,
     apple: null,
+    // The glitch fruit and any running modifier.
+    twist: createTwist(),
   };
 
+  // After twist, because free-cell search consults it.
   state.apple = spawnApple(state);
   return state;
 }
@@ -118,6 +128,8 @@ function sameCell(a, b) {
 export function findFreeCells(state) {
   const taken = new Set(state.pageCells);
   for (const cell of state.snake) taken.add(cellKey(cell));
+  if (state.apple !== null) taken.add(cellKey(state.apple));
+  if (state.twist.glitch !== null) taken.add(cellKey(state.twist.glitch));
   const free = [];
 
   for (let y = 0; y < state.grid.rows; y++) {
@@ -129,19 +141,37 @@ export function findFreeCells(state) {
   return free;
 }
 
+/** A random cell nothing occupies, or null if the board is full. */
+export function randomFreeCell(state) {
+  const free = findFreeCells(state);
+  if (free.length === 0) return null;
+
+  return free[Math.floor(Math.random() * free.length)];
+}
+
 /**
- * Pick a random free cell, or null if the board is somehow full.
+ * Place a new apple.
  *
  * `variant` is a random number the renderer turns into a sticker choice. Kept
  * here so each apple keeps the same face for its whole life, and kept as a
  * plain number so game.js never learns that images exist.
  */
 export function spawnApple(state) {
-  const free = findFreeCells(state);
-  if (free.length === 0) return null;
+  const cell = randomFreeCell(state);
+  if (cell === null) return null;
 
-  const cell = free[Math.floor(Math.random() * free.length)];
   return { ...cell, variant: Math.floor(Math.random() * 1000) };
+}
+
+/**
+ * Move every clock forward.
+ *
+ * Called once per frame with real elapsed time, separately from step(), which
+ * runs on the fixed tick. Two clocks, on purpose: movement should be steady in
+ * ticks, while "this modifier lasts ten seconds" should be steady in seconds.
+ */
+export function advanceTime(state, elapsedMs) {
+  updateTwist(state.twist, elapsedMs, () => randomFreeCell(state));
 }
 
 /** Two vectors pointing directly at each other, e.g. left and right. */
@@ -177,7 +207,11 @@ export function queueDirection(state, direction) {
   // A dead snake does not take orders. Space restarts instead.
   if (state.status === 'over') return;
 
-  state.nextDirection = direction;
+  // INVERTED swaps left and right only, so up and down stay a reliable way to
+  // get your bearings back.
+  const horizontal = direction.y === 0;
+  state.nextDirection =
+    isInverted(state.twist) && horizontal ? { x: -direction.x, y: 0 } : direction;
 
   if (state.status === 'idle') state.status = 'running';
 }
@@ -185,9 +219,9 @@ export function queueDirection(state, direction) {
 /**
  * Advance the game by exactly one grid cell.
  *
- * Returns true if the snake ate this tick. The game does not know that eating
- * makes the headline pulse — it just reports what happened and lets main.js
- * decide what the page does about it.
+ * Returns true if the snake ate anything this tick. The game does not know that
+ * eating makes the headline flare — it just reports what happened and lets
+ * main.js decide what the page does about it.
  */
 export function step(state) {
   // Commit the pending turn, unless it would double back on the current one.
@@ -201,10 +235,12 @@ export function step(state) {
     y: head.y + state.direction.y,
   });
 
-  const ate = sameCell(target, state.apple);
+  const ateApple = sameCell(target, state.apple);
+  const ateGlitch = sameCell(target, state.twist.glitch);
+  const ate = ateApple || ateGlitch;
 
-  // Biting yourself is the only way to die. Screen edges wrap, and the page's
-  // own content is scenery the snake glides through.
+  // Biting yourself is normally the only way to die. Screen edges wrap, and the
+  // page's own content is scenery the snake glides through.
   //
   // The tail is the subtle part: the last segment steps away this tick, so the
   // cell it is vacating is fair game — unless we are eating, because then the
@@ -216,16 +252,38 @@ export function step(state) {
     return false;
   }
 
+  // SOLID inverts the usual rule: for its ten seconds the headline, the logos
+  // and the contact link are walls.
+  if (isSolid(state.twist)) {
+    const insidePage = state.pageCells.has(cellKey(target));
+
+    if (insidePage && !state.twist.modifier.graceInsidePage) {
+      state.status = 'over';
+      return false;
+    }
+    // Once clear of the page, the grace is spent.
+    if (!insidePage) state.twist.modifier.graceInsidePage = false;
+  }
+
   // Grow at the front, shrink at the back — unless we just ate, in which case
   // skipping the pop is the entire growth mechanic.
   state.snake.unshift(target);
-  if (ate) {
-    state.score += 1;
-    state.best = Math.max(state.best, state.score);
+  if (ate) state.score += 1;
+  else state.snake.pop();
+
+  if (ateApple) {
     state.apple = spawnApple(state);
-  } else {
-    state.snake.pop();
   }
 
+  if (ateGlitch) {
+    // The glitch fruit is worth more and rewrites a rule, but it is a power-up
+    // rather than food, so the extra score is all it gives beyond the one
+    // segment every meal is worth.
+    state.score += TWIST.score;
+    state.twist.glitch = null;
+    activateRandomModifier(state.twist, state.pageCells.has(cellKey(target)));
+  }
+
+  state.best = Math.max(state.best, state.score);
   return ate;
 }

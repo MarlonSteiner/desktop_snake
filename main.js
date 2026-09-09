@@ -2,10 +2,11 @@
 // it owns the canvas, the loop, and the wiring between input, state and render.
 
 import { TICKS_PER_SECOND, MAX_FRAME_MS, STICKERS } from './constants.js';
-import { createGrid, createGameState, queueDirection, step } from './game.js';
+import { createGrid, createGameState, queueDirection, step, advanceTime } from './game.js';
 import { computePageCells } from './obstacles.js';
 import { attachKeyboardInput } from './input.js';
 import { attachMenu } from './menu.js';
+import { speedMultiplier } from './modifiers.js';
 import { createHeadlineBurst } from './headline.js';
 import { loadStickers } from './stickers.js';
 import { resizeCanvas, render } from './renderer.js';
@@ -15,8 +16,8 @@ const ctx = canvas.getContext('2d');
 const burstHeadline = createHeadlineBurst(document.getElementById('headline'));
 const stickers = loadStickers(STICKERS);
 
-/** How much game time one tick represents. */
-const TICK_MS = 1000 / TICKS_PER_SECOND;
+/** How much game time one tick represents at normal speed. */
+const BASE_TICK_MS = 1000 / TICKS_PER_SECOND;
 
 let state = null;
 
@@ -70,11 +71,19 @@ function frame(now) {
   lastFrameTime = now;
 
   if (state.status === 'running' && !isPaused) {
+    // Clocks first: a modifier that expires this frame should not get to
+    // govern the ticks that follow it.
+    advanceTime(state, elapsed);
+
+    // RUSH shortens the tick, which is the only thing that changes the snake's
+    // speed. Read once per frame, after the clocks have moved.
+    const tickMs = BASE_TICK_MS / speedMultiplier(state.twist);
+
     accumulator += elapsed;
 
     // `while`, not `if`: a slow frame may owe more than one tick.
-    while (accumulator >= TICK_MS) {
-      accumulator -= TICK_MS;
+    while (accumulator >= tickMs) {
+      accumulator -= tickMs;
       if (step(state)) burstHeadline();
     }
   } else {

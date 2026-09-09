@@ -1,8 +1,11 @@
 // All canvas drawing lives here. This file never decides what happens in the
 // game — it only draws whatever state it is handed.
 
-import { CELL_SIZE, COLORS, HUD, STICKER_SCALE } from './constants.js';
+import { CELL_SIZE, COLORS, HUD, STICKER_SCALE, TWIST } from './constants.js';
 import { pickSticker } from './stickers.js';
+import { activeModifier, secondsLeft } from './modifiers.js';
+
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 /**
  * Size the canvas to the viewport, accounting for the device pixel ratio.
@@ -36,7 +39,10 @@ function cellToPixel(grid, cell) {
 }
 
 function drawSnake(ctx, state) {
-  ctx.fillStyle = COLORS.snake;
+  // The snake wears the running modifier's colour, so a glance at the board
+  // tells you the rules have changed without reading the HUD.
+  const modifier = activeModifier(state.twist);
+  ctx.fillStyle = modifier === null ? COLORS.snake : COLORS.modifiers[modifier];
 
   for (const cell of state.snake) {
     const { x, y } = cellToPixel(state.grid, cell);
@@ -76,6 +82,35 @@ function drawApple(ctx, state, stickers) {
   ctx.fill();
 }
 
+/**
+ * The glitch fruit: a diamond, so it is not just a differently coloured apple.
+ * It blinks over its last second and a half to say it is about to leave.
+ */
+function drawGlitch(ctx, state) {
+  const glitch = state.twist.glitch;
+  if (glitch === null) return;
+
+  const leaving = glitch.msLeft < TWIST.blinkUnderMs;
+  // Derived from the fruit's own clock rather than a frame counter, so the
+  // blink runs at the same speed however fast the display refreshes.
+  const blinkedOut = leaving && Math.floor(glitch.msLeft / 150) % 2 === 0;
+  if (blinkedOut && !prefersReducedMotion.matches) return;
+
+  const { x, y } = cellToPixel(state.grid, glitch);
+  const centreX = x + CELL_SIZE / 2;
+  const centreY = y + CELL_SIZE / 2;
+  const radius = CELL_SIZE / 2 - 1;
+
+  ctx.fillStyle = COLORS.glitch;
+  ctx.beginPath();
+  ctx.moveTo(centreX, centreY - radius);
+  ctx.lineTo(centreX + radius, centreY);
+  ctx.lineTo(centreX, centreY + radius);
+  ctx.lineTo(centreX - radius, centreY);
+  ctx.closePath();
+  ctx.fill();
+}
+
 /** The restart prompt, low in the page where nothing else is competing. */
 function drawGameOver(ctx, state) {
   if (state.status !== 'over') return;
@@ -104,6 +139,16 @@ function drawHud(ctx, state) {
 
   ctx.fillText(`SCORE ${state.score}`, HUD.padding, HUD.padding);
   ctx.fillText(`BEST ${state.best}`, HUD.padding, HUD.padding + HUD.lineHeight);
+
+  const modifier = activeModifier(state.twist);
+  if (modifier === null) return;
+
+  ctx.fillStyle = COLORS.modifiers[modifier];
+  ctx.fillText(
+    `${modifier} ${secondsLeft(state.twist)}s`,
+    HUD.padding,
+    HUD.padding + HUD.lineHeight * 2,
+  );
 }
 
 /** Draw one complete frame. */
@@ -112,6 +157,7 @@ export function render(ctx, state, stickers) {
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   drawApple(ctx, state, stickers);
+  drawGlitch(ctx, state);
   drawSnake(ctx, state);
   drawHud(ctx, state);
   drawGameOver(ctx, state);
