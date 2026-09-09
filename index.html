@@ -18,10 +18,14 @@
 </head>
 
 <!-- The whole page is plain HTML and works with JavaScript disabled.
-     The game canvas will later be layered BEHIND this content at z-index 0. -->
-<body class="min-h-screen bg-white text-black antialiased selection:bg-black selection:text-white">
+     The game canvas is layered BEHIND this content at z-index 0. -->
+<body class="min-h-screen overflow-hidden bg-white text-black antialiased selection:bg-black selection:text-white">
 
-  <!-- z-10 reserves the layer above the future canvas. -->
+  <!-- The game layer. Fixed to the viewport at z-0 so all page content sits on
+       top of it. aria-hidden because the page is fully usable without it. -->
+  <canvas id="game" class="fixed inset-0 z-0 block" aria-hidden="true"></canvas>
+
+  <!-- z-10 puts the real content above the canvas. -->
   <div class="relative z-10 min-h-screen flex flex-col">
 
     <!-- ── Top right: hamburger ─────────────────────────────────────────── -->
@@ -94,5 +98,9 @@
     </footer>
 
   </div>
+
+  <!-- type="module" is what makes the ES module imports work. It also means the
+       script is deferred automatically, so the DOM exists by the time it runs. -->
+  <script type="module" src="main.js"></script>
 </body>
 </html>
