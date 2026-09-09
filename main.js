@@ -6,13 +6,13 @@ import { createGrid, createGameState, queueDirection, step } from './game.js';
 import { computePageCells } from './obstacles.js';
 import { attachKeyboardInput } from './input.js';
 import { attachMenu } from './menu.js';
-import { createHeadlinePop } from './headline.js';
+import { createHeadlineBurst } from './headline.js';
 import { loadStickers } from './stickers.js';
 import { resizeCanvas, render } from './renderer.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-const popHeadline = createHeadlinePop(document.getElementById('headline'));
+const burstHeadline = createHeadlineBurst(document.getElementById('headline'));
 const stickers = loadStickers(STICKERS);
 
 /** How much game time one tick represents. */
@@ -75,7 +75,7 @@ function frame(now) {
     // `while`, not `if`: a slow frame may owe more than one tick.
     while (accumulator >= TICK_MS) {
       accumulator -= TICK_MS;
-      if (step(state)) popHeadline();
+      if (step(state)) burstHeadline();
     }
   } else {
     // Don't bank time while idle or paused, or the game would lurch forward

@@ -34,7 +34,8 @@ added, so use the server.
 The screen edges wrap: leave on the right and you come back on the left. The
 snake passes straight through the headline, the logos and the footer — the only
 way to lose is to bite yourself. The document icon in the top right opens the
-CV; the game pauses while it is open.
+CV; the game pauses while it is open. The headline flares rainbow for a moment
+each time the snake eats, and is black the rest of the time.
 
 ## Deploy
 

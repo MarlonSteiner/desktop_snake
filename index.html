@@ -19,32 +19,54 @@
     .headline-line { font-size: clamp(2.25rem, 11vw, 9rem); line-height: 0.9; }
     .footer-name   { font-size: clamp(0.75rem, 2vw, 1rem); }
 
-    /* Rainbow road. The gradient is painted twice as wide as the text and then
-       slid sideways forever, which reads as colour flowing through the letters.
-       The first and last stops are the same red so the loop has no seam.
+    /* Rainbow road, but only for a moment.
+       The gradient is always painted behind the headline; what changes is the
+       text fill. At rest the fill is the inherited black and hides the gradient
+       completely. Eating switches the fill to transparent, so the gradient
+       shows through the letterforms, and the transition fades the black back in
+       afterwards. Toggling one colour is what makes the burst crossfade instead
+       of snapping.
 
        The stops are deliberately deep rather than candy-bright: a pale yellow
        or mint headline on a white page drops below the 3:1 contrast that large
        text needs to stay readable. */
+    #headline {
+      background-image: linear-gradient(
+        100deg,
+        #e11d48, #ea580c, #ca8a04, #16a34a,
+        #0284c7, #4f46e5, #c026d3, #e11d48
+      );
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      transition: color 350ms ease, -webkit-text-fill-color 350ms ease;
+    }
+
+    /* Guarded: without background-clip support a transparent fill would mean an
+       invisible headline, so unsupported browsers simply never go rainbow. */
     @supports (background-clip: text) or (-webkit-background-clip: text) {
-      #headline {
-        background-image: linear-gradient(
-          100deg,
-          #e11d48, #ea580c, #ca8a04, #16a34a,
-          #0284c7, #4f46e5, #c026d3, #e11d48
-        );
-        background-size: 200% 100%;
-        -webkit-background-clip: text;
-        background-clip: text;
-        /* Both properties: the -webkit- one is what Safari actually obeys. */
-        -webkit-text-fill-color: transparent;
+      #headline.is-rainbow {
         color: transparent;
-        animation: rainbow-scroll 9s linear infinite;
+        -webkit-text-fill-color: transparent;
+        animation: rainbow-scroll 2.5s linear infinite;
       }
     }
 
     @keyframes rainbow-scroll {
       to { background-position: 200% 0; }
+    }
+
+    /* No colour flow, and headline.js skips the burst entirely. */
+    @media (prefers-reduced-motion: reduce) {
+      #headline.is-rainbow { animation: none; }
+    }
+
+    /* The emoji needs an explicit emoji font, or the system sans stack picks
+       its own thin monochrome glyph instead. 📧 rather than ✉️ deliberately:
+       the plain envelope renders almost entirely white on Apple platforms and
+       disappears against a white page. */
+    .emoji {
+      font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
     }
 
     /* Repeated CV styles, so the markup above stays easy to edit. */
@@ -106,6 +128,20 @@
     <!-- pointer-events-none on <main> lets clicks fall through to the canvas
          later, while the links below re-enable pointer events for themselves. -->
     <main class="flex flex-1 flex-col items-center justify-center px-4 pointer-events-none">
+
+      <!-- Straight to an email. pointer-events-auto because <main> disables
+           pointer events so clicks reach the canvas. -->
+      <a
+        id="contact-link"
+        href="mailto:msteiner.sudo@gmail.com"
+        class="pointer-events-auto mb-6 flex items-center gap-2 text-[0.6875rem] font-semibold
+               uppercase tracking-[0.2em] transition-opacity hover:opacity-50
+               focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4
+               focus-visible:outline-black sm:text-xs"
+      >
+        <span aria-hidden="true" class="emoji text-[0.95rem] leading-none">&#128231;</span>
+        Connect with me
+      </a>
 
       <!-- Two elements, deliberately.
            #text-block is the box stage 5 measures with getBoundingClientRect()
@@ -206,12 +242,10 @@
           Junior Full Stack Developer
         </p>
 
-        <!-- Contact. Note: publishing a mobile number on a public page will
-             attract scrapers. Delete the phone line if you would rather people
-             reached you by email first. -->
+        <!-- Contact. Deliberately no phone number: a mobile number in plain
+             HTML on a public page gets scraped. Email first. -->
         <ul class="mt-5 space-y-1 text-sm leading-relaxed">
           <li><a class="underline underline-offset-2 hover:opacity-50" href="mailto:msteiner.sudo@gmail.com">msteiner.sudo@gmail.com</a></li>
-          <li><a class="underline underline-offset-2 hover:opacity-50" href="tel:+41788201719">+41 78 820 17 19</a></li>
           <li><a class="underline underline-offset-2 hover:opacity-50" href="https://www.linkedin.com/in/marlon-steiner/" target="_blank" rel="noopener noreferrer">linkedin.com/in/marlon-steiner</a></li>
           <li><a class="underline underline-offset-2 hover:opacity-50" href="https://github.com/MarlonSteiner" target="_blank" rel="noopener noreferrer">github.com/MarlonSteiner</a></li>
           <li>St.&nbsp;Gallen, Switzerland &middot; Available immediately</li>
