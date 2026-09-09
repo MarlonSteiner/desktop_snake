@@ -6,10 +6,16 @@
   <title>Marlon Steiner — Dev Looking For Work</title>
   <meta name="description" content="Marlon Steiner — developer looking for work. A landing page that is also a playable snake game." />
 
-  <!-- A real file rather than an inline data URI: browsers request
-       /favicon.ico on their own whatever the page declares, so the only way to
-       stop the 404 is for the file to exist. It holds 16, 32 and 48px versions
-       so each slot gets a purpose-made image instead of a smeared downscale. -->
+  <!-- Two icon files on purpose. The PNG is what modern browsers use, with a
+       transparent background so the avatar sits on the tab strip rather than in
+       a white box. The .ico stays because browsers request /favicon.ico by
+       themselves whatever the page declares, and the only way to stop that 404
+       is for the file to exist; it carries 16, 32 and 48px versions so each
+       slot gets a purpose-made image instead of a smeared downscale.
+
+       apple-touch-icon is deliberately opaque: iOS fills transparent pixels on
+       a home screen with black. -->
+  <link rel="icon" type="image/png" href="favicon.png" sizes="64x64" />
   <link rel="icon" href="favicon.ico" sizes="any" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 
