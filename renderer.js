@@ -1,7 +1,7 @@
 // All canvas drawing lives here. This file never decides what happens in the
 // game — it only draws whatever state it is handed.
 
-import { CELL_SIZE, COLORS } from './constants.js';
+import { CELL_SIZE, COLORS, HUD } from './constants.js';
 
 /**
  * Size the canvas to the viewport, accounting for the device pixel ratio.
@@ -45,10 +45,38 @@ function drawSnake(ctx, state) {
   }
 }
 
+/**
+ * The apple is a circle while the snake is squares. Shape carries the
+ * difference, so the whole game stays legible in one colour.
+ */
+function drawApple(ctx, state) {
+  if (state.apple === null) return;
+
+  const { x, y } = cellToPixel(state.grid, state.apple);
+  const radius = CELL_SIZE / 2 - 3;
+
+  ctx.fillStyle = COLORS.apple;
+  ctx.beginPath();
+  ctx.arc(x + CELL_SIZE / 2, y + CELL_SIZE / 2, radius, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawHud(ctx, state) {
+  ctx.fillStyle = COLORS.hud;
+  ctx.font = HUD.font;
+  ctx.letterSpacing = HUD.letterSpacing;
+  ctx.textBaseline = 'top';
+
+  ctx.fillText(`SCORE ${state.score}`, HUD.padding, HUD.padding);
+  ctx.fillText(`BEST ${state.best}`, HUD.padding, HUD.padding + HUD.lineHeight);
+}
+
 /** Draw one complete frame. */
 export function render(ctx, state) {
   ctx.fillStyle = COLORS.background;
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
+  drawApple(ctx, state);
   drawSnake(ctx, state);
+  drawHud(ctx, state);
 }

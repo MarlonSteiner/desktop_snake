@@ -4,10 +4,12 @@
 import { TICKS_PER_SECOND, MAX_FRAME_MS } from './constants.js';
 import { createGrid, createGameState, queueDirection, step } from './game.js';
 import { attachKeyboardInput } from './input.js';
+import { createHeadlinePop } from './headline.js';
 import { resizeCanvas, render } from './renderer.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
+const popHeadline = createHeadlinePop(document.getElementById('headline'));
 
 /** How much game time one tick represents. */
 const TICK_MS = 1000 / TICKS_PER_SECOND;
@@ -22,7 +24,9 @@ let state = null;
  */
 function setup() {
   resizeCanvas(canvas, ctx);
-  state = createGameState(createGrid(window.innerWidth, window.innerHeight));
+  // The best score outlives the state object it was set on.
+  const best = state === null ? 0 : state.best;
+  state = createGameState(createGrid(window.innerWidth, window.innerHeight), best);
 }
 
 // ── The loop ────────────────────────────────────────────────────────────────
@@ -49,7 +53,7 @@ function frame(now) {
     // `while`, not `if`: a slow frame may owe more than one tick.
     while (accumulator >= TICK_MS) {
       accumulator -= TICK_MS;
-      step(state);
+      if (step(state)) popHeadline();
     }
   } else {
     // Don't bank time while idle, or the game would lurch forward on start.

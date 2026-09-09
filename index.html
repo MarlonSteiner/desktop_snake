@@ -6,6 +6,10 @@
   <title>Marlon Steiner — Dev Looking For Work</title>
   <meta name="description" content="Marlon Steiner — developer looking for work. A landing page that is also a playable snake game." />
 
+  <!-- Inline SVG favicon: one snake segment. Avoids a 404 for favicon.ico
+       without adding a binary file to the repo. -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23000'/%3E%3C/svg%3E" />
+
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
@@ -14,6 +18,39 @@
        narrow windows without needing a single media query. */
     .headline-line { font-size: clamp(2.25rem, 11vw, 9rem); line-height: 0.9; }
     .footer-name   { font-size: clamp(0.75rem, 2vw, 1rem); }
+
+    /* Rainbow road. The gradient is painted twice as wide as the text and then
+       slid sideways forever, which reads as colour flowing through the letters.
+       The first and last stops are the same red so the loop has no seam.
+
+       The stops are deliberately deep rather than candy-bright: a pale yellow
+       or mint headline on a white page drops below the 3:1 contrast that large
+       text needs to stay readable. */
+    @supports (background-clip: text) or (-webkit-background-clip: text) {
+      #headline {
+        background-image: linear-gradient(
+          100deg,
+          #e11d48, #ea580c, #ca8a04, #16a34a,
+          #0284c7, #4f46e5, #c026d3, #e11d48
+        );
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        /* Both properties: the -webkit- one is what Safari actually obeys. */
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+        animation: rainbow-scroll 9s linear infinite;
+      }
+    }
+
+    @keyframes rainbow-scroll {
+      to { background-position: 200% 0; }
+    }
+
+    /* Colour still flows, it just stops moving on its own. */
+    @media (prefers-reduced-motion: reduce) {
+      #headline { animation: none; }
+    }
   </style>
 </head>
 
@@ -50,12 +87,19 @@
          later, while the links below re-enable pointer events for themselves. -->
     <main class="flex flex-1 flex-col items-center justify-center px-4 pointer-events-none">
 
-      <!-- #text-block and #logo-row are measured with getBoundingClientRect()
-           in a later stage to turn them into blocked grid cells. -->
-      <h1 id="text-block" class="text-center font-black uppercase tracking-tight">
-        <span class="headline-line block">Dev Looking</span>
-        <span class="headline-line block">For Work</span>
-      </h1>
+      <!-- Two elements, deliberately.
+           #text-block is the box stage 5 measures with getBoundingClientRect()
+           to build the obstacle. #headline is the thing that scales when the
+           snake eats. A transform changes an element's own bounding rect but
+           not its parent's, so keeping them separate means the obstacle stays
+           still while the text pops. w-fit makes the wrapper hug the text
+           instead of spanning the full width of <main>. -->
+      <div id="text-block" class="w-fit">
+        <h1 id="headline" class="text-center font-black uppercase tracking-tight">
+          <span class="headline-line block">Dev Looking</span>
+          <span class="headline-line block">For Work</span>
+        </h1>
+      </div>
 
       <div id="logo-row" class="mt-8 flex items-center gap-5 sm:gap-7">
         <a

@@ -25,4 +25,16 @@ export const MAX_FRAME_MS = 250;
 export const COLORS = {
   background: '#ffffff',
   snake: '#000000',
+  // Swap this for '#ff2d20' if you ever want the apple to read as food rather
+  // than as part of the page's black-and-white identity.
+  apple: '#000000',
+  hud: '#a3a3a3',
+};
+
+/** Top-left score readout. */
+export const HUD = {
+  font: '500 11px ui-sans-serif, system-ui, -apple-system, sans-serif',
+  letterSpacing: '0.12em',
+  padding: 20,
+  lineHeight: 16,
 };

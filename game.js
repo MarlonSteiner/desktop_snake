@@ -44,10 +44,10 @@ export function createSnake(grid) {
  * The single object that holds everything the game knows. Passing this around
  * explicitly is what keeps us from accumulating loose global variables.
  */
-export function createGameState(grid) {
+export function createGameState(grid, best = 0) {
   const direction = { x: 1, y: 0 };
 
-  return {
+  const state = {
     grid,
     snake: createSnake(grid),
     // Direction is a unit vector so moving is just head.x + direction.x.
@@ -58,7 +58,53 @@ export function createGameState(grid) {
     // 'idle' until the first movement key. The game never starts on its own,
     // which is also how we respect prefers-reduced-motion.
     status: 'idle',
+    score: 0,
+    // Carried across restarts by the caller, so it lasts as long as the tab.
+    best,
+    apple: null,
   };
+
+  state.apple = spawnApple(state);
+  return state;
+}
+
+/** A cell as a string, so cells can live in a Set and be compared cheaply. */
+export function cellKey(cell) {
+  return `${cell.x},${cell.y}`;
+}
+
+function sameCell(a, b) {
+  return a !== null && b !== null && a.x === b.x && a.y === b.y;
+}
+
+/**
+ * Every cell nothing is currently sitting on.
+ *
+ * Listing the free cells and picking one is slower than guessing a random cell
+ * and retrying until it's empty — but guessing gets arbitrarily slow as the
+ * board fills, and never finishes on a full board. A full sweep of ~1600 cells
+ * once per apple is nothing, and it cannot hang. Stage 5 adds the obstacle
+ * cells to the same `taken` set.
+ */
+export function findFreeCells(state) {
+  const taken = new Set(state.snake.map(cellKey));
+  const free = [];
+
+  for (let y = 0; y < state.grid.rows; y++) {
+    for (let x = 0; x < state.grid.cols; x++) {
+      const cell = { x, y };
+      if (!taken.has(cellKey(cell))) free.push(cell);
+    }
+  }
+  return free;
+}
+
+/** Pick a random free cell, or null if the board is somehow full. */
+export function spawnApple(state) {
+  const free = findFreeCells(state);
+  if (free.length === 0) return null;
+
+  return free[Math.floor(Math.random() * free.length)];
 }
 
 /** Two vectors pointing directly at each other, e.g. left and right. */
@@ -96,7 +142,13 @@ export function queueDirection(state, direction) {
   if (state.status === 'idle') state.status = 'running';
 }
 
-/** Advance the game by exactly one grid cell. */
+/**
+ * Advance the game by exactly one grid cell.
+ *
+ * Returns true if the snake ate this tick. The game does not know that eating
+ * makes the headline pulse — it just reports what happened and lets main.js
+ * decide what the page does about it.
+ */
 export function step(state) {
   // Commit the pending turn, unless it would double back on the current one.
   if (!isOpposite(state.direction, state.nextDirection)) {
@@ -109,8 +161,18 @@ export function step(state) {
     y: head.y + state.direction.y,
   });
 
-  // Grow at the front, shrink at the back. Growing later is just skipping the
-  // pop, which is why the snake is stored head first.
+  const ate = sameCell(target, state.apple);
+
+  // Grow at the front, shrink at the back — unless we just ate, in which case
+  // skipping the pop is the entire growth mechanic.
   state.snake.unshift(target);
-  state.snake.pop();
+  if (ate) {
+    state.score += 1;
+    state.best = Math.max(state.best, state.score);
+    state.apple = spawnApple(state);
+  } else {
+    state.snake.pop();
+  }
+
+  return ate;
 }
