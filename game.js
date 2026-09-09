@@ -163,6 +163,41 @@ export function spawnApple(state) {
   return { ...cell, variant: Math.floor(Math.random() * 1000) };
 }
 
+/** True if a cell has fallen off the board — only possible after a resize. */
+function isOutsideGrid(grid, cell) {
+  return cell.x < 0 || cell.y < 0 || cell.x >= grid.cols || cell.y >= grid.rows;
+}
+
+/** A cell is no longer a valid home for food if it left the board or the page grew over it. */
+function isStranded(state, cell) {
+  return cell === null || isOutsideGrid(state.grid, cell) || state.pageCells.has(cellKey(cell));
+}
+
+/**
+ * Fit an in-progress game to a new viewport, keeping the run alive.
+ *
+ * The snake's cells are wrapped rather than clamped. Clamping would fold
+ * several segments onto the same cell and leave the snake visibly knotted;
+ * wrapping is what the edges already do, so a snake that was near the old right
+ * edge simply reappears on the left, which the player can read at a glance.
+ *
+ * Food is only moved if it has to be — respawning an apple that is still
+ * perfectly reachable would feel like the game cheating during a resize.
+ */
+export function resizeGame(state, grid, pageCells) {
+  state.grid = grid;
+  state.pageCells = pageCells;
+  state.snake = state.snake.map((cell) => wrap(grid, cell));
+
+  if (isStranded(state, state.apple)) state.apple = spawnApple(state);
+
+  // The glitch fruit is on a timer anyway, so dropping it is kinder than
+  // teleporting it: another is along shortly.
+  if (state.twist.glitch !== null && isStranded(state, state.twist.glitch)) {
+    state.twist.glitch = null;
+  }
+}
+
 /**
  * Move every clock forward.
  *

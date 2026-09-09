@@ -1,7 +1,7 @@
 // All canvas drawing lives here. This file never decides what happens in the
 // game — it only draws whatever state it is handed.
 
-import { CELL_SIZE, COLORS, HUD, STICKER_SCALE, TWIST, MODIFIERS } from './constants.js';
+import { CELL_SIZE, COLORS, HUD, HINT, STICKER_SCALE, TWIST, MODIFIERS } from './constants.js';
 import { pickSticker } from './stickers.js';
 import { activeModifier, isFlashing, flashIndex } from './modifiers.js';
 
@@ -118,6 +118,96 @@ function drawGlitch(ctx, state) {
   ctx.fill();
 }
 
+// The prompt teaches once. Kept here rather than on the game state because it
+// is a fact about this visitor's session, not about the snake — and it has to
+// survive the restarts that replace the state object.
+let hintDismissedAt = null;
+
+/** One key cap. Rounded if the browser can, square if not. */
+function keyCapPath(ctx, x, y, size) {
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(x, y, size, size, 4);
+  else ctx.rect(x, y, size, size);
+}
+
+// Column and row within the cluster, and the glyph. Laid out as the keys are.
+const HINT_KEYS = [
+  { col: 1, row: 0, glyph: '\u2191' },
+  { col: 2, row: 1, glyph: '\u2192' },
+  { col: 1, row: 1, glyph: '\u2193' },
+  { col: 0, row: 1, glyph: '\u2190' },
+];
+
+/**
+ * Arrow keys drawn beside the snake until the player uses them.
+ *
+ * On the canvas rather than in the page on purpose: the page has to work when
+ * the game does not, and a "press the arrow keys" prompt on a page where no
+ * game ever loaded is worse than no prompt. This can only exist if the thing it
+ * describes exists.
+ */
+function drawControlHint(ctx, state) {
+  if (state.status !== 'idle' && hintDismissedAt === null) {
+    hintDismissedAt = performance.now();
+  }
+
+  let alpha = 1;
+  if (hintDismissedAt !== null) {
+    const fade = (performance.now() - hintDismissedAt) / HINT.fadeMs;
+    if (fade >= 1) return;
+    alpha = 1 - fade;
+  }
+
+  const { keySize, gap } = HINT;
+  const clusterWidth = keySize * 3 + gap * 2;
+  const clusterHeight = keySize * 2 + gap;
+
+  const head = cellToPixel(state.grid, state.snake[0]);
+  // Two cells ahead of the head, so it reads as "go this way" as well as
+  // "these keys". Flips behind the snake if there is no room in front.
+  let left = head.x + CELL_SIZE * 2;
+  if (left + clusterWidth > window.innerWidth - 16) {
+    left = head.x - CELL_SIZE - clusterWidth;
+  }
+  const top = head.y + CELL_SIZE / 2 - clusterHeight / 2;
+
+  // Lighting one key at a time says "these are pressable" in a way a static
+  // picture does not. Reduced motion gets the picture.
+  const lit = prefersReducedMotion.matches
+    ? -1
+    : Math.floor(performance.now() / HINT.stepMs) % HINT_KEYS.length;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.font = HINT.font;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineWidth = 1;
+
+  HINT_KEYS.forEach((key, i) => {
+    const x = left + key.col * (keySize + gap);
+    const y = top + key.row * (keySize + gap);
+
+    keyCapPath(ctx, x, y, keySize);
+
+    if (i === lit) {
+      ctx.fillStyle = COLORS.snake;
+      ctx.fill();
+      ctx.fillStyle = COLORS.background;
+    } else {
+      ctx.strokeStyle = COLORS.hud;
+      ctx.stroke();
+      ctx.fillStyle = COLORS.hud;
+    }
+
+    ctx.fillText(key.glyph, x + keySize / 2, y + keySize / 2 + 1);
+  });
+
+  ctx.restore();
+  // textAlign is shared with the game-over prompt; leave it as we found it.
+  ctx.textAlign = 'left';
+}
+
 /** The restart prompt, low in the page where nothing else is competing. */
 function drawGameOver(ctx, state) {
   if (state.status !== 'over') return;
@@ -173,6 +263,7 @@ export function render(ctx, state, stickers) {
   drawApple(ctx, state, stickers);
   drawGlitch(ctx, state);
   drawSnake(ctx, state);
+  drawControlHint(ctx, state);
   drawHud(ctx, state);
   drawGameOver(ctx, state);
 }

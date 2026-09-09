@@ -28,6 +28,7 @@ added, so use the server.
 | Key | Action |
 | --- | --- |
 | Arrow keys / WASD | Move (the first press also starts the game) |
+
 | Space | Restart after game over |
 | Escape | Close the CV panel |
 
@@ -50,8 +51,8 @@ GitHub Pages serves the repository root. `CNAME` points the site at
 4. ~~Apples, growth, scoring~~
 5. ~~Obstacles from DOM bounds, collision, game over, restart~~
 6. ~~CV panel and pause~~
-7. ~~Glitch fruit and modifiers~~ ← *current*
-8. Polish: colors, countdown UI, resize handling
+7. ~~Glitch fruit and modifiers~~
+8. ~~Polish: control hint, resize handling~~ ← *done*
 
 ## Stickers
 
@@ -93,9 +94,15 @@ read as arbitrary.
 They live in one table in `constants.js` holding each one's colour, speed and
 duration. A modifier that only changes speed needs nothing but a new row there.
 
+## Resizing
+
+Resizing keeps the run going rather than starting over. The board is
+re-measured once the dragging stops, and the snake's cells are wrapped into the
+new grid — the same thing the edges already do, so a snake that was near the old
+right edge reappears on the left. Food only moves if the resize actually
+stranded it.
+
 ## Parked
 
-- **Control hint on first load.** A key-cluster prompt drawn on the canvas near
-  the snake, fading out on first input. Planned for stage 8.
 - **Mobile controls.** A second input source alongside `input.js`; the game
   logic should not need to change.

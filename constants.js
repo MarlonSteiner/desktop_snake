@@ -69,6 +69,26 @@ export const MODIFIERS = {
  */
 export const FLASH_MS_PER_COLOR = 340;
 
+/**
+ * How long to wait after the last resize event before rebuilding the board.
+ *
+ * Dragging a window fires resize continuously. Measuring the page and sweeping
+ * every cell on each of those events is wasted work, and worse, the text has
+ * not finished reflowing yet — so the boxes we measured would already be wrong.
+ */
+export const RESIZE_SETTLE_MS = 120;
+
+/** The arrow-key prompt shown until the first keypress. */
+export const HINT = {
+  keySize: 22,
+  gap: 4,
+  /** How long each key stays lit as the prompt cycles through them. */
+  stepMs: 450,
+  /** How long the whole prompt takes to fade once the game starts. */
+  fadeMs: 400,
+  font: '600 12px ui-sans-serif, system-ui, -apple-system, sans-serif',
+};
+
 /** The glitch fruit itself. Modifier durations live in MODIFIERS above. */
 export const TWIST = {
   spawnEveryMs: 15000,

@@ -1,8 +1,15 @@
 // Entry point. This is the only file that talks to both the page and the game:
 // it owns the canvas, the loop, and the wiring between input, state and render.
 
-import { TICKS_PER_SECOND, MAX_FRAME_MS, STICKERS } from './constants.js';
-import { createGrid, createGameState, queueDirection, step, advanceTime } from './game.js';
+import { TICKS_PER_SECOND, MAX_FRAME_MS, STICKERS, RESIZE_SETTLE_MS } from './constants.js';
+import {
+  createGrid,
+  createGameState,
+  queueDirection,
+  step,
+  advanceTime,
+  resizeGame,
+} from './game.js';
 import { computePageCells } from './obstacles.js';
 import { attachKeyboardInput } from './input.js';
 import { attachMenu } from './menu.js';
@@ -44,20 +51,39 @@ function setPageHidden(hidden) {
   page.classList.toggle('page-hidden', hidden);
 }
 
-/**
- * Build the world from the current viewport size and the page's real layout.
- *
- * Resizing currently throws the game away and starts over. That is acceptable
- * for now; a later stage will preserve the run instead.
- */
+/** Measure the viewport and the page as they are right now. */
+function measure() {
+  const grid = createGrid(window.innerWidth, window.innerHeight);
+  return { grid, pageCells: computePageCells(grid) };
+}
+
+/** Build the world for the first time. */
 function setup() {
   resizeCanvas(canvas, ctx);
 
-  const grid = createGrid(window.innerWidth, window.innerHeight);
-  // The best score outlives the state object it was set on.
-  const best = state === null ? 0 : state.best;
+  const { grid, pageCells } = measure();
+  state = createGameState({ grid, pageCells, best: 0 });
+}
 
-  state = createGameState({ grid, pageCells: computePageCells(grid), best });
+let resizeTimer = null;
+
+/**
+ * Handle a viewport change.
+ *
+ * The canvas is resized immediately, because leaving a stale bitmap stretched
+ * across a new window size looks broken while you drag. Re-measuring the page
+ * waits until the resizing stops: the headline is still reflowing during a
+ * drag, so boxes measured mid-drag would be wrong anyway, and sweeping every
+ * cell sixty times a second to get a wrong answer is the worst of both.
+ */
+function handleResize() {
+  resizeCanvas(canvas, ctx);
+
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    const { grid, pageCells } = measure();
+    resizeGame(state, grid, pageCells);
+  }, RESIZE_SETTLE_MS);
 }
 
 /** Start a fresh run on the same board, keeping the session best. */
@@ -124,7 +150,7 @@ function frame(now) {
 }
 
 setup();
-window.addEventListener('resize', setup);
+window.addEventListener('resize', handleResize);
 attachKeyboardInput({
   onDirection: (direction) => {
     if (!isPaused) queueDirection(state, direction);
