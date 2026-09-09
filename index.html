@@ -47,6 +47,22 @@
       to { background-position: 200% 0; }
     }
 
+    /* Repeated CV styles, so the markup above stays easy to edit. */
+    .cv-heading {
+      font-size: 0.6875rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.18em; padding-bottom: 0.5rem; margin-bottom: 1rem;
+      border-bottom: 1px solid #000;
+    }
+    .cv-entry { margin-bottom: 1.5rem; }
+    .cv-entry:last-child { margin-bottom: 0; }
+    .cv-role { font-size: 0.9375rem; font-weight: 700; }
+    .cv-meta { font-size: 0.75rem; margin-top: 0.125rem; color: #525252; }
+    .cv-list {
+      margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.6;
+      list-style: disc; padding-left: 1.1rem;
+    }
+    .cv-list > li { margin-bottom: 0.25rem; }
+
     /* Colour still flows, it just stops moving on its own. */
     @media (prefers-reduced-motion: reduce) {
       #headline { animation: none; }
@@ -71,14 +87,18 @@
         id="menu-button"
         type="button"
         aria-expanded="false"
+        aria-controls="cv-panel"
         aria-label="Open CV"
-        class="group flex h-10 w-10 flex-col items-center justify-center gap-[6px] rounded-sm
-               focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4
-               focus-visible:outline-black"
+        class="flex h-10 w-10 items-center justify-center rounded-sm transition-opacity
+               hover:opacity-50 focus-visible:outline focus-visible:outline-2
+               focus-visible:outline-offset-4 focus-visible:outline-black"
       >
-        <span class="block h-[2px] w-7 bg-black transition-transform duration-200 group-hover:-translate-y-[1px]"></span>
-        <span class="block h-[2px] w-7 bg-black"></span>
-        <span class="block h-[2px] w-7 bg-black transition-transform duration-200 group-hover:translate-y-[1px]"></span>
+        <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+          <path d="M14 3v5h5" />
+          <path d="M9 13h6M9 17h6" />
+        </svg>
       </button>
     </header>
 
@@ -103,7 +123,7 @@
 
       <div id="logo-row" class="mt-8 flex items-center gap-5 sm:gap-7">
         <a
-          href="https://www.linkedin.com/in/marlonsteiner/"
+          href="https://www.linkedin.com/in/marlon-steiner/"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="LinkedIn"
@@ -142,6 +162,220 @@
     </footer>
 
   </div>
+
+
+  <!-- ── CV panel ───────────────────────────────────────────────────────────
+       Plain HTML you can edit directly. `inert` while closed so the links
+       inside are not reachable by Tab; menu.js removes it on open. -->
+  <div
+    id="cv-backdrop"
+    class="pointer-events-none fixed inset-0 z-20 bg-black/20 opacity-0 transition-opacity duration-300"
+  ></div>
+
+  <aside
+    id="cv-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="cv-name"
+    inert
+    class="fixed right-0 top-0 z-30 h-full w-full max-w-[36rem] translate-x-full overflow-y-auto
+           border-l border-black bg-white transition-transform duration-300 ease-out"
+  >
+    <div class="px-7 py-8 sm:px-10 sm:py-10">
+
+      <button
+        id="cv-close"
+        type="button"
+        aria-label="Close CV"
+        class="absolute right-6 top-7 flex h-9 w-9 items-center justify-center rounded-sm
+               transition-opacity hover:opacity-50 focus-visible:outline focus-visible:outline-2
+               focus-visible:outline-offset-4 focus-visible:outline-black sm:right-9"
+      >
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M5 5l14 14M19 5L5 19" />
+        </svg>
+      </button>
+
+      <!-- Header -->
+      <header class="mb-9 max-w-[85%]">
+        <h2 id="cv-name" class="text-2xl font-black uppercase tracking-tight sm:text-3xl">
+          Marlon Steiner
+        </h2>
+        <p class="mt-1 text-sm font-medium uppercase tracking-[0.18em]">
+          Junior Full Stack Developer
+        </p>
+
+        <!-- Contact. Note: publishing a mobile number on a public page will
+             attract scrapers. Delete the phone line if you would rather people
+             reached you by email first. -->
+        <ul class="mt-5 space-y-1 text-sm leading-relaxed">
+          <li><a class="underline underline-offset-2 hover:opacity-50" href="mailto:msteiner.sudo@gmail.com">msteiner.sudo@gmail.com</a></li>
+          <li><a class="underline underline-offset-2 hover:opacity-50" href="tel:+41788201719">+41 78 820 17 19</a></li>
+          <li><a class="underline underline-offset-2 hover:opacity-50" href="https://www.linkedin.com/in/marlon-steiner/" target="_blank" rel="noopener noreferrer">linkedin.com/in/marlon-steiner</a></li>
+          <li><a class="underline underline-offset-2 hover:opacity-50" href="https://github.com/MarlonSteiner" target="_blank" rel="noopener noreferrer">github.com/MarlonSteiner</a></li>
+          <li>St.&nbsp;Gallen, Switzerland &middot; Available immediately</li>
+        </ul>
+      </header>
+
+      <!-- Intro -->
+      <section class="mb-9">
+        <h3 class="cv-heading">Profile</h3>
+        <p class="text-sm leading-relaxed">
+          Full stack developer with modern web development training and 4+ years of
+          technical experience across mechanical systems, enterprise software and
+          robotics development.
+        </p>
+      </section>
+
+      <!-- Experience -->
+      <section class="mb-9">
+        <h3 class="cv-heading">Experience</h3>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Freelance Ecommerce Developer</h4>
+          <p class="cv-meta">2025 &middot; Entrepreneur, Zurich</p>
+          <ul class="cv-list">
+            <li>Built a jewellery website for Juwelier Mahler on WordPress, responsive across all devices.</li>
+            <li>Customised themes and applied modern web design principles for a luxury retail presence.</li>
+            <li>Deployed and hosted on Hostinger, handling domain configuration and ongoing maintenance.</li>
+            <li>Worked directly with the client to turn business requirements into a working implementation.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Inventory Control Specialist</h4>
+          <p class="cv-meta">2024 &middot; Rheinmetall Air Defence AG, Switzerland</p>
+          <ul class="cv-list">
+            <li>Documented and managed enterprise inventory systems in SAP, working with complex database records.</li>
+            <li>Used Jira and Confluence for tracking and technical documentation.</li>
+            <li>Collaborated with cross-functional engineering and production teams.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Assistant &mdash; Robotics &amp; Software Development</h4>
+          <p class="cv-meta">2022&ndash;2023 &middot; ETH Z&uuml;rich Autonomous Systems Lab</p>
+          <ul class="cv-list">
+            <li>Designed UI for computer software in Figma and Qt Creator, alongside software engineers.</li>
+            <li>Researched and developed UX concepts from ideation to implementation on robotics projects.</li>
+            <li>Managed procurement of technical components and coordinated with suppliers.</li>
+            <li>Supported doctoral and master students with PCB soldering, 3D printing, laser cutting and CAD in Fusion 360.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Civil Service &mdash; Community Integration</h4>
+          <p class="cv-meta">2022&ndash;2023 &middot; TISG Refugee Center Rosenau, St.&nbsp;Gallen</p>
+          <ul class="cv-list">
+            <li>Supported Ukrainian refugees with administrative processes, accommodation and integration services.</li>
+            <li>Organised and taught German language courses.</li>
+            <li>Managed documentation and database entries in specialised refugee management software.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Polymechanic</h4>
+          <p class="cv-meta">2020&ndash;2022 &middot; Gietz AG, Switzerland</p>
+          <ul class="cv-list">
+            <li>Precision mechanical assembly for punching and embossing machines.</li>
+            <li>Electrical cabinet wiring, working from schematics.</li>
+            <li>Worked with engineering teams to optimise manufacturing processes.</li>
+            <li>Maintained quality standards and technical documentation.</li>
+          </ul>
+        </article>
+      </section>
+
+      <!-- Skills -->
+      <section class="mb-9">
+        <h3 class="cv-heading">Skills</h3>
+        <dl class="space-y-3 text-sm leading-relaxed">
+          <div>
+            <dt class="font-semibold">Front end</dt>
+            <dd>HTML5 &amp; semantic markup, CSS3, Sass/SCSS, JavaScript ES6+, Bootstrap, responsive design, cross-browser compatibility, web performance, accessibility (WCAG)</dd>
+          </div>
+          <div>
+            <dt class="font-semibold">Back end &amp; data</dt>
+            <dd>Ruby on Rails, Python, C, SQL, PostgreSQL, database design, RESTful API integration</dd>
+          </div>
+          <div>
+            <dt class="font-semibold">Tools &amp; practice</dt>
+            <dd>Git, Jira, Confluence, agile methodology, software engineering principles, data structures &amp; algorithms, web hosting &amp; deployment, domain management</dd>
+          </div>
+          <div>
+            <dt class="font-semibold">Design &amp; other</dt>
+            <dd>UX/UI design, Figma, Qt Creator, SAP, WordPress, CAD (Fusion 360), 3D printing, Blender, Unity</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Education -->
+      <section class="mb-9">
+        <h3 class="cv-heading">Education</h3>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Le Wagon Web Development Bootcamp</h4>
+          <p class="cv-meta">2025 &middot; Cape Town, South Africa</p>
+          <ul class="cv-list">
+            <li>Full-stack web development with a front-end specialisation.</li>
+            <li>JavaScript, Ruby on Rails, PostgreSQL, Bootstrap, Flexbox and Grid.</li>
+            <li>Built &ldquo;Logs AI&rdquo;, an audio journal application with speech summarisation.</li>
+            <li>Deployed with Git and Heroku.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">CS50: Introduction to Computer Science</h4>
+          <p class="cv-meta">2024&ndash;2025 &middot; Harvard University, online</p>
+          <ul class="cv-list">
+            <li>Computer science fundamentals, algorithms and data structures.</li>
+            <li>C, Python, SQL, JavaScript, HTML/CSS.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Self-directed Computer Science &amp; UX Design study</h4>
+          <p class="cv-meta">2023&ndash;2025 &middot; Independent, St.&nbsp;Gallen</p>
+          <ul class="cv-list">
+            <li>Computer science fundamentals, UX design principles and modern web technologies.</li>
+            <li>Google UX Design certification.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Federal Certificate in Polymechanics</h4>
+          <p class="cv-meta">2016&ndash;2020 &middot; Swiss Vocational Education System</p>
+          <ul class="cv-list">
+            <li>Four-year apprenticeship. Specialised in precision assembly and technical systems.</li>
+          </ul>
+        </article>
+      </section>
+
+      <!-- Certifications -->
+      <section class="mb-9">
+        <h3 class="cv-heading">Certifications</h3>
+        <ul class="cv-list">
+          <li>Web Development Certificate &mdash; Le Wagon</li>
+          <li>Swiss Federal Certificate in Polymechanics &mdash; Swiss Federal Institute for Vocational Education and Training</li>
+          <li>UX Design Fundamentals and Process</li>
+          <li>JavaScript Fundamentals</li>
+          <li>Responsive Web Design</li>
+          <li>Learning How to Learn</li>
+        </ul>
+      </section>
+
+      <!-- Languages -->
+      <section>
+        <h3 class="cv-heading">Languages</h3>
+        <ul class="cv-list">
+          <li>English &mdash; native</li>
+          <li>German &mdash; native</li>
+          <li>Tagalog &mdash; fluent</li>
+        </ul>
+      </section>
+
+    </div>
+  </aside>
 
   <!-- type="module" is what makes the ES module imports work. It also means the
        script is deferred automatically, so the DOM exists by the time it runs. -->

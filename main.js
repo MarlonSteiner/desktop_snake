@@ -3,8 +3,9 @@
 
 import { TICKS_PER_SECOND, MAX_FRAME_MS, STICKERS } from './constants.js';
 import { createGrid, createGameState, queueDirection, step } from './game.js';
-import { computeBlockedCells } from './obstacles.js';
+import { computePageCells } from './obstacles.js';
 import { attachKeyboardInput } from './input.js';
+import { attachMenu } from './menu.js';
 import { createHeadlinePop } from './headline.js';
 import { loadStickers } from './stickers.js';
 import { resizeCanvas, render } from './renderer.js';
@@ -19,6 +20,10 @@ const TICK_MS = 1000 / TICKS_PER_SECOND;
 
 let state = null;
 
+// Pausing is a page concern, not a game rule, so it lives here rather than on
+// the game state. The state object stays purely about the snake.
+let isPaused = false;
+
 /**
  * Build the world from the current viewport size and the page's real layout.
  *
@@ -32,7 +37,7 @@ function setup() {
   // The best score outlives the state object it was set on.
   const best = state === null ? 0 : state.best;
 
-  state = createGameState({ grid, blocked: computeBlockedCells(grid), best });
+  state = createGameState({ grid, pageCells: computePageCells(grid), best });
 }
 
 /** Start a fresh run on the same board, keeping the session best. */
@@ -41,7 +46,7 @@ function restart() {
 
   state = createGameState({
     grid: state.grid,
-    blocked: state.blocked,
+    pageCells: state.pageCells,
     best: state.best,
   });
 }
@@ -64,7 +69,7 @@ function frame(now) {
   const elapsed = Math.min(now - lastFrameTime, MAX_FRAME_MS);
   lastFrameTime = now;
 
-  if (state.status === 'running') {
+  if (state.status === 'running' && !isPaused) {
     accumulator += elapsed;
 
     // `while`, not `if`: a slow frame may owe more than one tick.
@@ -73,7 +78,8 @@ function frame(now) {
       if (step(state)) popHeadline();
     }
   } else {
-    // Don't bank time while idle, or the game would lurch forward on start.
+    // Don't bank time while idle or paused, or the game would lurch forward
+    // the moment it resumes.
     accumulator = 0;
   }
 
@@ -84,7 +90,16 @@ function frame(now) {
 setup();
 window.addEventListener('resize', setup);
 attachKeyboardInput({
-  onDirection: (direction) => queueDirection(state, direction),
-  onRestart: restart,
+  onDirection: (direction) => {
+    if (!isPaused) queueDirection(state, direction);
+  },
+  onRestart: () => {
+    if (!isPaused) restart();
+  },
+});
+attachMenu({
+  onPauseChange: (open) => {
+    isPaused = open;
+  },
 });
 requestAnimationFrame(frame);

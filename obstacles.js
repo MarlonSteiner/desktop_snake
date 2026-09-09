@@ -1,23 +1,25 @@
 // The bridge between the page and the game board.
 //
-// The centred text is a solid wall the snake dies on. Rather than testing
-// collisions against rendered glyphs — which would mean reading pixels back
-// every frame and would break the moment the font or wording changed — we ask
-// the DOM where those elements actually are and convert their boxes into a set
-// of blocked grid cells, once, at load and on resize.
+// The snake passes through everything, so these cells are not walls. They mark
+// where the page's own content sits so that apples never spawn underneath the
+// headline, where they would be invisible and effectively unreachable.
+//
+// We ask the DOM where those elements actually are rather than testing against
+// rendered glyphs, so this keeps working if you rewrite the headline or change
+// the font.
 
 import { CELL_SIZE } from './constants.js';
 import { cellKey } from './game.js';
 
 /**
- * Elements that block the snake.
+ * Elements the apples should keep clear of.
  *
  * #text-block is the wrapper, not the <h1> inside it. The <h1> scales when the
  * snake eats, and an element's transform changes its own getBoundingClientRect
- * but not its parent's — so measuring the wrapper keeps the wall still while
+ * but not its parent's — so measuring the wrapper keeps this box steady while
  * the headline pops.
  */
-const OBSTACLE_SELECTORS = ['#text-block', '#logo-row'];
+const PAGE_SELECTORS = ['#text-block', '#logo-row'];
 
 /** Convert one viewport rectangle into the grid cells it covers. */
 function rectToCells(grid, rect, into) {
@@ -38,20 +40,20 @@ function rectToCells(grid, rect, into) {
 }
 
 /**
- * Measure the page and return the set of cells the snake cannot enter.
+ * Measure the page and return the set of cells its content occupies.
  *
- * Returns a Set of "x,y" strings so membership is a single cheap lookup rather
- * than a scan through a list of rectangles on every tick.
+ * A Set of "x,y" strings, so checking a cell is one cheap lookup rather than a
+ * scan through a list of rectangles.
  */
-export function computeBlockedCells(grid) {
-  const blocked = new Set();
+export function computePageCells(grid) {
+  const cells = new Set();
 
-  for (const selector of OBSTACLE_SELECTORS) {
+  for (const selector of PAGE_SELECTORS) {
     const element = document.querySelector(selector);
     if (element === null) continue;
 
-    rectToCells(grid, element.getBoundingClientRect(), blocked);
+    rectToCells(grid, element.getBoundingClientRect(), cells);
   }
 
-  return blocked;
+  return cells;
 }

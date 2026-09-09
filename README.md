@@ -31,6 +31,11 @@ added, so use the server.
 | Space | Restart after game over |
 | Escape | Close the CV panel |
 
+The screen edges wrap: leave on the right and you come back on the left. The
+snake passes straight through the headline, the logos and the footer — the only
+way to lose is to bite yourself. The document icon in the top right opens the
+CV; the game pauses while it is open.
+
 ## Deploy
 
 GitHub Pages serves the repository root. `CNAME` points the site at
@@ -42,8 +47,8 @@ GitHub Pages serves the repository root. `CNAME` points the site at
 2. ~~Canvas layered behind, grid from viewport, static snake~~
 3. ~~Movement, fixed-timestep loop, keyboard input~~
 4. ~~Apples, growth, scoring~~
-5. ~~Obstacles from DOM bounds, collision, game over, restart~~ ← *current*
-6. Hamburger menu with CV panel and pause
+5. ~~Obstacles from DOM bounds, collision, game over, restart~~
+6. ~~CV panel and pause~~ ← *current*
 7. Glitch fruit and modifiers
 8. Polish: colors, countdown UI, resize handling
 
@@ -52,6 +57,14 @@ GitHub Pages serves the repository root. `CNAME` points the site at
 The snake eats sticker images rather than fruit. See
 [`assets/stickers/README.md`](assets/stickers/README.md) for what to drop in and
 how to register it. Falls back to a plain circle when no image is available.
+
+## Open question for stage 7
+
+The three planned modifiers were INVERTED, RUSH and PHASE. PHASE let the snake
+pass through walls and the text block — which is now the default behaviour, so
+it no longer does anything. It needs replacing. The strongest candidate is
+SOLID: for ten seconds the headline and logos *do* become lethal, inverting the
+usual rule instead of removing it.
 
 ## Parked
 

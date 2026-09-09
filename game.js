@@ -41,12 +41,12 @@ function startCellsOnRow(row) {
  * makes movement cheap: add a new head, drop the last tail cell.
  *
  * We want to start near the vertical middle, but on a narrow window the
- * headline reaches the left edge and the middle rows are wall. So we start at
- * the middle row and walk outwards — up one, down one, up two — until we find a
- * row where all three starting cells are free. Without this the snake can spawn
- * inside the text and die on its first move.
+ * headline reaches the left edge. The snake can pass through the text, but
+ * starting underneath it means starting invisible, so we begin at the middle
+ * row and walk outwards — up one, down one, up two — until we find a row that
+ * is clear of the page's own content.
  */
-export function createSnake(grid, blocked) {
+export function createSnake(grid, pageCells) {
   const middle = Math.floor(grid.rows / 2);
 
   for (let offset = 0; offset <= grid.rows; offset++) {
@@ -56,7 +56,7 @@ export function createSnake(grid, blocked) {
       if (row < 0 || row >= grid.rows) continue;
 
       const cells = startCellsOnRow(row);
-      if (cells.every((cell) => !blocked.has(cellKey(cell)))) return cells;
+      if (cells.every((cell) => !pageCells.has(cellKey(cell)))) return cells;
     }
   }
 
@@ -69,15 +69,16 @@ export function createSnake(grid, blocked) {
  * The single object that holds everything the game knows. Passing this around
  * explicitly is what keeps us from accumulating loose global variables.
  */
-export function createGameState({ grid, blocked, best = 0 }) {
+export function createGameState({ grid, pageCells, best = 0 }) {
   const direction = { x: 1, y: 0 };
 
   const state = {
     grid,
-    // The cells the page itself occupies. Walls for the snake, and off-limits
-    // to apples.
-    blocked,
-    snake: createSnake(grid, blocked),
+    // The cells the page's own content sits on. The snake passes straight
+    // through them; they exist so apples never spawn somewhere unreachable or
+    // hidden behind the headline.
+    pageCells,
+    snake: createSnake(grid, pageCells),
     // Direction is a unit vector so moving is just head.x + direction.x.
     direction,
     // Where input wants to go. Kept separate from `direction` so a turn only
@@ -112,11 +113,10 @@ function sameCell(a, b) {
  * Listing the free cells and picking one is slower than guessing a random cell
  * and retrying until it's empty — but guessing gets arbitrarily slow as the
  * board fills, and never finishes on a full board. A full sweep of ~1600 cells
- * once per apple is nothing, and it cannot hang. Stage 5 adds the obstacle
- * cells to the same `taken` set.
+ * once per apple is nothing, and it cannot hang.
  */
 export function findFreeCells(state) {
-  const taken = new Set(state.blocked);
+  const taken = new Set(state.pageCells);
   for (const cell of state.snake) taken.add(cellKey(cell));
   const free = [];
 
@@ -149,19 +149,14 @@ function isOpposite(a, b) {
   return a.x === -b.x && a.y === -b.y;
 }
 
-/** True if a cell has left the board entirely. */
-function isOutside(grid, cell) {
-  return cell.x < 0 || cell.y < 0 || cell.x >= grid.cols || cell.y >= grid.rows;
-}
-
 /**
  * Bring a cell back inside the grid if it has gone off an edge.
  *
  * Adding grid.cols before the modulo is what makes -1 wrap to the last column;
  * JavaScript's % keeps the sign of the left operand, so -1 % 53 is -1, not 52.
  *
- * Edges are lethal now, so nothing calls this yet. It stays because the PHASE
- * modifier in stage 7 needs exactly this behaviour.
+ * The edges of the screen are a portal, not a wall: leave on the right and you
+ * come back on the left.
  */
 export function wrap(grid, cell) {
   return {
@@ -201,25 +196,22 @@ export function step(state) {
   }
 
   const head = state.snake[0];
-  const target = {
+  const target = wrap(state.grid, {
     x: head.x + state.direction.x,
     y: head.y + state.direction.y,
-  };
+  });
 
   const ate = sameCell(target, state.apple);
 
-  // Three ways to die, checked before anything moves.
+  // Biting yourself is the only way to die. Screen edges wrap, and the page's
+  // own content is scenery the snake glides through.
   //
-  // The tail is the subtle one: the last segment steps away this tick, so the
+  // The tail is the subtle part: the last segment steps away this tick, so the
   // cell it is vacating is fair game — unless we are eating, because then the
   // tail stays put and the snake really does run into itself.
   const body = ate ? state.snake : state.snake.slice(0, -1);
 
-  if (
-    isOutside(state.grid, target) ||
-    state.blocked.has(cellKey(target)) ||
-    body.some((cell) => sameCell(cell, target))
-  ) {
+  if (body.some((cell) => sameCell(cell, target))) {
     state.status = 'over';
     return false;
   }
