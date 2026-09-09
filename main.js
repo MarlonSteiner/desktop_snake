@@ -10,7 +10,7 @@ import {
   advanceTime,
   resizeGame,
 } from './game.js';
-import { computePageCells } from './obstacles.js';
+import { computePageCells, measureHintAnchor } from './obstacles.js';
 import { attachKeyboardInput } from './input.js';
 import { attachTouchInput } from './touch.js';
 import { attachMenu } from './menu.js';
@@ -55,15 +55,14 @@ function setPageHidden(hidden) {
 /** Measure the viewport and the page as they are right now. */
 function measure() {
   const grid = createGrid(window.innerWidth, window.innerHeight);
-  return { grid, pageCells: computePageCells(grid) };
+  return { grid, pageCells: computePageCells(grid), hintAnchor: measureHintAnchor() };
 }
 
 /** Build the world for the first time. */
 function setup() {
   resizeCanvas(canvas, ctx);
 
-  const { grid, pageCells } = measure();
-  state = createGameState({ grid, pageCells, best: 0 });
+  state = createGameState({ ...measure(), best: 0 });
 }
 
 let resizeTimer = null;
@@ -81,10 +80,7 @@ function handleResize() {
   resizeCanvas(canvas, ctx);
 
   clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    const { grid, pageCells } = measure();
-    resizeGame(state, grid, pageCells);
-  }, RESIZE_SETTLE_MS);
+  resizeTimer = setTimeout(() => resizeGame(state, measure()), RESIZE_SETTLE_MS);
 }
 
 /** Start a fresh run on the same board, keeping the session best. */

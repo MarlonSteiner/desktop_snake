@@ -17,7 +17,11 @@
     /* Fluid type: scales with the viewport but never smaller/larger than the
        clamp bounds. This is what keeps the headline from overflowing on
        narrow windows without needing a single media query. */
-    .headline-line { font-size: clamp(2.25rem, 11vw, 9rem); line-height: 0.9; }
+    /* The 11vw is what phones get, and it was right there. Only the ceiling
+       moved: it now caps at 5.5rem instead of 9rem, which starts biting at
+       about 800px wide — so every phone is untouched and laptops stop
+       shouting. One number to tune. */
+    .headline-line { font-size: clamp(2.25rem, 11vw, 5.5rem); line-height: 0.9; }
     .footer-name   { font-size: clamp(0.75rem, 2vw, 1rem); }
 
     /* Rainbow road, but only for a moment.
@@ -260,6 +264,24 @@
           <li><a class="underline underline-offset-2 hover:opacity-50" href="https://github.com/MarlonSteiner" target="_blank" rel="noopener noreferrer">github.com/MarlonSteiner</a></li>
           <li>St.&nbsp;Gallen, Switzerland &middot; Available immediately</li>
         </ul>
+
+        <!-- `download` asks the browser to save rather than open in a tab.
+             Regenerate the file from scratchpad/mkcv.py, or just replace it —
+             nothing reads its contents. -->
+        <a
+          href="assets/cv/Marlon_Steiner_CV.pdf"
+          download
+          class="mt-6 inline-flex items-center gap-2 border border-black px-4 py-2 text-[0.6875rem]
+                 font-semibold uppercase tracking-[0.18em] transition-colors hover:bg-black
+                 hover:text-white focus-visible:outline focus-visible:outline-2
+                 focus-visible:outline-offset-4 focus-visible:outline-black"
+        >
+          <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v12" /><path d="M7 12l5 5 5-5" /><path d="M4 21h16" />
+          </svg>
+          Download CV
+        </a>
       </header>
 
       <!-- Intro -->

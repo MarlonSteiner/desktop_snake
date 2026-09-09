@@ -91,6 +91,8 @@ export const HINT = {
   stepMs: 450,
   /** How long the whole prompt takes to fade once the game starts. */
   fadeMs: 400,
+  /** Breathing room between the prompt and the contact link below it. */
+  gapAboveAnchor: 18,
   font: '600 12px ui-sans-serif, system-ui, -apple-system, sans-serif',
 };
 

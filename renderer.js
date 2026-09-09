@@ -65,7 +65,9 @@ function drawSnake(ctx, state) {
  * before the assets arrive.
  */
 function drawApple(ctx, state, stickers) {
-  if (state.apple === null) return;
+  // Nothing to eat until you are playing. The apple still exists in the state,
+  // it is just not on screen yet, so the page reads as a page first.
+  if (state.apple === null || state.status === 'idle') return;
 
   const { x, y } = cellToPixel(state.grid, state.apple);
   const centreX = x + CELL_SIZE / 2;
@@ -163,7 +165,12 @@ function drawControlHint(ctx, state) {
     alpha = 1 - fade;
   }
 
-  const head = cellToPixel(state.grid, state.snake[0]);
+  // Centred on the contact link and sitting just above it, so the prompt is
+  // where the eye already is rather than off at the edge chasing the snake.
+  const anchor = state.hintAnchor ?? {
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
+  };
 
   // Telling a phone user to press arrow keys would be worse than saying
   // nothing, so touch gets its own prompt.
@@ -174,12 +181,8 @@ function drawControlHint(ctx, state) {
     ctx.letterSpacing = HUD.letterSpacing;
     ctx.fillStyle = COLORS.hud;
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(
-      'SWIPE TO PLAY',
-      window.innerWidth / 2,
-      head.y + CELL_SIZE * 3,
-    );
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText('SWIPE TO PLAY', anchor.x, anchor.y - HINT.gapAboveAnchor);
     ctx.restore();
     ctx.textAlign = 'left';
     return;
@@ -188,13 +191,9 @@ function drawControlHint(ctx, state) {
   const { keySize, gap } = HINT;
   const clusterWidth = keySize * 3 + gap * 2;
   const clusterHeight = keySize * 2 + gap;
-  // Two cells ahead of the head, so it reads as "go this way" as well as
-  // "these keys". Flips behind the snake if there is no room in front.
-  let left = head.x + CELL_SIZE * 2;
-  if (left + clusterWidth > window.innerWidth - 16) {
-    left = head.x - CELL_SIZE - clusterWidth;
-  }
-  const top = head.y + CELL_SIZE / 2 - clusterHeight / 2;
+
+  const left = anchor.x - clusterWidth / 2;
+  const top = anchor.y - HINT.gapAboveAnchor - clusterHeight;
 
   // Lighting one key at a time says "these are pressable" in a way a static
   // picture does not. Reduced motion gets the picture.

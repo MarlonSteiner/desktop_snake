@@ -40,6 +40,19 @@ function rectToCells(grid, rect, into) {
 }
 
 /**
+ * Where the control prompt should sit: centred on the contact link, just above
+ * it. Measured from the DOM for the same reason the obstacle cells are — so it
+ * follows the real layout instead of guessing at a fraction of the viewport.
+ */
+export function measureHintAnchor() {
+  const element = document.querySelector('#contact-link');
+  if (element === null) return null;
+
+  const rect = element.getBoundingClientRect();
+  return { x: rect.left + rect.width / 2, y: rect.top };
+}
+
+/**
  * Measure the page and return the set of cells its content occupies.
  *
  * A Set of "x,y" strings, so checking a cell is one cheap lookup rather than a
