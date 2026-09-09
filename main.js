@@ -12,6 +12,7 @@ import {
 } from './game.js';
 import { computePageCells } from './obstacles.js';
 import { attachKeyboardInput } from './input.js';
+import { attachTouchInput } from './touch.js';
 import { attachMenu } from './menu.js';
 import { speedMultiplier, isFlashing } from './modifiers.js';
 import { createHeadlineBurst } from './headline.js';
@@ -151,14 +152,20 @@ function frame(now) {
 
 setup();
 window.addEventListener('resize', handleResize);
-attachKeyboardInput({
+// One set of handlers, two sources feeding it. Adding swipe controls needed no
+// change to game.js, renderer.js or input.js — which is what the named-handler
+// shape in input.js was for.
+const controls = {
   onDirection: (direction) => {
     if (!isPaused) queueDirection(state, direction);
   },
   onRestart: () => {
     if (!isPaused) restart();
   },
-});
+};
+
+attachKeyboardInput(controls);
+attachTouchInput(controls);
 attachMenu({
   onPauseChange: (open) => {
     isPaused = open;

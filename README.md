@@ -102,7 +102,9 @@ new grid — the same thing the edges already do, so a snake that was near the o
 right edge reappears on the left. Food only moves if the resize actually
 stranded it.
 
-## Parked
+## Input sources
 
-- **Mobile controls.** A second input source alongside `input.js`; the game
-  logic should not need to change.
+`input.js` (keyboard) and `touch.js` (swipe) are siblings. Both turn raw events
+into the same named intents and hand them to the same handlers, and neither
+knows the other exists. Adding swipe controls changed no game logic at all —
+`game.js`, `renderer.js` and `input.js` were untouched.

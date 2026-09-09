@@ -7,6 +7,11 @@ import { activeModifier, isFlashing, flashIndex } from './modifiers.js';
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+// Describes the primary pointer, so it reports touch on a phone and mouse on a
+// laptop with a touchscreen — which is what decides whether we tell people to
+// press keys or to swipe.
+const usesTouch = window.matchMedia('(pointer: coarse)');
+
 /**
  * Size the canvas to the viewport, accounting for the device pixel ratio.
  *
@@ -158,11 +163,31 @@ function drawControlHint(ctx, state) {
     alpha = 1 - fade;
   }
 
+  const head = cellToPixel(state.grid, state.snake[0]);
+
+  // Telling a phone user to press arrow keys would be worse than saying
+  // nothing, so touch gets its own prompt.
+  if (usesTouch.matches) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.font = HUD.font;
+    ctx.letterSpacing = HUD.letterSpacing;
+    ctx.fillStyle = COLORS.hud;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(
+      'SWIPE TO PLAY',
+      window.innerWidth / 2,
+      head.y + CELL_SIZE * 3,
+    );
+    ctx.restore();
+    ctx.textAlign = 'left';
+    return;
+  }
+
   const { keySize, gap } = HINT;
   const clusterWidth = keySize * 3 + gap * 2;
   const clusterHeight = keySize * 2 + gap;
-
-  const head = cellToPixel(state.grid, state.snake[0]);
   // Two cells ahead of the head, so it reads as "go this way" as well as
   // "these keys". Flips behind the snake if there is no room in front.
   let left = head.x + CELL_SIZE * 2;
@@ -219,7 +244,7 @@ function drawGameOver(ctx, state) {
   ctx.textAlign = 'center';
 
   ctx.fillText(
-    'PRESS SPACE TO RESTART',
+    usesTouch.matches ? 'TAP TO RESTART' : 'PRESS SPACE TO RESTART',
     window.innerWidth / 2,
     window.innerHeight * 0.76,
   );
