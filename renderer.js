@@ -1,7 +1,7 @@
 // All canvas drawing lives here. This file never decides what happens in the
 // game — it only draws whatever state it is handed.
 
-import { CELL_SIZE, COLORS, HUD, HINT, STICKER_SCALE, TWIST, MODIFIERS } from './constants.js';
+import { CELL_SIZE, COLORS, HUD, HINT, STICKER_SCALE, TWIST, MODIFIERS, EAT_FLARE_MS } from './constants.js';
 import { pickSticker } from './stickers.js';
 import { activeModifier, isFlashing, flashIndex } from './modifiers.js';
 
@@ -43,18 +43,54 @@ function cellToPixel(grid, cell) {
   };
 }
 
+/**
+ * Paint every segment. `inset` shrinks each cell; a negative one grows it,
+ * which is how the glow is drawn — the same shape, bigger and fainter.
+ */
+function paintSnake(ctx, state, inset) {
+  for (const cell of state.snake) {
+    const { x, y } = cellToPixel(state.grid, cell);
+    ctx.fillRect(x + inset, y + inset, CELL_SIZE - inset * 2, CELL_SIZE - inset * 2);
+  }
+}
+
+/** The headline's gradient, across the viewport, for the canvas. */
+function rainbowGradient(ctx) {
+  const gradient = ctx.createLinearGradient(0, 0, window.innerWidth, window.innerHeight);
+
+  COLORS.rainbow.forEach((color, i) => {
+    gradient.addColorStop(i / (COLORS.rainbow.length - 1), color);
+  });
+  return gradient;
+}
+
 function drawSnake(ctx, state) {
   // The snake's colour is the only thing announcing a modifier — no label, no
   // countdown. You feel the change and see it on the snake itself.
   const modifier = activeModifier(state.twist);
   ctx.fillStyle = modifier === null ? COLORS.snake : MODIFIERS[modifier].color;
 
-  for (const cell of state.snake) {
-    const { x, y } = cellToPixel(state.grid, cell);
-    // The 1px inset leaves a hairline gap so individual segments stay legible
-    // instead of merging into one solid bar.
-    ctx.fillRect(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
-  }
+  // The 1px inset leaves a hairline gap so individual segments stay legible
+  // instead of merging into one solid bar.
+  paintSnake(ctx, state, 1);
+
+  const flare = state.eatFlareMs / EAT_FLARE_MS;
+  if (flare <= 0 || prefersReducedMotion.matches) return;
+
+  // Two passes over the same gradient: an oversized faint one for the halo,
+  // then a crisp one on top. Using the gradient for both is what makes the glow
+  // rainbow too, which a shadowBlur could not do — shadows take a single
+  // colour. Fading the alpha from 1 to 0 is the whole animation; the snake
+  // never changes size, so its collisions always match what you see.
+  ctx.save();
+  ctx.fillStyle = rainbowGradient(ctx);
+
+  ctx.globalAlpha = flare * 0.28;
+  paintSnake(ctx, state, -5);
+
+  ctx.globalAlpha = flare;
+  paintSnake(ctx, state, 1);
+  ctx.restore();
 }
 
 /**

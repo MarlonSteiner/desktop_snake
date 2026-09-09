@@ -33,7 +33,26 @@ export const COLORS = {
   glitch: '#c026d3',
   /** Cycled one at a time as the whole page during FLASH. */
   flash: ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7'],
+  /**
+   * The snake's flare after eating. Same stops as the headline gradient in
+   * index.html, so the two effects read as the same event — duplicated on
+   * purpose, because a canvas cannot read a CSS gradient.
+   */
+  rainbow: [
+    '#e11d48', '#ea580c', '#ca8a04', '#16a34a',
+    '#0284c7', '#4f46e5', '#c026d3', '#e11d48',
+  ],
 };
+
+/**
+ * How long the snake keeps its rainbow after eating.
+ *
+ * Roughly the headline's hold plus its fade, so the snake and the headline
+ * finish together. The snake deliberately gets no scale animation: the
+ * headline can swell without consequence, but a snake that changes size is a
+ * snake whose collisions no longer match what you see.
+ */
+export const EAT_FLARE_MS = 500;
 
 /**
  * Every modifier, one row each: what colour the snake turns and how much
@@ -138,6 +157,16 @@ export const STICKERS = [
  * honest.
  */
 export const STICKER_SCALE = 3;
+
+/**
+ * How far from the apple's own cell still counts as eating it, in cells.
+ *
+ * The sticker is drawn three cells across while the cell underneath is one, so
+ * a hitbox of exactly that cell means aiming at a face and missing it. At 1,
+ * the hitbox is the 3x3 block the sticker actually covers — you eat what you
+ * can see, which is the only version of this that feels fair.
+ */
+export const APPLE_REACH = 1;
 
 /** Top-left score readout. */
 export const HUD = {

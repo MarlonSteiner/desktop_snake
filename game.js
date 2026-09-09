@@ -4,7 +4,7 @@
 // returns plain objects out, which means you can reason about it (and later
 // test it) without a browser.
 
-import { CELL_SIZE, START_LENGTH, START_MARGIN, TWIST } from './constants.js';
+import { CELL_SIZE, START_LENGTH, START_MARGIN, TWIST, EAT_FLARE_MS, APPLE_REACH } from './constants.js';
 import {
   createTwist,
   updateTwist,
@@ -122,6 +122,8 @@ export function createGameState({ grid, pageCells, hintAnchor = null, hudAnchor 
     // prefers-reduced-motion.
     status: 'idle',
     score: 0,
+    // Counts down after eating; the renderer turns it into the snake's flare.
+    eatFlareMs: 0,
     // Carried across restarts by the caller, so it lasts as long as the tab.
     best,
     apple: null,
@@ -141,6 +143,21 @@ export function cellKey(cell) {
 
 function sameCell(a, b) {
   return a !== null && b !== null && a.x === b.x && a.y === b.y;
+}
+
+/**
+ * Is `cell` close enough to the apple to eat it?
+ *
+ * Chebyshev distance — the square block around the apple rather than a circle —
+ * because the sticker is drawn as a square box, and the hitbox should be the
+ * shape of the thing you are aiming at. It deliberately does not wrap at the
+ * edges: the sprite does not wrap either, so neither should the reach.
+ */
+function withinReach(cell, apple) {
+  if (apple === null) return false;
+
+  return Math.abs(cell.x - apple.x) <= APPLE_REACH
+    && Math.abs(cell.y - apple.y) <= APPLE_REACH;
 }
 
 /**
@@ -234,6 +251,7 @@ export function resizeGame(state, { grid, pageCells, hintAnchor, hudAnchor }) {
  * ticks, while "this modifier lasts ten seconds" should be steady in seconds.
  */
 export function advanceTime(state, elapsedMs) {
+  state.eatFlareMs = Math.max(0, state.eatFlareMs - elapsedMs);
   updateTwist(state.twist, elapsedMs, () => randomFreeCell(state));
 }
 
@@ -302,7 +320,7 @@ export function step(state) {
     y: head.y + state.direction.y,
   });
 
-  const ateApple = sameCell(target, state.apple);
+  const ateApple = withinReach(target, state.apple);
   const ateGlitch = sameCell(target, state.twist.glitch);
   const ate = ateApple || ateGlitch;
 
@@ -322,8 +340,12 @@ export function step(state) {
   // Grow at the front, shrink at the back — unless we just ate, in which case
   // skipping the pop is the entire growth mechanic.
   state.snake.unshift(target);
-  if (ate) state.score += 1;
-  else state.snake.pop();
+  if (ate) {
+    state.score += 1;
+    state.eatFlareMs = EAT_FLARE_MS;
+  } else {
+    state.snake.pop();
+  }
 
   if (ateApple) {
     state.apple = spawnApple(state);

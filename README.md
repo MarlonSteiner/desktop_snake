@@ -63,8 +63,8 @@ number in it. See [`assets/cv/README.md`](assets/cv/README.md).
 ## Stickers
 
 The snake eats cutouts of me rather than fruit — seven of them, one picked at
-random per apple. They are drawn three cells across while the hitbox stays a
-single cell, so aim for the middle. See
+random per apple. They are drawn three cells across, and the hitbox is the same
+3x3 block, so you eat what you can see. See
 [`assets/stickers/README.md`](assets/stickers/README.md) for what to drop in and
 how to register it. Falls back to a plain circle when an image is missing or
 still loading, so the game is playable before the assets arrive.
