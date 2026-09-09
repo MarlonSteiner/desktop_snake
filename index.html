@@ -6,11 +6,10 @@
   <title>Marlon Steiner — Dev Looking For Work</title>
   <meta name="description" content="Marlon Steiner — developer looking for work. A landing page that is also a playable snake game." />
 
-  <!-- Inline SVG favicon: one snake segment, no binary file in the repo.
-       Every space is %20-encoded: a raw space makes the data URI invalid, the
-       browser silently discards the icon, and falls back to requesting
-       /favicon.ico — which is exactly the 404 this was meant to avoid. -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='6'%20fill='%23000'/%3E%3C/svg%3E" />
+  <!-- A real file rather than an inline data URI. Browsers request
+       /favicon.ico on their own whatever the page declares, so the only way to
+       stop the 404 is for the file to exist. -->
+  <link rel="icon" href="favicon.ico" sizes="any" />
 
   <script src="https://cdn.tailwindcss.com"></script>
 
