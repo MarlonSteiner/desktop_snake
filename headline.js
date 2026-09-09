@@ -4,8 +4,14 @@
 const POP_SCALE = 1.07;
 const POP_MS = 300;
 
-/** How long the headline stays rainbow after an apple, before fading back. */
-const RAINBOW_MS = 900;
+/**
+ * How long the headline holds its colour after an apple.
+ *
+ * The flare is deliberately shorter than the 300ms swell: the colour snaps on
+ * instantly and then CSS eases it away over another 180ms, so the whole thing
+ * is done in about half a second.
+ */
+const RAINBOW_MS = 320;
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 

@@ -39,7 +39,11 @@
       background-size: 200% 100%;
       -webkit-background-clip: text;
       background-clip: text;
-      transition: color 350ms ease, -webkit-text-fill-color 350ms ease;
+      /* Only the fade *out* is animated. A transition uses the timing of the
+         state being moved into, so this rule governs removing .is-rainbow;
+         .is-rainbow below cancels it, which makes the colour snap on instantly
+         and then ease away. */
+      transition: color 180ms ease, -webkit-text-fill-color 180ms ease;
     }
 
     /* Guarded: without background-clip support a transparent fill would mean an
@@ -48,7 +52,8 @@
       #headline.is-rainbow {
         color: transparent;
         -webkit-text-fill-color: transparent;
-        animation: rainbow-scroll 2.5s linear infinite;
+        transition: none;
+        animation: rainbow-scroll 1.5s linear infinite;
       }
     }
 
