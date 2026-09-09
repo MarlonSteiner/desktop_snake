@@ -29,7 +29,29 @@ export const COLORS = {
   // than as part of the page's black-and-white identity.
   apple: '#000000',
   hud: '#a3a3a3',
+  hint: '#000000',
 };
+
+/**
+ * Sticker images the snake eats, drawn in place of the plain circle.
+ *
+ * Drop square PNGs with transparent backgrounds into assets/stickers/ and list
+ * them here. Anything that fails to load is skipped and that apple falls back
+ * to a circle, so a missing file can never break the page.
+ */
+export const STICKERS = [
+  'assets/stickers/placeholder.png',
+];
+
+/**
+ * How much bigger a sticker is drawn than the cell it sits in.
+ *
+ * A face rendered at 24px is an unreadable smudge, so the sticker overflows its
+ * cell. Only the drawing is bigger — the snake still has to reach the one cell
+ * the apple actually occupies. Sprites larger than their hitbox are normal in
+ * games; it is the hitbox that has to stay honest.
+ */
+export const STICKER_SCALE = 1.9;
 
 /** Top-left score readout. */
 export const HUD = {

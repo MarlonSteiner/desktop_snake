@@ -25,38 +25,67 @@ export function createGrid(viewportWidth, viewportHeight) {
   };
 }
 
-/**
- * The snake is an array of grid cells, head first. Head-first ordering is what
- * makes movement cheap later: add a new head, drop the last tail cell.
- */
-export function createSnake(grid) {
-  const y = Math.floor(grid.rows / 2);
+/** The three starting cells on a given row, head first. */
+function startCellsOnRow(row) {
   const headX = START_MARGIN + START_LENGTH - 1;
 
   const cells = [];
   for (let i = 0; i < START_LENGTH; i++) {
-    cells.push({ x: headX - i, y });
+    cells.push({ x: headX - i, y: row });
   }
   return cells;
+}
+
+/**
+ * The snake is an array of grid cells, head first. Head-first ordering is what
+ * makes movement cheap: add a new head, drop the last tail cell.
+ *
+ * We want to start near the vertical middle, but on a narrow window the
+ * headline reaches the left edge and the middle rows are wall. So we start at
+ * the middle row and walk outwards — up one, down one, up two — until we find a
+ * row where all three starting cells are free. Without this the snake can spawn
+ * inside the text and die on its first move.
+ */
+export function createSnake(grid, blocked) {
+  const middle = Math.floor(grid.rows / 2);
+
+  for (let offset = 0; offset <= grid.rows; offset++) {
+    const candidates = offset === 0 ? [middle] : [middle - offset, middle + offset];
+
+    for (const row of candidates) {
+      if (row < 0 || row >= grid.rows) continue;
+
+      const cells = startCellsOnRow(row);
+      if (cells.every((cell) => !blocked.has(cellKey(cell)))) return cells;
+    }
+  }
+
+  // Every row is blocked, which should be impossible. Start in the middle and
+  // let the player see a very short game rather than crashing the page.
+  return startCellsOnRow(middle);
 }
 
 /**
  * The single object that holds everything the game knows. Passing this around
  * explicitly is what keeps us from accumulating loose global variables.
  */
-export function createGameState(grid, best = 0) {
+export function createGameState({ grid, blocked, best = 0 }) {
   const direction = { x: 1, y: 0 };
 
   const state = {
     grid,
-    snake: createSnake(grid),
+    // The cells the page itself occupies. Walls for the snake, and off-limits
+    // to apples.
+    blocked,
+    snake: createSnake(grid, blocked),
     // Direction is a unit vector so moving is just head.x + direction.x.
     direction,
     // Where input wants to go. Kept separate from `direction` so a turn only
     // takes effect on a tick boundary — see step().
     nextDirection: direction,
-    // 'idle' until the first movement key. The game never starts on its own,
-    // which is also how we respect prefers-reduced-motion.
+    // 'idle' until the first movement key, then 'running', then 'over'. The
+    // game never starts on its own, which is also how we respect
+    // prefers-reduced-motion.
     status: 'idle',
     score: 0,
     // Carried across restarts by the caller, so it lasts as long as the tab.
@@ -87,7 +116,8 @@ function sameCell(a, b) {
  * cells to the same `taken` set.
  */
 export function findFreeCells(state) {
-  const taken = new Set(state.snake.map(cellKey));
+  const taken = new Set(state.blocked);
+  for (const cell of state.snake) taken.add(cellKey(cell));
   const free = [];
 
   for (let y = 0; y < state.grid.rows; y++) {
@@ -99,17 +129,29 @@ export function findFreeCells(state) {
   return free;
 }
 
-/** Pick a random free cell, or null if the board is somehow full. */
+/**
+ * Pick a random free cell, or null if the board is somehow full.
+ *
+ * `variant` is a random number the renderer turns into a sticker choice. Kept
+ * here so each apple keeps the same face for its whole life, and kept as a
+ * plain number so game.js never learns that images exist.
+ */
 export function spawnApple(state) {
   const free = findFreeCells(state);
   if (free.length === 0) return null;
 
-  return free[Math.floor(Math.random() * free.length)];
+  const cell = free[Math.floor(Math.random() * free.length)];
+  return { ...cell, variant: Math.floor(Math.random() * 1000) };
 }
 
 /** Two vectors pointing directly at each other, e.g. left and right. */
 function isOpposite(a, b) {
   return a.x === -b.x && a.y === -b.y;
+}
+
+/** True if a cell has left the board entirely. */
+function isOutside(grid, cell) {
+  return cell.x < 0 || cell.y < 0 || cell.x >= grid.cols || cell.y >= grid.rows;
 }
 
 /**
@@ -118,8 +160,8 @@ function isOpposite(a, b) {
  * Adding grid.cols before the modulo is what makes -1 wrap to the last column;
  * JavaScript's % keeps the sign of the left operand, so -1 % 53 is -1, not 52.
  *
- * Wrapping is temporary as a movement rule — stage 5 makes edges lethal — but
- * the helper stays, because the PHASE modifier needs exactly this behaviour.
+ * Edges are lethal now, so nothing calls this yet. It stays because the PHASE
+ * modifier in stage 7 needs exactly this behaviour.
  */
 export function wrap(grid, cell) {
   return {
@@ -137,6 +179,9 @@ export function wrap(grid, cell) {
  * neck. Deferring to the tick means only one turn per move can ever land.
  */
 export function queueDirection(state, direction) {
+  // A dead snake does not take orders. Space restarts instead.
+  if (state.status === 'over') return;
+
   state.nextDirection = direction;
 
   if (state.status === 'idle') state.status = 'running';
@@ -156,12 +201,28 @@ export function step(state) {
   }
 
   const head = state.snake[0];
-  const target = wrap(state.grid, {
+  const target = {
     x: head.x + state.direction.x,
     y: head.y + state.direction.y,
-  });
+  };
 
   const ate = sameCell(target, state.apple);
+
+  // Three ways to die, checked before anything moves.
+  //
+  // The tail is the subtle one: the last segment steps away this tick, so the
+  // cell it is vacating is fair game — unless we are eating, because then the
+  // tail stays put and the snake really does run into itself.
+  const body = ate ? state.snake : state.snake.slice(0, -1);
+
+  if (
+    isOutside(state.grid, target) ||
+    state.blocked.has(cellKey(target)) ||
+    body.some((cell) => sameCell(cell, target))
+  ) {
+    state.status = 'over';
+    return false;
+  }
 
   // Grow at the front, shrink at the back — unless we just ate, in which case
   // skipping the pop is the entire growth mechanic.

@@ -41,11 +41,17 @@ GitHub Pages serves the repository root. `CNAME` points the site at
 1. ~~Static page — markup, logos, hamburger, footer~~
 2. ~~Canvas layered behind, grid from viewport, static snake~~
 3. ~~Movement, fixed-timestep loop, keyboard input~~
-4. ~~Apples, growth, scoring~~ ← *current*
-5. Obstacles from DOM bounds, collision, game over, restart
+4. ~~Apples, growth, scoring~~
+5. ~~Obstacles from DOM bounds, collision, game over, restart~~ ← *current*
 6. Hamburger menu with CV panel and pause
 7. Glitch fruit and modifiers
 8. Polish: colors, countdown UI, resize handling
+
+## Stickers
+
+The snake eats sticker images rather than fruit. See
+[`assets/stickers/README.md`](assets/stickers/README.md) for what to drop in and
+how to register it. Falls back to a plain circle when no image is available.
 
 ## Parked
 

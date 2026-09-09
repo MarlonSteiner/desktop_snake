@@ -1,15 +1,18 @@
 // Entry point. This is the only file that talks to both the page and the game:
 // it owns the canvas, the loop, and the wiring between input, state and render.
 
-import { TICKS_PER_SECOND, MAX_FRAME_MS } from './constants.js';
+import { TICKS_PER_SECOND, MAX_FRAME_MS, STICKERS } from './constants.js';
 import { createGrid, createGameState, queueDirection, step } from './game.js';
+import { computeBlockedCells } from './obstacles.js';
 import { attachKeyboardInput } from './input.js';
 import { createHeadlinePop } from './headline.js';
+import { loadStickers } from './stickers.js';
 import { resizeCanvas, render } from './renderer.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const popHeadline = createHeadlinePop(document.getElementById('headline'));
+const stickers = loadStickers(STICKERS);
 
 /** How much game time one tick represents. */
 const TICK_MS = 1000 / TICKS_PER_SECOND;
@@ -17,16 +20,30 @@ const TICK_MS = 1000 / TICKS_PER_SECOND;
 let state = null;
 
 /**
- * Build the world from the current viewport size.
+ * Build the world from the current viewport size and the page's real layout.
  *
  * Resizing currently throws the game away and starts over. That is acceptable
  * for now; a later stage will preserve the run instead.
  */
 function setup() {
   resizeCanvas(canvas, ctx);
+
+  const grid = createGrid(window.innerWidth, window.innerHeight);
   // The best score outlives the state object it was set on.
   const best = state === null ? 0 : state.best;
-  state = createGameState(createGrid(window.innerWidth, window.innerHeight), best);
+
+  state = createGameState({ grid, blocked: computeBlockedCells(grid), best });
+}
+
+/** Start a fresh run on the same board, keeping the session best. */
+function restart() {
+  if (state.status !== 'over') return;
+
+  state = createGameState({
+    grid: state.grid,
+    blocked: state.blocked,
+    best: state.best,
+  });
 }
 
 // ── The loop ────────────────────────────────────────────────────────────────
@@ -60,11 +77,14 @@ function frame(now) {
     accumulator = 0;
   }
 
-  render(ctx, state);
+  render(ctx, state, stickers);
   requestAnimationFrame(frame);
 }
 
 setup();
 window.addEventListener('resize', setup);
-attachKeyboardInput((direction) => queueDirection(state, direction));
+attachKeyboardInput({
+  onDirection: (direction) => queueDirection(state, direction),
+  onRestart: restart,
+});
 requestAnimationFrame(frame);

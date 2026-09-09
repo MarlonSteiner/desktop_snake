@@ -1,7 +1,8 @@
 // All canvas drawing lives here. This file never decides what happens in the
 // game — it only draws whatever state it is handed.
 
-import { CELL_SIZE, COLORS, HUD } from './constants.js';
+import { CELL_SIZE, COLORS, HUD, STICKER_SCALE } from './constants.js';
+import { pickSticker } from './stickers.js';
 
 /**
  * Size the canvas to the viewport, accounting for the device pixel ratio.
@@ -46,19 +47,53 @@ function drawSnake(ctx, state) {
 }
 
 /**
- * The apple is a circle while the snake is squares. Shape carries the
- * difference, so the whole game stays legible in one colour.
+ * Draw the apple: a sticker if one has loaded, otherwise a circle.
+ *
+ * The circle is not just a fallback for errors — it is what shows during the
+ * first frames while the images are still decoding, so the game is playable
+ * before the assets arrive.
  */
-function drawApple(ctx, state) {
+function drawApple(ctx, state, stickers) {
   if (state.apple === null) return;
 
   const { x, y } = cellToPixel(state.grid, state.apple);
-  const radius = CELL_SIZE / 2 - 3;
+  const centreX = x + CELL_SIZE / 2;
+  const centreY = y + CELL_SIZE / 2;
+
+  const sticker = pickSticker(stickers, state.apple.variant);
+
+  if (sticker !== null) {
+    // Drawn larger than the cell and centred on it. The hitbox is still the one
+    // cell underneath.
+    const size = CELL_SIZE * STICKER_SCALE;
+    ctx.drawImage(sticker, centreX - size / 2, centreY - size / 2, size, size);
+    return;
+  }
 
   ctx.fillStyle = COLORS.apple;
   ctx.beginPath();
-  ctx.arc(x + CELL_SIZE / 2, y + CELL_SIZE / 2, radius, 0, Math.PI * 2);
+  ctx.arc(centreX, centreY, CELL_SIZE / 2 - 3, 0, Math.PI * 2);
   ctx.fill();
+}
+
+/** The restart prompt, low in the page where nothing else is competing. */
+function drawGameOver(ctx, state) {
+  if (state.status !== 'over') return;
+
+  ctx.fillStyle = COLORS.hint;
+  ctx.font = HUD.font;
+  ctx.letterSpacing = HUD.letterSpacing;
+  ctx.textBaseline = 'top';
+  ctx.textAlign = 'center';
+
+  ctx.fillText(
+    'PRESS SPACE TO RESTART',
+    window.innerWidth / 2,
+    window.innerHeight * 0.76,
+  );
+
+  // Leave the context as we found it, or the HUD would start drawing centred.
+  ctx.textAlign = 'left';
 }
 
 function drawHud(ctx, state) {
@@ -72,11 +107,12 @@ function drawHud(ctx, state) {
 }
 
 /** Draw one complete frame. */
-export function render(ctx, state) {
+export function render(ctx, state, stickers) {
   ctx.fillStyle = COLORS.background;
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-  drawApple(ctx, state);
+  drawApple(ctx, state, stickers);
   drawSnake(ctx, state);
   drawHud(ctx, state);
+  drawGameOver(ctx, state);
 }
