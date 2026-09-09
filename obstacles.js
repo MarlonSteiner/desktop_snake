@@ -8,7 +8,7 @@
 // rendered glyphs, so this keeps working if you rewrite the headline or change
 // the font.
 
-import { CELL_SIZE } from './constants.js';
+import { CELL_SIZE, HUD } from './constants.js';
 import { cellKey } from './game.js';
 
 /**
@@ -19,7 +19,7 @@ import { cellKey } from './game.js';
  * but not its parent's — so measuring the wrapper keeps this box steady while
  * the headline pops.
  */
-const PAGE_SELECTORS = ['#contact-link', '#text-block', '#logo-row'];
+const PAGE_SELECTORS = ['#contact-link', '#text-block', '#logo-row', '#menu-button', 'footer'];
 
 /** Convert one viewport rectangle into the grid cells it covers. */
 function rectToCells(grid, rect, into) {
@@ -84,6 +84,20 @@ export function computePageCells(grid) {
     if (element === null) continue;
 
     rectToCells(grid, element.getBoundingClientRect(), cells);
+  }
+
+  // The score readout is drawn on the canvas, so there is no element to
+  // measure — but it takes up space like everything else here, and an apple
+  // behind it looks unreachable. Reserved from the same anchor the renderer
+  // draws it at, so the two cannot disagree.
+  const hud = measureHudAnchor();
+  if (hud !== null) {
+    rectToCells(grid, {
+      left: hud.x,
+      right: hud.x + HUD.reserve.width,
+      top: hud.y - HUD.reserve.height / 2,
+      bottom: hud.y + HUD.reserve.height / 2,
+    }, cells);
   }
 
   return cells;

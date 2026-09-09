@@ -47,29 +47,51 @@ function startCellsOnRow(row) {
  * The snake is an array of grid cells, head first. Head-first ordering is what
  * makes movement cheap: add a new head, drop the last tail cell.
  *
- * We want to start near the vertical middle, but on a narrow window the
- * headline reaches the left edge. The snake can pass through the text, but
- * starting underneath it means starting invisible, so we begin at the middle
- * row and walk outwards — up one, down one, up two — until we find a row that
- * is clear of the page's own content.
+ * Choosing where to start is the interesting part. Walking outwards from the
+ * middle until the cells are clear finds the *nearest* free row, which is the
+ * row pressed right up against the headline — the snake appears to be hiding
+ * behind the text. Instead we score every free row by how much clear space
+ * surrounds it and take the roomiest, so the snake starts in open page.
+ *
+ * That needs no breakpoint to do the right thing on a phone: there the content
+ * fills the middle of the screen and the biggest gap happens to be below the
+ * logos, so that is where it lands.
  */
 export function createSnake(grid, pageCells) {
+  const isClear = (row) =>
+    startCellsOnRow(row).every((cell) => !pageCells.has(cellKey(cell)));
+
   const middle = Math.floor(grid.rows / 2);
+  let best = null;
 
-  for (let offset = 0; offset <= grid.rows; offset++) {
-    const candidates = offset === 0 ? [middle] : [middle - offset, middle + offset];
+  for (let row = 0; row < grid.rows; row++) {
+    if (!isClear(row)) continue;
 
-    for (const row of candidates) {
-      if (row < 0 || row >= grid.rows) continue;
+    // How far the clear run reaches above and below this row. Counting stops at
+    // the grid edge too, so the very top and bottom rows score badly and the
+    // snake does not start jammed against the viewport edge either.
+    let above = 0;
+    while (row - above - 1 >= 0 && isClear(row - above - 1)) above += 1;
+    let below = 0;
+    while (row + below + 1 < grid.rows && isClear(row + below + 1)) below += 1;
 
-      const cells = startCellsOnRow(row);
-      if (cells.every((cell) => !pageCells.has(cellKey(cell)))) return cells;
+    const clearance = Math.min(above, below);
+    const distanceFromMiddle = Math.abs(row - middle);
+
+    // Roomiest wins; ties go to whichever is nearer the middle, so a symmetric
+    // page still starts somewhere deliberate rather than at the first match.
+    if (
+      best === null ||
+      clearance > best.clearance ||
+      (clearance === best.clearance && distanceFromMiddle < best.distanceFromMiddle)
+    ) {
+      best = { row, clearance, distanceFromMiddle };
     }
   }
 
-  // Every row is blocked, which should be impossible. Start in the middle and
-  // let the player see a very short game rather than crashing the page.
-  return startCellsOnRow(middle);
+  // Every row blocked, which should be impossible. Start in the middle and let
+  // the player see a very short game rather than crashing the page.
+  return startCellsOnRow(best === null ? middle : best.row);
 }
 
 /**

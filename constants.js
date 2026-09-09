@@ -145,4 +145,9 @@ export const HUD = {
   letterSpacing: '0.12em',
   padding: 20,
   lineHeight: 16,
+  /**
+   * The box the readout occupies, reserved so apples never spawn behind it.
+   * Generous rather than exact: it is a keep-out zone, not a hitbox.
+   */
+  reserve: { width: 104, height: 44 },
 };
