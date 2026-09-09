@@ -88,8 +88,3 @@ export function speedMultiplier(twist) {
   const name = activeModifier(twist);
   return name === null ? 1 : MODIFIERS[name].speed;
 }
-
-/** Whole seconds left on the modifier, for the HUD. */
-export function secondsLeft(twist) {
-  return twist.modifier === null ? 0 : Math.ceil(twist.modifier.msLeft / 1000);
-}

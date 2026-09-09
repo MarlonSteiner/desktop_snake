@@ -3,7 +3,7 @@
 
 import { CELL_SIZE, COLORS, HUD, STICKER_SCALE, TWIST, MODIFIERS } from './constants.js';
 import { pickSticker } from './stickers.js';
-import { activeModifier, secondsLeft } from './modifiers.js';
+import { activeModifier } from './modifiers.js';
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -39,8 +39,8 @@ function cellToPixel(grid, cell) {
 }
 
 function drawSnake(ctx, state) {
-  // The snake wears the running modifier's colour, so a glance at the board
-  // tells you the rules have changed without reading the HUD.
+  // The snake's colour is the only thing announcing a modifier — no label, no
+  // countdown. You feel the change and see it on the snake itself.
   const modifier = activeModifier(state.twist);
   ctx.fillStyle = modifier === null ? COLORS.snake : MODIFIERS[modifier].color;
 
@@ -139,16 +139,6 @@ function drawHud(ctx, state) {
 
   ctx.fillText(`SCORE ${state.score}`, HUD.padding, HUD.padding);
   ctx.fillText(`BEST ${state.best}`, HUD.padding, HUD.padding + HUD.lineHeight);
-
-  const modifier = activeModifier(state.twist);
-  if (modifier === null) return;
-
-  ctx.fillStyle = MODIFIERS[modifier].color;
-  ctx.fillText(
-    `${modifier} ${secondsLeft(state.twist)}s`,
-    HUD.padding,
-    HUD.padding + HUD.lineHeight * 2,
-  );
 }
 
 /** Draw one complete frame. */

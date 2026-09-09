@@ -64,8 +64,8 @@ how to register it. Falls back to a plain circle when no image is available.
 Every 15 seconds a magenta diamond appears somewhere free and stays for 6,
 blinking over its last second and a half. Eating it is worth +5 and starts one
 random modifier for 10 seconds. Only one runs at a time — a new one replaces
-whatever was going and resets the clock. The snake takes on the modifier's
-colour, and the name and countdown appear under the score.
+whatever was going and resets the clock. The snake changing colour is the only
+announcement; there is no label or countdown.
 
 | Modifier | Effect |
 | --- | --- |
