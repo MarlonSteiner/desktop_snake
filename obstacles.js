@@ -54,6 +54,7 @@ export function measureHintAnchor() {
   const rect = element.getBoundingClientRect();
   return {
     right: rect.right,
+    top: rect.top,
     bottom: rect.bottom,
     centreX: rect.left + rect.width / 2,
     // Roughly eye level, which is where a prompt beside a figure wants to sit.

@@ -113,9 +113,15 @@ export const AVATAR = {
   pivot: '50.3% 32.1%',
   /** Eye height as a fraction of the whole picture, which includes the desk. */
   headHeightFraction: 0.22,
-  /** How far the snake travels before the head is turned as far as it goes. */
-  reachX: 420,
-  reachY: 300,
+  /**
+   * How far the snake has to be for the head to be turned as far as it goes,
+   * as a fraction of the viewport rather than a pixel count. A fixed distance
+   * saturates almost immediately on a wide screen — the head sits pinned at
+   * full tilt and stops reacting. Measuring in screen-halves means the turn
+   * maps across whatever screen it is actually on.
+   */
+  reachXFraction: 0.5,
+  reachYFraction: 0.45,
   maxTiltDeg: 9,
   maxLiftPx: 5,
 };
@@ -130,8 +136,8 @@ export const HINT = {
   fadeMs: 400,
   /** Space between the key cluster and the avatar it sits beside. */
   gapBesideAvatar: 28,
-  /** Space between the touch prompt and the avatar above it. */
-  gapAboveAnchorText: 26,
+  /** Space between the touch prompt and the avatar below it. */
+  gapAboveAnchorText: 34,
   font: '600 12px ui-sans-serif, system-ui, -apple-system, sans-serif',
 };
 

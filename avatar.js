@@ -44,8 +44,11 @@ export function createAvatarGaze(head, frame) {
     // the desk and the chair — the eyes are near the top.
     const centreY = box.top + box.height * AVATAR.headHeightFraction;
 
-    const tilt = +(normalise(x, centreX, AVATAR.reachX) * AVATAR.maxTiltDeg).toFixed(1);
-    const lift = +(normalise(y, centreY, AVATAR.reachY) * AVATAR.maxLiftPx).toFixed(1);
+    const reachX = window.innerWidth * AVATAR.reachXFraction;
+    const reachY = window.innerHeight * AVATAR.reachYFraction;
+
+    const tilt = +(normalise(x, centreX, reachX) * AVATAR.maxTiltDeg).toFixed(1);
+    const lift = +(normalise(y, centreY, reachY) * AVATAR.maxLiftPx).toFixed(1);
 
     if (tilt === lastTilt && lift === lastLift) return;
     lastTilt = tilt;

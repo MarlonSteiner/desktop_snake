@@ -204,6 +204,7 @@ function drawControlHint(ctx, state) {
   // Placed against the avatar, which is what a visitor is already looking at.
   const anchor = state.hintAnchor ?? {
     right: window.innerWidth / 2,
+    top: window.innerHeight / 2,
     bottom: window.innerHeight / 2,
     centreX: window.innerWidth / 2,
     eyeY: window.innerHeight / 2,
@@ -219,8 +220,9 @@ function drawControlHint(ctx, state) {
     ctx.fillStyle = COLORS.hud;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
-    // Under the avatar on a phone: there is no room beside it.
-    ctx.fillText('SWIPE TO PLAY', anchor.centreX, anchor.bottom + HINT.gapAboveAnchorText);
+    // Above the avatar on a phone. There is no room beside him, and the gap
+    // below is already spoken for by the headline — the open space is overhead.
+    ctx.fillText('SWIPE TO PLAY', anchor.centreX, anchor.top - HINT.gapAboveAnchorText);
     ctx.restore();
     ctx.textAlign = 'left';
     return;
