@@ -45,10 +45,72 @@ export function createSnake(grid) {
  * explicitly is what keeps us from accumulating loose global variables.
  */
 export function createGameState(grid) {
+  const direction = { x: 1, y: 0 };
+
   return {
     grid,
     snake: createSnake(grid),
     // Direction is a unit vector so moving is just head.x + direction.x.
-    direction: { x: 1, y: 0 },
+    direction,
+    // Where input wants to go. Kept separate from `direction` so a turn only
+    // takes effect on a tick boundary — see step().
+    nextDirection: direction,
+    // 'idle' until the first movement key. The game never starts on its own,
+    // which is also how we respect prefers-reduced-motion.
+    status: 'idle',
   };
+}
+
+/** Two vectors pointing directly at each other, e.g. left and right. */
+function isOpposite(a, b) {
+  return a.x === -b.x && a.y === -b.y;
+}
+
+/**
+ * Bring a cell back inside the grid if it has gone off an edge.
+ *
+ * Adding grid.cols before the modulo is what makes -1 wrap to the last column;
+ * JavaScript's % keeps the sign of the left operand, so -1 % 53 is -1, not 52.
+ *
+ * Wrapping is temporary as a movement rule — stage 5 makes edges lethal — but
+ * the helper stays, because the PHASE modifier needs exactly this behaviour.
+ */
+export function wrap(grid, cell) {
+  return {
+    x: (cell.x + grid.cols) % grid.cols,
+    y: (cell.y + grid.rows) % grid.rows,
+  };
+}
+
+/**
+ * Record where the player wants to go, and start the game if it hasn't begun.
+ *
+ * The intent is stored rather than applied immediately. Applying it here would
+ * let two fast keypresses inside a single tick turn the snake 180 degrees —
+ * press up then left while moving right and the head would reverse into its own
+ * neck. Deferring to the tick means only one turn per move can ever land.
+ */
+export function queueDirection(state, direction) {
+  state.nextDirection = direction;
+
+  if (state.status === 'idle') state.status = 'running';
+}
+
+/** Advance the game by exactly one grid cell. */
+export function step(state) {
+  // Commit the pending turn, unless it would double back on the current one.
+  if (!isOpposite(state.direction, state.nextDirection)) {
+    state.direction = state.nextDirection;
+  }
+
+  const head = state.snake[0];
+  const target = wrap(state.grid, {
+    x: head.x + state.direction.x,
+    y: head.y + state.direction.y,
+  });
+
+  // Grow at the front, shrink at the back. Growing later is just skipping the
+  // pop, which is why the snake is stored head first.
+  state.snake.unshift(target);
+  state.snake.pop();
 }
