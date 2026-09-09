@@ -71,6 +71,62 @@ while q:
         if 0 <= nx < W and 0 <= ny < H and not mask[ny*W+nx] and is_bg(nx,ny):
             mask[ny*W+nx] = 1; q.append((nx,ny))
 
+# The border fill only reaches background it can walk to. Everything under the
+# desk is backdrop too, but it is walled in — tabletop above, legs either side,
+# floor shadow below — so the fill never arrives and the snake disappears
+# behind a solid block.
+#
+# So: sweep up every backdrop-coloured pixel the fill missed and clear the ones
+# that form a large pocket. Large, because a small enclosed highlight is much
+# more likely to be part of the figure than a hole in it.
+MIN_POCKET = 400
+
+def components(test):
+    """Connected runs of pixels satisfying `test`, as lists of indices."""
+    seen = bytearray(W*H)
+    for sy in range(H):
+        for sx in range(W):
+            start = sy*W+sx
+            if seen[start] or not test(sx, sy): continue
+            group, stack = [], [(sx, sy)]
+            seen[start] = 1
+            while stack:
+                x, y = stack.pop()
+                group.append(y*W+x)
+                for dx, dy in ((1,0),(-1,0),(0,1),(0,-1)):
+                    nx, ny = x+dx, y+dy
+                    if 0 <= nx < W and 0 <= ny < H and not seen[ny*W+nx] and test(nx, ny):
+                        seen[ny*W+nx] = 1; stack.append((nx, ny))
+            yield group
+
+pockets = 0
+for group in components(lambda x, y: not mask[y*W+x] and is_bg(x, y)):
+    if len(group) < MIN_POCKET: continue
+    pockets += 1
+    for i in group: mask[i] = 1
+print(f'cleared {pockets} enclosed backdrop pockets')
+
+# The floor shadow is not backdrop and not the figure — it is the figure's
+# shadow on the backdrop. Left solid it swallows the snake in a band across the
+# bottom. Treated as black at partial coverage over white, which is what a
+# shadow physically is, it keeps its softness and the snake shows through it.
+SHADOW_MIN, SHADOW_MAX, SHADOW_SAT = 168, 234, 34
+MIN_SHADOW = 5000
+
+def is_shadow(x, y):
+    if mask[y*W+x]: return False
+    i = (y*W+x)*CH
+    r, g, b = PIX[i], PIX[i+1], PIX[i+2]
+    return SHADOW_MIN < (r+g+b)/3 < SHADOW_MAX and max(r,g,b)-min(r,g,b) < SHADOW_SAT
+
+shadow = bytearray(W*H)
+for group in components(is_shadow):
+    # Only a big region is the cast shadow; small grey patches belong to shoes,
+    # the chair, the laptop, and must stay solid.
+    if len(group) < MIN_SHADOW: continue
+    for i in group: shadow[i] = 1
+print(f'softened {sum(shadow)} shadow px')
+
 grown = bytearray(mask)
 for y in range(H):
     for x in range(W):
@@ -104,6 +160,13 @@ def layer(keep):
                     n += 1
                     if mask[y*W+x] or not keep(y): continue
                     i = (y*W+x)*CH
+                    if shadow[y*W+x]:
+                        # A shadow of luminance L over white is black at
+                        # (255-L)/255 coverage. Recovering that is what lets it
+                        # stay soft instead of becoming a grey sticker.
+                        opacity = 255 - (PIX[i]+PIX[i+1]+PIX[i+2])//3
+                        a += opacity
+                        continue                      # colour contribution is black
                     r += PIX[i]; g += PIX[i+1]; b += PIX[i+2]; a += 255
             if n == 0 or a == 0: row += bytes((0,0,0,0)); continue
             cov = a/255
