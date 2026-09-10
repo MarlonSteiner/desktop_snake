@@ -136,6 +136,22 @@ read as arbitrary.
 They live in one table in `constants.js` holding each one's colour, speed and
 duration. A modifier that only changes speed needs nothing but a new row there.
 
+## The snake and the text
+
+The snake is drawn on its own canvas above the page, in `mix-blend-mode:
+difference`. Over the white page a white snake composites to black, exactly as
+it looked before; over the black headline the same pixels come out white. So it
+cuts a clean slot through whatever letters it crosses, on the real glyphs, with
+no mask and no second copy of the text.
+
+Because of that, everything the snake is drawn in is stored inverted —
+`inverted()` in `renderer.js` — so that after the blend it appears as intended.
+
+The snake also begins life as the "i" in LOOKING: `obstacles.js` measures that
+span, `game.js` starts the snake standing on it pointing up, and `main.js` hides
+the letter until the snake has climbed clear, then fades it back. The letter is
+hidden from JavaScript rather than CSS, so the word is intact without scripts.
+
 ## Resizing
 
 Resizing keeps the run going rather than starting over. The board is
@@ -150,3 +166,12 @@ stranded it.
 into the same named intents and hand them to the same handlers, and neither
 knows the other exists. Adding swipe controls changed no game logic at all —
 `game.js`, `renderer.js` and `input.js` were untouched.
+
+## Parked
+
+- **A lamp on the desk that switches the page to dark mode.** Click it and the
+  light goes off: the page inverts, the lamp glows, the snake and the text swap
+  colours. Perfectly doable — the avatar is already cut into layers, so a lit
+  and an unlit lamp is one more pair of PNGs, and `COLORS` in `constants.js`
+  already holds every colour the canvas paints. The real work is deciding the
+  dark palette and making the canvas read it instead of assuming white.

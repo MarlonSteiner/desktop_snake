@@ -62,16 +62,32 @@ function rainbowGradient(ctx) {
   const gradient = ctx.createLinearGradient(0, 0, window.innerWidth, window.innerHeight);
 
   COLORS.rainbow.forEach((color, i) => {
-    gradient.addColorStop(i / (COLORS.rainbow.length - 1), color);
+    gradient.addColorStop(i / (COLORS.rainbow.length - 1), inverted(color));
   });
   return gradient;
+}
+
+/**
+ * Invert a hex colour.
+ *
+ * The snake layer blends with `difference`, so a pixel drawn as C over the
+ * white page comes out as 255-C. Painting the inverse of what we want is what
+ * makes the snake look exactly as it did before the layer existed — while the
+ * same pixels over black text come out light, which is the point.
+ */
+function inverted(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = 255 - ((n >> 16) & 255);
+  const g = 255 - ((n >> 8) & 255);
+  const b = 255 - (n & 255);
+  return `rgb(${r}, ${g}, ${b})`;
 }
 
 function drawSnake(ctx, state) {
   // The snake's colour is the only thing announcing a modifier — no label, no
   // countdown. You feel the change and see it on the snake itself.
   const modifier = activeModifier(state.twist);
-  ctx.fillStyle = modifier === null ? COLORS.snake : MODIFIERS[modifier].color;
+  ctx.fillStyle = inverted(modifier === null ? COLORS.snake : MODIFIERS[modifier].color);
 
   // The 1px inset leaves a hairline gap so individual segments stay legible
   // instead of merging into one solid bar.
@@ -349,7 +365,22 @@ function drawFlash(ctx, state, dancers) {
   ctx.restore();
 }
 
-/** Draw one complete frame. */
+/**
+ * Draw the snake on its own layer, above the page.
+ *
+ * Separate from render() because this canvas sits on top of the text and
+ * blends with it, while everything else — food, score, prompts — belongs
+ * behind. Nothing is drawn during FLASH: the screen is a flat colour and a
+ * dancer, and the snake is not part of that.
+ */
+export function renderSnake(ctx, state) {
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  if (isFlashing(state.twist)) return;
+
+  drawSnake(ctx, state);
+}
+
+/** Draw one complete frame of everything behind the page. */
 export function render(ctx, state, art) {
   // FLASH is the whole frame. Returning here is what makes the snake, the
   // apple and the score vanish — there is no hiding logic anywhere else,
@@ -364,7 +395,6 @@ export function render(ctx, state, art) {
 
   drawApple(ctx, state, art.stickers);
   drawGlitch(ctx, state);
-  drawSnake(ctx, state);
   drawControlHint(ctx, state);
   drawHud(ctx, state);
   drawGameOver(ctx, state);

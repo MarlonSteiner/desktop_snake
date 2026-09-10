@@ -57,6 +57,32 @@ function startCellsOnRow(row) {
  * fills the middle of the screen and the biggest gap happens to be below the
  * logos, so that is where it lands.
  */
+/**
+ * The snake's opening position: standing in for the letter it is about to
+ * climb out of, if that letter can be found and there is room above it.
+ */
+function startOnLetter(grid, letter) {
+  if (letter === null) return null;
+
+  // Centred on the letter's box, not hung from its top. getBoundingClientRect
+  // on an inline span returns the line box, which is taller than the letter and
+  // sits higher than it — aligning to the top left the snake floating above the
+  // word by most of a cell.
+  const centreY = (letter.top + letter.bottom) / 2;
+  const col = Math.floor((letter.centreX - grid.originX) / CELL_SIZE);
+  const headRow = Math.round(
+    (centreY - (CELL_SIZE * START_LENGTH) / 2 - grid.originY) / CELL_SIZE,
+  );
+
+  const cells = [];
+  for (let i = 0; i < START_LENGTH; i++) cells.push({ x: col, y: headRow + i });
+
+  const fits = cells.every(
+    (cell) => cell.x >= 0 && cell.x < grid.cols && cell.y >= 0 && cell.y < grid.rows,
+  );
+  return fits ? cells : null;
+}
+
 export function createSnake(grid, pageCells) {
   const isClear = (row) =>
     startCellsOnRow(row).every((cell) => !pageCells.has(cellKey(cell)));
@@ -98,8 +124,15 @@ export function createSnake(grid, pageCells) {
  * The single object that holds everything the game knows. Passing this around
  * explicitly is what keeps us from accumulating loose global variables.
  */
-export function createGameState({ grid, pageCells, hintAnchor = null, hudAnchor = null, best = 0 }) {
-  const direction = { x: 1, y: 0 };
+export function createGameState({
+  grid, pageCells, hintAnchor = null, hudAnchor = null, startLetter = null, best = 0,
+}) {
+  // Starting as the letter means starting upright and heading up out of the
+  // word. Everything else about the snake is unchanged; only its first cells
+  // and first direction come from the page.
+  const onLetter = startOnLetter(grid, startLetter);
+  const snake = onLetter ?? createSnake(grid, pageCells);
+  const direction = onLetter === null ? { x: 1, y: 0 } : { x: 0, y: -1 };
 
   const state = {
     grid,
@@ -111,7 +144,10 @@ export function createGameState({ grid, pageCells, hintAnchor = null, hudAnchor 
     // like pageCells.
     hintAnchor,
     hudAnchor,
-    snake: createSnake(grid, pageCells),
+    snake,
+    // The cells it began on, so the page knows when the snake has climbed off
+    // the letter and the word can put itself back together.
+    startCells: onLetter === null ? [] : onLetter.map(cellKey),
     // Direction is a unit vector so moving is just head.x + direction.x.
     direction,
     // Where input wants to go. Kept separate from `direction` so a turn only

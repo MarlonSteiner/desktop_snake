@@ -9,8 +9,14 @@ import {
   step,
   advanceTime,
   resizeGame,
+  cellKey,
 } from './game.js';
-import { computePageCells, measureHintAnchor, measureHudAnchor } from './obstacles.js';
+import {
+  computePageCells,
+  measureHintAnchor,
+  measureHudAnchor,
+  measureStartLetter,
+} from './obstacles.js';
 import { attachKeyboardInput } from './input.js';
 import { attachTouchInput } from './touch.js';
 import { attachMenu } from './menu.js';
@@ -18,11 +24,27 @@ import { speedMultiplier, isFlashing } from './modifiers.js';
 import { createHeadlineBurst } from './headline.js';
 import { createAvatarGaze, startBlinking } from './avatar.js';
 import { loadImages } from './images.js';
-import { resizeCanvas, render } from './renderer.js';
+import { resizeCanvas, render, renderSnake } from './renderer.js';
 
 const page = document.getElementById('page');
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
+
+// The snake gets its own canvas above the page so it can cut through the text.
+const snakeCanvas = document.getElementById('snake');
+const snakeCtx = snakeCanvas.getContext('2d');
+
+// The headline letter the snake is standing in for. Hidden from here rather
+// than from CSS, so the word is complete for anyone without JavaScript.
+const startLetter = document.getElementById('letter-i');
+
+/** Give the letter back once no part of the snake is still standing on it. */
+function updateStartLetter(state) {
+  if (startLetter === null || !startLetter.classList.contains('is-snake')) return;
+
+  const stillThere = state.snake.some((cell) => state.startCells.includes(cellKey(cell)));
+  if (!stillThere) startLetter.classList.remove('is-snake');
+}
 const burstHeadline = createHeadlineBurst(document.getElementById('headline'));
 /**
  * Pictures, fetched when the game starts rather than when the page loads.
@@ -83,14 +105,19 @@ function measure() {
     pageCells: computePageCells(grid),
     hintAnchor: measureHintAnchor(),
     hudAnchor: measureHudAnchor(),
+    startLetter: measureStartLetter(),
   };
 }
 
 /** Build the world for the first time. */
 function setup() {
   resizeCanvas(canvas, ctx);
+  resizeCanvas(snakeCanvas, snakeCtx);
 
   state = createGameState({ ...measure(), best: 0 });
+  if (startLetter !== null && state.startCells.length > 0) {
+    startLetter.classList.add('is-snake');
+  }
 }
 
 let resizeTimer = null;
@@ -106,6 +133,7 @@ let resizeTimer = null;
  */
 function handleResize() {
   resizeCanvas(canvas, ctx);
+  resizeCanvas(snakeCanvas, snakeCtx);
 
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => resizeGame(state, measure()), RESIZE_SETTLE_MS);
@@ -178,7 +206,9 @@ function frame(now) {
     state.grid.originY + head.y * CELL_SIZE + CELL_SIZE / 2,
   );
 
+  updateStartLetter(state);
   render(ctx, state, art);
+  renderSnake(snakeCtx, state);
   requestAnimationFrame(frame);
 }
 

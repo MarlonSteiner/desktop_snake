@@ -83,6 +83,11 @@
        keeps its position — obstacles.js measures these boxes. */
     .page-hidden { visibility: hidden; }
 
+    /* The letter the snake starts as. Fades back once the snake climbs off it,
+       rather than snapping, so the word repairs itself instead of blinking. */
+    #letter-i { transition: opacity 420ms ease 120ms; }
+    #letter-i.is-snake { opacity: 0; transition: none; }
+
     #credentials:empty { display: none; }
     .credential {
       height: clamp(1.25rem, 2.4vw, 1.9rem);
@@ -141,8 +146,11 @@
        top of it. aria-hidden because the page is fully usable without it. -->
   <canvas id="game" class="fixed inset-0 z-0 block" aria-hidden="true"></canvas>
 
-  <!-- z-10 puts the real content above the canvas. -->
-  <div id="page" class="relative z-10 min-h-screen flex flex-col">
+  <!-- Deliberately `relative` with no z-index: that keeps this out of its own
+       stacking context, so #avatar's z-30 below can compete with the snake
+       layer at z-20 instead of being trapped underneath it. It still paints
+       above #game because both are positioned and this one comes later. -->
+  <div id="page" class="relative min-h-screen flex flex-col">
 
     <!-- ── Top row ──────────────────────────────────────────────────────────
          Three columns. The left one is empty on purpose: the score is drawn on
@@ -219,7 +227,7 @@
         id="avatar"
         role="img"
         aria-label="Illustration of Marlon at a desk with a laptop"
-        class="relative mb-7 w-[clamp(9rem,22vw,17rem)] shrink-0 sm:mb-9"
+        class="relative z-30 mb-7 w-[clamp(9rem,22vw,17rem)] shrink-0 sm:mb-9"
         style="aspect-ratio: 640 / 620;"
       >
         <img src="assets/avatar/body.png" alt="" class="absolute inset-0 h-full w-full select-none" />
@@ -243,7 +251,11 @@
            text instead of spanning the full width of <main>. -->
       <div id="text-block" class="w-fit">
         <h1 id="headline" class="text-center font-black uppercase tracking-tight">
-          <span class="headline-line block">Dev Looking</span>
+          <!-- The "i" is wrapped so the snake can start life as that letter:
+               obstacles.js measures this span, game.js starts the snake on it,
+               and main.js hides it until the snake has climbed clear. Hidden by
+               JS rather than by CSS, so with scripts off the word is intact. -->
+          <span class="headline-line block">Dev Look<span id="letter-i">i</span>ng</span>
           <span class="headline-line block">For Work</span>
         </h1>
       </div>
@@ -292,12 +304,21 @@
   </div>
 
 
+  <!-- The snake, drawn on top of the page in `difference` blend mode.
+       Anywhere the page is white the snake comes out black, exactly as before;
+       anywhere it crosses black text the same pixels come out white. That is
+       the whole effect — no mask, no second copy of the headline, and it lands
+       on the glyphs perfectly because the browser is compositing the real
+       text. -->
+  <canvas id="snake" class="pointer-events-none fixed inset-0 z-20 block"
+          style="mix-blend-mode: difference;" aria-hidden="true"></canvas>
+
   <!-- ── CV panel ───────────────────────────────────────────────────────────
        Plain HTML you can edit directly. `inert` while closed so the links
        inside are not reachable by Tab; menu.js removes it on open. -->
   <div
     id="cv-backdrop"
-    class="pointer-events-none fixed inset-0 z-20 bg-black/20 opacity-0 transition-opacity duration-300"
+    class="pointer-events-none fixed inset-0 z-40 bg-black/20 opacity-0 transition-opacity duration-300"
   ></div>
 
   <aside
@@ -306,7 +327,7 @@
     aria-modal="true"
     aria-labelledby="cv-name"
     inert
-    class="fixed right-0 top-0 z-30 h-full w-full max-w-[36rem] translate-x-full overflow-y-auto
+    class="fixed right-0 top-0 z-50 h-full w-full max-w-[36rem] translate-x-full overflow-y-auto
            border-l border-black bg-white transition-transform duration-300 ease-out"
   >
     <div class="px-7 py-8 sm:px-10 sm:py-10">

@@ -63,6 +63,21 @@ export function measureHintAnchor() {
 }
 
 /**
+ * The box of the letter the snake starts as, or null if it is not there.
+ *
+ * Measured rather than hardcoded for the same reason as everything else here:
+ * the headline is fluid type, so where that letter sits changes with the
+ * window.
+ */
+export function measureStartLetter() {
+  const element = document.querySelector('#letter-i');
+  if (element === null) return null;
+
+  const rect = element.getBoundingClientRect();
+  return { centreX: rect.left + rect.width / 2, top: rect.top, bottom: rect.bottom };
+}
+
+/**
  * Where the score readout should sit, so it lines up with the CV icon opposite.
  *
  * The x is the button's own inset mirrored to the left edge, so the two sit on
