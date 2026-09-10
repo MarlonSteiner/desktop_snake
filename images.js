@@ -1,4 +1,5 @@
-// Loads the sticker images the snake eats.
+// Loads the picture assets: the stickers the snake eats and the dance poses
+// that appear during FLASH.
 //
 // Everything here is best-effort on purpose: if the folder is empty, or a file
 // is missing, or the images simply haven't decoded yet, the renderer falls back
@@ -12,7 +13,7 @@
  * frames draw circles and then quietly start drawing stickers, with no loading
  * screen and no async plumbing through the render loop.
  */
-export function loadStickers(sources) {
+export function loadImages(sources) {
   const loaded = [];
 
   for (const source of sources) {
@@ -30,12 +31,13 @@ export function loadStickers(sources) {
 }
 
 /**
- * Choose which sticker an apple wears.
+ * Choose one of the loaded images by an arbitrary number.
  *
- * The apple carries a random `variant` number and the modulo happens here, so
- * game.js never has to know how many images exist — or that images exist.
+ * The caller passes a counter or a random variant and the modulo happens here,
+ * so nothing else has to know how many images there are — or that any of them
+ * loaded at all.
  */
-export function pickSticker(loaded, variant) {
+export function pickImage(loaded, variant) {
   if (loaded.length === 0) return null;
 
   return loaded[variant % loaded.length];

@@ -1,7 +1,7 @@
 // Entry point. This is the only file that talks to both the page and the game:
 // it owns the canvas, the loop, and the wiring between input, state and render.
 
-import { TICKS_PER_SECOND, MAX_FRAME_MS, STICKERS, RESIZE_SETTLE_MS, CELL_SIZE } from './constants.js';
+import { TICKS_PER_SECOND, MAX_FRAME_MS, STICKERS, DANCERS, RESIZE_SETTLE_MS, CELL_SIZE } from './constants.js';
 import {
   createGrid,
   createGameState,
@@ -17,14 +17,31 @@ import { attachMenu } from './menu.js';
 import { speedMultiplier, isFlashing } from './modifiers.js';
 import { createHeadlineBurst } from './headline.js';
 import { createAvatarGaze, startBlinking } from './avatar.js';
-import { loadStickers } from './stickers.js';
+import { loadImages } from './images.js';
 import { resizeCanvas, render } from './renderer.js';
 
 const page = document.getElementById('page');
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const burstHeadline = createHeadlineBurst(document.getElementById('headline'));
-const stickers = loadStickers(STICKERS);
+/**
+ * Pictures, fetched when the game starts rather than when the page loads.
+ *
+ * Together they are about 1.2MB, and none of it is on screen until someone
+ * plays: food is hidden while idle, and the earliest a dancer can appear is the
+ * first glitch fruit, fifteen seconds in. Loading them up front would make the
+ * page slower for every visitor who only reads it.
+ */
+const art = { stickers: [], dancers: [] };
+let artRequested = false;
+
+function loadArt() {
+  if (artRequested) return;
+  artRequested = true;
+
+  art.stickers = loadImages(STICKERS);
+  art.dancers = loadImages(DANCERS);
+}
 const lookAtSnake = createAvatarGaze(
   document.getElementById('avatar-head'),
   document.getElementById('avatar'),
@@ -161,7 +178,7 @@ function frame(now) {
     state.grid.originY + head.y * CELL_SIZE + CELL_SIZE / 2,
   );
 
-  render(ctx, state, stickers);
+  render(ctx, state, art);
   requestAnimationFrame(frame);
 }
 
@@ -172,7 +189,10 @@ window.addEventListener('resize', handleResize);
 // shape in input.js was for.
 const controls = {
   onDirection: (direction) => {
-    if (!isPaused) queueDirection(state, direction);
+    if (isPaused) return;
+
+    loadArt();
+    queueDirection(state, direction);
   },
   onRestart: () => {
     if (!isPaused) restart();

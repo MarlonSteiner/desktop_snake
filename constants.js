@@ -75,7 +75,7 @@ export const MODIFIERS = {
    * runs, so the snake picks up exactly where it left off. `color` and `speed`
    * are never read for it — the board is not on screen to have a colour.
    */
-  FLASH: { color: '#ffffff', speed: 1, durationMs: 1500 },
+  FLASH: { color: '#ffffff', speed: 1, durationMs: 750 },
 };
 
 /**
@@ -173,6 +173,19 @@ export const TWIST = {
  * them here. Anything that fails to load is skipped and that apple falls back
  * to a circle, so a missing file can never break the page.
  */
+/**
+ * Dance poses shown during FLASH, one per colour. Three against five colours,
+ * so the pose and the colour go out of step and the loop is harder to spot.
+ */
+export const DANCERS = [
+  'assets/dance/spread.png',
+  'assets/dance/jump.png',
+  'assets/dance/crouch.png',
+];
+
+/** How tall a dancer is drawn, as a fraction of the viewport. */
+export const DANCE_HEIGHT_FRACTION = 0.52;
+
 export const STICKERS = [
   'assets/stickers/cap.png',
   'assets/stickers/shades.png',

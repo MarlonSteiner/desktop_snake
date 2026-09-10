@@ -1,8 +1,11 @@
 // All canvas drawing lives here. This file never decides what happens in the
 // game — it only draws whatever state it is handed.
 
-import { CELL_SIZE, COLORS, HUD, HINT, STICKER_SCALE, TWIST, MODIFIERS, EAT_FLARE_MS } from './constants.js';
-import { pickSticker } from './stickers.js';
+import {
+  CELL_SIZE, COLORS, HUD, HINT, STICKER_SCALE, TWIST, MODIFIERS, EAT_FLARE_MS,
+  DANCE_HEIGHT_FRACTION,
+} from './constants.js';
+import { pickImage } from './images.js';
 import { activeModifier, isFlashing, flashIndex } from './modifiers.js';
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -109,7 +112,7 @@ function drawApple(ctx, state, stickers) {
   const centreX = x + CELL_SIZE / 2;
   const centreY = y + CELL_SIZE / 2;
 
-  const sticker = pickSticker(stickers, state.apple.variant);
+  const sticker = pickImage(stickers, state.apple.variant);
 
   if (sticker !== null) {
     // Fit inside a square box without stretching. Photos are all different
@@ -313,29 +316,53 @@ function drawHud(ctx, state) {
   ctx.fillText(`BEST ${state.best}`, anchor.x, anchor.y + HUD.lineHeight / 2);
 }
 
-/** The whole viewport in one flat colour, cycling. */
-function drawFlash(ctx, state) {
+/** The whole viewport in one flat colour, with a dancer on it. */
+function drawFlash(ctx, state, dancers) {
   // Reduced motion gets the effect without the strobe: one colour, held.
   const index = prefersReducedMotion.matches ? 0 : flashIndex(state.twist);
+  const width = window.innerWidth;
+  const height = window.innerHeight;
 
   ctx.fillStyle = COLORS.flash[index % COLORS.flash.length];
-  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+  ctx.fillRect(0, 0, width, height);
+
+  const dancer = pickImage(dancers, index);
+  if (dancer === null) return;
+
+  // Fitted by height, and capped by width so a wide pose cannot run off the
+  // sides of a narrow phone. The poses are all different shapes, so scaling by
+  // one dimension alone would make them jump in size between colours.
+  const box = Math.min(height * DANCE_HEIGHT_FRACTION, width * 0.62);
+  const scale = Math.min(box / dancer.naturalHeight, (width * 0.72) / dancer.naturalWidth);
+  const w = dancer.naturalWidth * scale;
+  const h = dancer.naturalHeight * scale;
+
+  // A soft drop shadow, because the shirt is red and one of the colours is
+  // red — without it the figure dissolves into the background on that frame.
+  // A shadow works for every pairing, where hand-picking colours that avoid
+  // the shirt would only work until the poses changed.
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+  ctx.shadowBlur = 28;
+  ctx.shadowOffsetY = 10;
+  ctx.drawImage(dancer, (width - w) / 2, (height - h) / 2, w, h);
+  ctx.restore();
 }
 
 /** Draw one complete frame. */
-export function render(ctx, state, stickers) {
+export function render(ctx, state, art) {
   // FLASH is the whole frame. Returning here is what makes the snake, the
   // apple and the score vanish — there is no hiding logic anywhere else,
   // they simply are not drawn.
   if (isFlashing(state.twist)) {
-    drawFlash(ctx, state);
+    drawFlash(ctx, state, art.dancers);
     return;
   }
 
   ctx.fillStyle = COLORS.background;
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-  drawApple(ctx, state, stickers);
+  drawApple(ctx, state, art.stickers);
   drawGlitch(ctx, state);
   drawSnake(ctx, state);
   drawControlHint(ctx, state);

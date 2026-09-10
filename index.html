@@ -83,6 +83,16 @@
        keeps its position — obstacles.js measures these boxes. */
     .page-hidden { visibility: hidden; }
 
+    #credentials:empty { display: none; }
+    .credential {
+      height: clamp(1.25rem, 2.4vw, 1.9rem);
+      width: auto;
+      filter: grayscale(1);
+      opacity: 0.55;
+      transition: opacity 200ms ease, filter 200ms ease;
+    }
+    .credential:hover { filter: grayscale(0); opacity: 1; }
+
     /* Repeated CV styles, so the markup above stays easy to edit. */
     .cv-heading {
       font-size: 0.6875rem; font-weight: 700; text-transform: uppercase;
@@ -256,6 +266,20 @@
         Connect with me
       </a>
 
+      <!-- ── Credentials ────────────────────────────────────────────────────
+           One <img> per logo. Drop the file in assets/credentials/ and add a
+           line here; nothing else needs changing.
+
+           They are set in grey and lifted to full colour on hover, which is the
+           usual treatment: a row of brand colours would out-shout the headline
+           directly above it, and these are supporting evidence, not the point.
+
+           :empty hides the row entirely until the first logo arrives, so the
+           gap does not sit there looking like a mistake. -->
+      <!-- Add logos as: <img src="assets/credentials/eth.png" alt="ETH Zurich" class="credential" />
+           Kept literally empty — :empty counts whitespace as content, so a
+           newline inside these tags would defeat the rule that hides the row. -->
+      <div id="credentials" class="mt-11 flex max-w-4xl flex-wrap items-center justify-center gap-x-9 gap-y-6 px-2 sm:gap-x-12"></div>
     </main>
 
     <!-- ── Bottom center: signature ─────────────────────────────────────── -->

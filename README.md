@@ -76,6 +76,26 @@ python3 scripts/mkavatar.py /tmp/desk.png
 It prints the `transform-origin` to paste into `AVATAR.pivot` in
 `constants.js` — that is the point on the collar the head swings around.
 
+## Credentials
+
+Logos under the headline. Drop a file in `assets/credentials/` and add one
+`<img class="credential">` to `#credentials` in `index.html` — see
+[`assets/credentials/README.md`](assets/credentials/README.md). The row hides
+itself while it is empty.
+
+## Dance poses
+
+`assets/dance/` holds the three poses FLASH cycles through. Cut from screenshots
+with:
+
+```bash
+python3 scripts/mkdance.py /tmp/pose.png assets/dance/name.png
+```
+
+They arrive as JPEGs of a transparency checkerboard, so the background is two
+greys baked into the pixels; the script floods in from the borders rather than
+testing colour, because the white shoes look exactly like the light squares.
+
 ## Stickers
 
 The snake eats cutouts of me rather than fruit — seven of them, one picked at
@@ -98,7 +118,7 @@ announcement; there is no label or countdown.
 | INVERTED | Indigo. Left and right are swapped. Up and down are left alone, so you can always get your bearings back. |
 | RUSH | Orange. The snake moves twice as fast. |
 | TURBO | Gold. Three times as fast. |
-| FLASH | The page, the snake and everything else vanish and the whole screen cycles through flat colours. Nothing moves, and the snake picks up exactly where it left off. Two and a half seconds, purely for the look of it. |
+| FLASH | The page, the snake and everything else vanish and the whole screen cycles through flat colours, with a different dance pose on each. Nothing moves, and the snake picks up exactly where it left off. Three quarters of a second, purely for the look of it. |
 
 The first three change how the snake *handles*, never where it can go. FLASH
 changes nothing at all — it just interrupts.
