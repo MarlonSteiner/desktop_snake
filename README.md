@@ -1,5 +1,9 @@
 # desktop_snake
 
+<p align="center">
+  <img src="docs/preview.png" alt="Marlon at a desk with a laptop and a lamp, above the words DEV LOOKING FOR WORK" width="620" />
+</p>
+
 ### → [marlonsteiner.studio](https://marlonsteiner.studio) — go play it
 
 The source for the site above: a landing page that is also a playable snake
