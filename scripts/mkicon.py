@@ -138,8 +138,8 @@ for s in sizes:
 for s in sizes: ico += pngs[s]
 open('favicon.ico','wb').write(ico)
 
-# Transparent like the rest. Worth knowing: iOS fills transparent pixels with
-# black when a site is saved to a home screen, so this icon will sit on black
-# there rather than on white. Pass an opaque_bg below if that is not wanted.
-open('apple-touch-icon.png','wb').write(encode_png(downscale(180), 180))
-print('written: favicon.png (64), favicon.ico (16/32/48), apple-touch-icon.png (180) — all transparent')
+# White behind this one only. iOS fills transparent pixels with black on a home
+# screen, and the icon is mostly dark hair — on black it would lose its top half.
+open('apple-touch-icon.png','wb').write(encode_png(downscale(180, opaque_bg=(255,255,255)), 180))
+print('written: favicon.png (64) and favicon.ico (16/32/48) transparent, '
+      'apple-touch-icon.png (180) on white')

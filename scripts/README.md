@@ -28,6 +28,6 @@ lesson: anything under the chin (a laptop, a collar) stops being that thing at
 16px and becomes a grey smear under a face. The recognisable part of a person at
 this size is the hair line and the eyes, so give them the whole frame.
 
-All three outputs are transparent. Note that iOS paints transparent pixels black
-when a site is saved to a home screen, so `apple-touch-icon.png` sits on black
-there; pass an `opaque_bg` in the script if that is ever unwanted.
+`favicon.png` and `favicon.ico` are transparent. `apple-touch-icon.png` is not,
+deliberately: iOS paints transparent pixels black on a home screen, and this
+icon is mostly dark hair, so on black it would lose its top half.
