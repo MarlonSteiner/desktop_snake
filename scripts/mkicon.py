@@ -81,9 +81,9 @@ mask = grown
 
 # Crop, as x, y and side in source pixels. Overridable from the command line so
 # the same script can re-cut the icon when the avatar changes.
-CX0 = int(sys.argv[2]) if len(sys.argv) > 2 else 355
-CY0 = int(sys.argv[3]) if len(sys.argv) > 3 else 52
-SIDE = int(sys.argv[4]) if len(sys.argv) > 4 else 320
+CX0 = int(sys.argv[2]) if len(sys.argv) > 2 else 400
+CY0 = int(sys.argv[3]) if len(sys.argv) > 3 else 66
+SIDE = int(sys.argv[4]) if len(sys.argv) > 4 else 230
 
 def downscale(size, opaque_bg=None):
     """Box filter over premultiplied alpha, so edges blend without a halo."""
@@ -138,7 +138,8 @@ for s in sizes:
 for s in sizes: ico += pngs[s]
 open('favicon.ico','wb').write(ico)
 
-# iOS fills transparent pixels on a home screen with black, so this one stays
-# opaque on white.
-open('apple-touch-icon.png','wb').write(encode_png(downscale(180, opaque_bg=(255,255,255)), 180))
-print('written: favicon.png (64, transparent), favicon.ico (16/32/48, transparent), apple-touch-icon.png (180, opaque)')
+# Transparent like the rest. Worth knowing: iOS fills transparent pixels with
+# black when a site is saved to a home screen, so this icon will sit on black
+# there rather than on white. Pass an opaque_bg below if that is not wanted.
+open('apple-touch-icon.png','wb').write(encode_png(downscale(180), 180))
+print('written: favicon.png (64), favicon.ico (16/32/48), apple-touch-icon.png (180) — all transparent')

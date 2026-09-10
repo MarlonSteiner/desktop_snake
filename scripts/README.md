@@ -23,6 +23,11 @@ face — grows that mask by a pixel to eat the JPEG rim, then box-filters down
 over premultiplied alpha so the small sizes have clean edges instead of a white
 halo.
 
-Crop tight: at 16px a head with room around it is a smudge, and the laptop
-below the chin reads as a grey smear rather than as a laptop. Head only, filling
-the frame.
+Crop very tight — hair and eyes, nothing below. Two rounds of this taught the
+lesson: anything under the chin (a laptop, a collar) stops being that thing at
+16px and becomes a grey smear under a face. The recognisable part of a person at
+this size is the hair line and the eyes, so give them the whole frame.
+
+All three outputs are transparent. Note that iOS paints transparent pixels black
+when a site is saved to a home screen, so `apple-touch-icon.png` sits on black
+there; pass an `opaque_bg` in the script if that is ever unwanted.
