@@ -33,7 +33,14 @@ use a dark version where one exists.
 The row hides itself while it is empty, so there is no gap before the first logo
 lands.
 
+## Lockups
+
+A logo that is a wordmark plus a divider plus a second line carries far more
+inside the same box than a plain wordmark does. Matched on box height its type
+comes out about half the size of its neighbour's, which reads as a mistake. Give
+those `class="credential credential--lockup"`, which allows more height — logo
+rows are balanced by optical weight, not by bounding box.
+
 ## Still to add
 
-ETH Zurich (Autonomous Systems Lab) and le Wagon. Both were sent but did not
-land in Downloads, so save them there and they can go straight in.
+le Wagon. `flowton.png` is here and trimmed but deliberately not shown yet.
