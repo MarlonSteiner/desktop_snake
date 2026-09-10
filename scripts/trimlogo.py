@@ -1,14 +1,18 @@
-"""Trim transparent padding from a logo so a row of them lines up.
+"""Clean a logo: key out any white backing, then trim to the ink.
 
 Run:  python3 scripts/trimlogo.py assets/credentials/name.png
 
-Logos arrive with wildly different amounts of built-in padding. Sized to a
-shared height, one with 16% empty space at the bottom renders 16% smaller than
-its neighbour — which reads as a mistake even though every box is the same
-height. Trimming to the ink first is what makes one CSS rule work for all of
-them.
+Two problems arrive with logo files. Some carry an opaque white rectangle
+behind the artwork, which is invisible on a white page but makes the file's
+bounds meaningless — it will not trim, and it cannot be optically aligned
+against anything. Others carry transparent padding, so sized to a shared height
+one renders smaller than its neighbour and reads as a mistake.
+
+White is removed by flooding in from the borders rather than by testing colour,
+so a white shape *inside* a logo — a white bus on a red circle, say — survives.
 """
 import zlib, struct, sys
+from collections import deque
 
 path = sys.argv[1]
 
@@ -42,10 +46,45 @@ def read_png(p):
     return w, h, ch, bytes(out)
 
 W, H, CH, PIX = read_png(path)
+PIX = bytearray(PIX)
+
+def alpha(x, y):
+    return PIX[(y*W+x)*CH + 3] if CH == 4 else 255
+
+# Key the white backing, if there is one.
+if CH == 4:
+    def whiteish(x, y):
+        i = (y*W+x)*CH
+        r, g, b = PIX[i], PIX[i+1], PIX[i+2]
+        # Any alpha, not just solid: the edge of a white backing is
+        # anti-aliased, and leaving that behind is what puts a faint haze on
+        # rows that should be empty — which then defeats the trim.
+        return PIX[i+3] > 8 and (r+g+b)/3 > 238 and max(r,g,b)-min(r,g,b) < 14
+
+    seen = bytearray(W*H); q = deque()
+    for x in range(W):
+        for y in (0, H-1):
+            if not seen[y*W+x] and whiteish(x, y): seen[y*W+x] = 1; q.append((x, y))
+    for y in range(H):
+        for x in (0, W-1):
+            if not seen[y*W+x] and whiteish(x, y): seen[y*W+x] = 1; q.append((x, y))
+    while q:
+        x, y = q.popleft()
+        for dx, dy in ((1,0),(-1,0),(0,1),(0,-1)):
+            nx, ny = x+dx, y+dy
+            if 0 <= nx < W and 0 <= ny < H and not seen[ny*W+nx] and whiteish(nx, ny):
+                seen[ny*W+nx] = 1; q.append((nx, ny))
+
+    keyed = sum(seen)
+    if keyed:
+        for i in range(W*H):
+            if seen[i]: PIX[i*CH + 3] = 0
+        print(f'  keyed {keyed} white background px ({keyed*100//(W*H)}%)')
+
+PIX = bytes(PIX)
 
 def opaque(x, y):
-    i = (y*W+x)*CH
-    return (PIX[i+3] if CH == 4 else 255) > 30
+    return alpha(x, y) > 30
 
 xs = [x for y in range(H) for x in range(W) if opaque(x, y)]
 ys = [y for y in range(H) for x in range(W) if opaque(x, y)]
@@ -69,3 +108,15 @@ open(path,'wb').write(b'\x89PNG\r\n\x1a\n'
     + chunk(b'IHDR', struct.pack('>IIBBBBB', NW, NH, 8, 6, 0, 0, 0))
     + chunk(b'IDAT', zlib.compress(raw, 9)) + chunk(b'IEND', b''))
 print(f'{path}: {W}x{H} -> {NW}x{NH}')
+
+# Where the mark sits inside the trimmed file, so an --optical value can be
+# chosen for it. Rows carrying real weight only — a stray anti-aliased speck
+# at the edge would otherwise define the bounds.
+weights = [sum(rows[y][x*4+3]/255 for x in range(NW)) for y in range(NH)]
+peak = max(weights)
+solid = [y for y, w in enumerate(weights) if w > peak*0.35]
+centre = (solid[0]+solid[-1]) / 2 / NH * 100
+print(f'  its heaviest band is rows {solid[0]}-{solid[-1]}, centred at {centre:.1f}%')
+print(f'  a mark centred there wants  --optical: {50-centre:.1f}%')
+print('  (check it against the part of the logo that is the identity — for a')
+print('   lockup that is usually the wordmark, not the whole thing)')

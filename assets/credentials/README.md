@@ -33,13 +33,24 @@ use a dark version where one exists.
 The row hides itself while it is empty, so there is no gap before the first logo
 lands.
 
-## Lockups
+## Aligning a logo
 
-A logo that is a wordmark plus a divider plus a second line carries far more
-inside the same box than a plain wordmark does. Matched on box height its type
-comes out about half the size of its neighbour's, which reads as a mistake. Give
-those `class="credential credential--lockup"`, which allows more height — logo
-rows are balanced by optical weight, not by bounding box.
+Two nudges, both per-logo, because neither can be worked out from the file alone.
+
+**Size.** A lockup — wordmark, divider, second line — carries far more inside
+the same box than a plain wordmark. Matched on box height its type comes out
+about half the size of its neighbour's. Give those
+`class="credential credential--lockup"`, which allows more height.
+
+**Position.** Centring the boxes lines up the *files*, not the marks inside
+them. Ironman's letters sit low in its box because the dot rides above them, so
+box-centred it hangs below its neighbour. Add
+`style="--optical: -16.3%"` — a shift in percent of the logo's own height, so it
+holds at every size.
+
+`trimlogo.py` prints a suggested value. Check it against the part of the logo
+that is the identity: for a lockup that is the wordmark, not the whole thing.
+The current two are aligned to 0.0px, with cap heights within 0.3px.
 
 ## Still to add
 

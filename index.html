@@ -119,6 +119,13 @@
       filter: grayscale(1);
       opacity: 0.55;
       transition: opacity 200ms ease, filter 200ms ease;
+      /* Optical alignment. Centring the boxes lines up the files, not the
+         marks inside them: Ironman's letters sit low in its box because the
+         dot rides above them, so box-centred it hangs below its neighbour.
+         --optical is a per-logo nudge, in percent of the logo's own height, so
+         it holds at every size the clamp above produces. Measure a new one
+         with scripts/trimlogo.py, which prints where its mark sits. */
+      transform: translateY(var(--optical, 0));
     }
     .credential:hover { filter: grayscale(0); opacity: 1; }
 
@@ -127,7 +134,7 @@
        height its type comes out half the size of its neighbour's and reads as
        an accident. Logo rows are balanced by optical weight, not by bounding
        box, so this one gets more height. */
-    .credential--lockup { height: clamp(2rem, 3.9vw, 3rem); }
+    .credential--lockup { height: clamp(1.7rem, 3.2vw, 2.45rem); }
 
     /* Repeated CV styles, so the markup above stays easy to edit. */
     .cv-heading {
@@ -322,7 +329,7 @@
       <!-- Add logos as: <img src="assets/credentials/eth.png" alt="ETH Zurich" class="credential" />
            Kept literally empty — :empty counts whitespace as content, so a
            newline inside these tags would defeat the rule that hides the row. -->
-      <div id="credentials" class="mt-11 flex max-w-4xl flex-wrap items-center justify-center gap-x-9 gap-y-6 px-2 sm:gap-x-12"><img src="assets/credentials/eth-asl.png" alt="ETH Zurich Autonomous Systems Lab" class="credential credential--lockup" /><img src="assets/credentials/ironman.png" alt="Ironman" class="credential" /></div>
+      <div id="credentials" class="mt-11 flex max-w-4xl flex-wrap items-center justify-center gap-x-9 gap-y-6 px-2 sm:gap-x-12"><img src="assets/credentials/eth-asl.png" alt="ETH Zurich Autonomous Systems Lab" class="credential credential--lockup" style="--optical: 1.9%" /><img src="assets/credentials/ironman.png" alt="Ironman" class="credential" style="--optical: -16.3%" /></div>
     </main>
 
     <!-- ── Bottom center: signature ─────────────────────────────────────── -->
