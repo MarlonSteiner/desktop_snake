@@ -23,6 +23,24 @@ export const TICKS_PER_SECOND = 8;
 export const MAX_FRAME_MS = 250;
 
 export const COLORS = {
+  /**
+   * The four colours the canvas paints itself with, per theme. The snake is
+   * not among them: it lives on a difference-blend layer and inverts against
+   * whatever is behind it, so it needs no theme of its own.
+   */
+  light: {
+    background: '#ffffff',
+    hud: '#a3a3a3',
+    hint: '#000000',
+    apple: '#000000',
+  },
+  dark: {
+    background: '#101014',
+    hud: '#55555f',
+    hint: '#f5f5f7',
+    apple: '#f5f5f7',
+  },
+
   background: '#ffffff',
   snake: '#000000',
   // Swap this for '#ff2d20' if you ever want the apple to read as food rather

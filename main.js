@@ -24,6 +24,7 @@ import { speedMultiplier, isFlashing } from './modifiers.js';
 import { createHeadlineBurst } from './headline.js';
 import { createAvatarGaze, startBlinking } from './avatar.js';
 import { buzz } from './haptics.js';
+import { initTheme, toggleTheme } from './theme.js';
 import { loadImages } from './images.js';
 import { resizeCanvas, render, renderSnake } from './renderer.js';
 
@@ -60,6 +61,63 @@ function updateStartLetter(state) {
   const stillThere = state.snake.some((cell) => state.startCells.includes(cellKey(cell)));
   if (!stillThere) startLetter.classList.remove('is-snake');
 }
+
+/**
+ * The desk scene is the light switch.
+ *
+ * Clicking the figure, the desk, the laptop or the lamp toggles the theme —
+ * but only where the picture is actually opaque, so a click on the empty
+ * corners of its box does nothing. The lamp is a separate SVG drawn on top and
+ * counts wherever it is hit.
+ */
+function attachLampSwitch() {
+  const avatar = document.getElementById('avatar');
+  const body = avatar === null ? null : avatar.querySelector('img');
+  const lamp = document.getElementById('lamp');
+  if (avatar === null || body === null) return;
+
+  // Built once and kept, so an alpha lookup does not redraw the image on every
+  // click.
+  let hit = null;
+
+  const isOpaqueAt = (event) => {
+    if (hit === null) {
+      if (!body.complete || body.naturalWidth === 0) return true;
+      const canvas = document.createElement('canvas');
+      canvas.width = body.naturalWidth;
+      canvas.height = body.naturalHeight;
+      canvas.getContext('2d').drawImage(body, 0, 0);
+      hit = canvas.getContext('2d');
+    }
+
+    const box = avatar.getBoundingClientRect();
+    const x = Math.floor(((event.clientX - box.left) / box.width) * hit.canvas.width);
+    const y = Math.floor(((event.clientY - box.top) / box.height) * hit.canvas.height);
+    if (x < 0 || y < 0 || x >= hit.canvas.width || y >= hit.canvas.height) return false;
+
+    return hit.getImageData(x, y, 1, 1).data[3] > 20;
+  };
+
+  const flip = () => {
+    const dark = toggleTheme();
+    avatar.setAttribute('aria-pressed', String(dark));
+    avatar.setAttribute('aria-label', dark ? 'Turn the desk lamp off' : 'Turn the desk lamp on');
+    buzz(HAPTICS.eat);
+  };
+
+  avatar.addEventListener('click', (event) => {
+    if (lamp !== null && lamp.contains(event.target)) { flip(); return; }
+    if (isOpaqueAt(event)) flip();
+  });
+
+  avatar.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      flip();
+    }
+  });
+}
+
 const burstHeadline = createHeadlineBurst(document.getElementById('headline'));
 /**
  * Pictures, fetched when the game starts rather than when the page loads.
@@ -84,6 +142,8 @@ const lookAtSnake = createAvatarGaze(
   document.getElementById('avatar'),
 );
 startBlinking(document.getElementById('avatar-blink'));
+initTheme();
+attachLampSwitch();
 
 /** How much game time one tick represents at normal speed. */
 const BASE_TICK_MS = 1000 / TICKS_PER_SECOND;

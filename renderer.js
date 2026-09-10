@@ -7,6 +7,7 @@ import {
 } from './constants.js';
 import { pickImage } from './images.js';
 import { activeModifier, isFlashing, flashIndex } from './modifiers.js';
+import { palette } from './theme.js';
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -181,7 +182,7 @@ function drawApple(ctx, state, stickers) {
     return;
   }
 
-  ctx.fillStyle = COLORS.apple;
+  ctx.fillStyle = palette().apple;
   ctx.beginPath();
   ctx.arc(centreX, centreY, CELL_SIZE / 2 - 3, 0, Math.PI * 2);
   ctx.fill();
@@ -272,7 +273,7 @@ function drawControlHint(ctx, state) {
     ctx.globalAlpha = alpha;
     ctx.font = HUD.font;
     ctx.letterSpacing = HUD.letterSpacing;
-    ctx.fillStyle = COLORS.hud;
+    ctx.fillStyle = palette().hud;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
     // Above the avatar on a phone. There is no room beside him, and the gap
@@ -316,13 +317,13 @@ function drawControlHint(ctx, state) {
     keyCapPath(ctx, x, y, keySize);
 
     if (i === lit) {
-      ctx.fillStyle = COLORS.snake;
+      ctx.fillStyle = palette().hint;
       ctx.fill();
-      ctx.fillStyle = COLORS.background;
+      ctx.fillStyle = palette().background;
     } else {
-      ctx.strokeStyle = COLORS.hud;
+      ctx.strokeStyle = palette().hud;
       ctx.stroke();
-      ctx.fillStyle = COLORS.hud;
+      ctx.fillStyle = palette().hud;
     }
 
     ctx.fillText(key.glyph, x + keySize / 2, y + keySize / 2 + 1);
@@ -349,7 +350,7 @@ function drawGameOver(ctx, state) {
     ? window.innerHeight * 0.3
     : anchor.top - HINT.gapAboveAnchorText;
 
-  ctx.fillStyle = COLORS.hint;
+  ctx.fillStyle = palette().hint;
   ctx.font = HUD.font;
   ctx.letterSpacing = HUD.letterSpacing;
   ctx.textBaseline = 'alphabetic';
@@ -366,7 +367,7 @@ function drawHud(ctx, state) {
   // top, rather than as two things that happen to be near the same corner.
   const anchor = state.hudAnchor ?? { x: HUD.padding, y: HUD.padding + HUD.lineHeight };
 
-  ctx.fillStyle = COLORS.hud;
+  ctx.fillStyle = palette().hud;
   ctx.font = HUD.font;
   ctx.letterSpacing = HUD.letterSpacing;
   // 'middle' so the two lines straddle the button's centre line evenly.
@@ -439,7 +440,7 @@ export function render(ctx, state, art) {
     return;
   }
 
-  ctx.fillStyle = COLORS.background;
+  ctx.fillStyle = palette().background;
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   drawApple(ctx, state, art.stickers);

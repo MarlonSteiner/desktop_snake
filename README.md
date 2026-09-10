@@ -167,11 +167,20 @@ into the same named intents and hand them to the same handlers, and neither
 knows the other exists. Adding swipe controls changed no game logic at all —
 `game.js`, `renderer.js` and `input.js` were untouched.
 
-## Parked
+## Dark mode
 
-- **A lamp on the desk that switches the page to dark mode.** Click it and the
-  light goes off: the page inverts, the lamp glows, the snake and the text swap
-  colours. Perfectly doable — the avatar is already cut into layers, so a lit
-  and an unlit lamp is one more pair of PNGs, and `COLORS` in `constants.js`
-  already holds every colour the canvas paints. The real work is deciding the
-  dark palette and making the canvas read it instead of assuming white.
+Click the desk — the figure, the laptop, the lamp, any of it — and the lights
+go off. The click only registers where the picture is actually opaque, so the
+empty corners of its box do nothing.
+
+The theme is a class on `<html>`; CSS handles the page and `theme.js` hands the
+canvas the four colours it paints with. The snake needs no part of this: it is
+drawn on a `difference`-blend layer, so it comes out black on a white page and
+light on a dark one on its own.
+
+The lamp is drawn in `index.html` as an SVG — flat facets and a short palette,
+so it belongs to the same low-poly world as the figure. Its base sits at 53.9%
+down the avatar box, which is where the desk surface measures.
+
+The choice is remembered, and a first-time visitor gets whatever their system
+asks for.

@@ -161,6 +161,38 @@
       transition: transform 240ms cubic-bezier(0.2, 0.7, 0.3, 1);
     }
 
+    /* ── Theme ───────────────────────────────────────────────────────────
+       Only the page needs describing here. The snake looks after itself: it
+       is painted on a difference-blend layer, so it comes out black on a white
+       page and light on a dark one without being told which it is on. */
+    html.dark body { background: #101014; color: #f5f5f7; }
+    html.dark .credential { filter: grayscale(1) invert(1); }
+    html.dark #cv-panel { background: #16161c; border-color: #2c2c36; color: #f5f5f7; }
+    html.dark .cv-heading { border-color: #3a3a46; }
+    html.dark .cv-meta { color: #9a9aa6; }
+    html.dark #cv-backdrop { background: rgb(0 0 0 / 0.5); }
+    html.dark .lamp-dark { fill: #1b1b21; }
+    html.dark .lamp-mid  { fill: #2e2e38; }
+    html.dark .lamp-bulb { fill: #ffe6ae; }
+    html.dark .lamp-glow { opacity: 1; }
+
+    body, #cv-panel { transition: background-color 320ms ease, color 320ms ease; }
+
+    /* ── Lamp ────────────────────────────────────────────────────────────
+       Charcoal to sit with the chair and the laptop rather than compete with
+       them. The light is off in daylight and on in the dark, which is the
+       whole conceit: you reach over and switch it on. */
+    .lamp-dark { fill: #26262d; }
+    .lamp-mid  { fill: #3a3a44; }
+    .lamp-rim  { fill: #14141a; }
+    .lamp-bulb { fill: #6e6e78; transition: fill 260ms ease; }
+    .lamp-glow { opacity: 0; transition: opacity 320ms ease; }
+    .lamp-beam { fill: #ffd98a; opacity: 0.18; }
+    .lamp-halo { fill: #ffd98a; opacity: 0.45; filter: blur(6px); }
+
+    #lamp { transition: filter 260ms ease; }
+    #lamp:hover { filter: brightness(1.25); }
+
     /* The shut eyes sit on top of the open ones and are simply revealed. No
        transition: a blink is about a tenth of a second, and easing that long
        would turn a blink into a slow squint. */
@@ -263,9 +295,15 @@
            canvas size, so `inset-0` lines them up exactly. -->
       <div
         id="avatar"
-        role="img"
-        aria-label="Illustration of Marlon at a desk with a laptop"
-        class="relative z-30 mb-7 w-[clamp(9rem,22vw,17rem)] shrink-0 sm:mb-9"
+        role="button"
+        tabindex="0"
+        aria-pressed="false"
+        aria-label="Turn the desk lamp on"
+        title="Click the desk to switch the lights"
+        class="pointer-events-auto relative z-30 mb-7 w-[clamp(9rem,22vw,17rem)] shrink-0
+               cursor-pointer rounded-sm
+               focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-8
+               focus-visible:outline-current sm:mb-9"
         style="aspect-ratio: 640 / 620;"
       >
         <img src="assets/avatar/body.png" alt="" class="absolute inset-0 h-full w-full select-none" />
@@ -273,6 +311,45 @@
         <!-- The head and its closed eyes share a wrapper so the tilt carries
              both — a blink drawn outside it would stay level while the head
              turned. -->
+
+        <!-- The lamp, drawn rather than sourced: flat facets and a limited
+             palette so it belongs to the same low-poly world as the figure.
+             Its base sits on the desk surface, which measures 53.9% down the
+             avatar box — hence top + height adding to that. -->
+        <svg
+          id="lamp"
+          viewBox="0 0 92 130"
+          fill="none"
+          aria-hidden="true"
+          class="pointer-events-auto absolute left-[7%] top-[27.4%] h-[26.5%] w-auto cursor-pointer"
+        >
+          <!-- Light, only ever visible with the lamp on. -->
+          <g class="lamp-glow">
+            <polygon points="74,88 99,102 92,130 40,130" class="lamp-beam" />
+            <ellipse cx="87" cy="96" rx="17" ry="11" class="lamp-halo" />
+          </g>
+
+          <!-- Base -->
+          <polygon points="12,120 56,120 64,130 4,130" class="lamp-dark" />
+          <polygon points="18,115 50,115 56,120 12,120" class="lamp-mid" />
+
+          <!-- Post and arm -->
+          <polygon points="28,115 40,115 44,60 34,60" class="lamp-dark" />
+          <polygon points="34,60 40,58 44,60 40,64" class="lamp-mid" />
+          <polygon points="35,62 44,55 76,84 68,92" class="lamp-dark" />
+          <polygon points="44,55 48,58 72,86 68,92" class="lamp-mid" />
+          <circle cx="39" cy="58" r="6" class="lamp-mid" />
+          <circle cx="72" cy="86" r="5" class="lamp-mid" />
+
+          <!-- Shade: a cone tapering from the arm down to its mouth. The mouth
+               is a rotated ellipse so the opening reads as an opening rather
+               than as a flat end. -->
+          <polygon points="61,70 80,61 99,90 74,103" class="lamp-dark" />
+          <polygon points="61,70 74,103 62,95" class="lamp-mid" />
+          <ellipse cx="87" cy="96" rx="14" ry="7.5" transform="rotate(-31 87 96)" class="lamp-rim" />
+          <ellipse cx="87" cy="96" rx="9" ry="4.5" transform="rotate(-31 87 96)" class="lamp-bulb" />
+        </svg>
+
         <div id="avatar-head" class="absolute inset-0">
           <img src="assets/avatar/head.png" alt="" class="absolute inset-0 h-full w-full select-none" />
           <img id="avatar-blink" src="assets/avatar/blink.png" alt=""
