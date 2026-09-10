@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Marlon Steiner — Dev Looking For Work</title>
   <meta name="description" content="Marlon Steiner — developer looking for work. A landing page that is also a playable snake game." />
 
@@ -88,6 +88,30 @@
     #letter-i { transition: opacity 420ms ease 120ms; }
     #letter-i.is-snake { opacity: 0; transition: none; }
 
+    /* 100vh on iOS Safari is the viewport with the address bar hidden, so a
+       full-height page puts its footer underneath the bar — and the body does
+       not scroll, so it is simply unreachable. dvh is the visible height.
+       The vh line stays first as a fallback for browsers without dvh. */
+    body, #page {
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    /* Only non-zero when the page is running full-screen from a home screen,
+       where the notch and the home indicator would otherwise sit on top of the
+       header and footer. */
+    header { padding-top: max(1.25rem, env(safe-area-inset-top)); }
+    footer { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
+    @media (min-width: 640px) {
+      header { padding-top: max(2rem, env(safe-area-inset-top)); }
+      footer { padding-bottom: max(2rem, env(safe-area-inset-bottom)); }
+    }
+
+    /* Icon links are 24px of artwork, which is a 24px target. Padding takes
+       the hit area to 44 — the size a fingertip actually needs — and the
+       negative margin puts the layout back where it was. */
+    .tap-target { padding: 0.625rem; margin: -0.625rem; }
+
     #credentials:empty { display: none; }
     .credential {
       height: clamp(1.25rem, 2.4vw, 1.9rem);
@@ -140,7 +164,7 @@
 
 <!-- The whole page is plain HTML and works with JavaScript disabled.
      The game canvas is layered BEHIND this content at z-index 0. -->
-<body class="min-h-screen overflow-hidden bg-white text-black antialiased selection:bg-black selection:text-white">
+<body class="overflow-hidden bg-white text-black antialiased selection:bg-black selection:text-white">
 
   <!-- The game layer. Fixed to the viewport at z-0 so all page content sits on
        top of it. aria-hidden because the page is fully usable without it. -->
@@ -150,7 +174,7 @@
        stacking context, so #avatar's z-30 below can compete with the snake
        layer at z-20 instead of being trapped underneath it. It still paints
        above #game because both are positioned and this one comes later. -->
-  <div id="page" class="relative min-h-screen flex flex-col">
+  <div id="page" class="relative flex flex-col">
 
     <!-- ── Top row ──────────────────────────────────────────────────────────
          Three columns. The left one is empty on purpose: the score is drawn on
@@ -165,7 +189,7 @@
           target="_blank"
           rel="noopener noreferrer"
           aria-label="LinkedIn"
-          class="transition-opacity hover:opacity-50 focus-visible:outline
+          class="tap-target transition-opacity hover:opacity-50 focus-visible:outline
                  focus-visible:outline-2 focus-visible:outline-offset-4
                  focus-visible:outline-black"
         >
@@ -181,7 +205,7 @@
           target="_blank"
           rel="noopener noreferrer"
           aria-label="GitHub"
-          class="transition-opacity hover:opacity-50 focus-visible:outline
+          class="tap-target transition-opacity hover:opacity-50 focus-visible:outline
                  focus-visible:outline-2 focus-visible:outline-offset-4
                  focus-visible:outline-black"
         >
@@ -197,7 +221,7 @@
         aria-expanded="false"
         aria-controls="cv-panel"
         aria-label="Open CV"
-        class="flex h-10 w-10 items-center justify-center justify-self-end rounded-sm
+        class="flex h-11 w-11 items-center justify-center justify-self-end rounded-sm
                transition-opacity hover:opacity-50 focus-visible:outline focus-visible:outline-2
                focus-visible:outline-offset-4 focus-visible:outline-black"
       >
@@ -264,7 +288,7 @@
       <a
         id="contact-link"
         href="mailto:msteiner.sudo@gmail.com"
-        class="pointer-events-auto mt-8 flex items-center gap-2 text-[0.6875rem] font-semibold
+        class="pointer-events-auto mt-8 flex items-center gap-2 py-3.5 -my-3.5 text-[0.6875rem] font-semibold
                uppercase tracking-[0.2em] transition-opacity hover:opacity-50
                focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4
                focus-visible:outline-black sm:text-xs"

@@ -2,10 +2,21 @@
 
 Logos for the row under the headline. To add one:
 
-1. Drop the file in here. **SVG is best** — it stays sharp at any size and is
+1. Drop the file in here, then trim its transparent padding:
+
+   ```bash
+   python3 scripts/trimlogo.py assets/credentials/name.png
+   ```
+
+   Logos ship with wildly different amounts of built-in padding. Sized to a
+   shared height, one with 16% empty space at the bottom renders 16% smaller
+   than its neighbour — which reads as a mistake even though both boxes are
+   the same height.
+
+2. **SVG is best** — it stays sharp at any size and is
    usually a few KB. Otherwise a PNG with a transparent background, about 3x its
    display height (so roughly 120px tall).
-2. Add a line to `#credentials` in `index.html`:
+3. Add a line to `#credentials` in `index.html`:
 
 ```html
 <img src="assets/credentials/eth.png" alt="ETH Zurich" class="credential" />
