@@ -4,7 +4,9 @@
 // returns plain objects out, which means you can reason about it (and later
 // test it) without a browser.
 
-import { CELL_SIZE, START_LENGTH, START_MARGIN, TWIST, EAT_FLARE_MS, APPLE_REACH } from './constants.js';
+import {
+  CELL_SIZE, START_LENGTH, START_MARGIN, TWIST, EAT_FLARE_MS, APPLE_REACH, EMERGE_MS,
+} from './constants.js';
 import {
   createTwist,
   updateTwist,
@@ -148,6 +150,9 @@ export function createGameState({
     // The cells it began on, so the page knows when the snake has climbed off
     // the letter and the word can put itself back together.
     startCells: onLetter === null ? [] : onLetter.map(cellKey),
+    // The head's opening cell, so the renderer can tell how far the snake has
+    // travelled and drag the letter-shaped version along with it.
+    startHead: onLetter === null ? null : { ...onLetter[0] },
     // Direction is a unit vector so moving is just head.x + direction.x.
     direction,
     // Where input wants to go. Kept separate from `direction` so a turn only
@@ -160,6 +165,11 @@ export function createGameState({
     score: 0,
     // Counts down after eating; the renderer turns it into the snake's flare.
     eatFlareMs: 0,
+    // Counts down from the first keypress while the snake grows out of the
+    // letter. Zero when there is no letter to grow out of.
+    emergeMs: 0,
+    // Kept so the renderer knows what shape to start from.
+    startLetter,
     // Carried across restarts by the caller, so it lasts as long as the tab.
     best,
     apple: null,
@@ -288,6 +298,7 @@ export function resizeGame(state, { grid, pageCells, hintAnchor, hudAnchor }) {
  */
 export function advanceTime(state, elapsedMs) {
   state.eatFlareMs = Math.max(0, state.eatFlareMs - elapsedMs);
+  state.emergeMs = Math.max(0, state.emergeMs - elapsedMs);
   updateTwist(state.twist, elapsedMs, () => randomFreeCell(state));
 }
 
@@ -334,7 +345,11 @@ export function queueDirection(state, direction) {
   state.nextDirection =
     isInverted(state.twist) && horizontal ? { x: -direction.x, y: 0 } : direction;
 
-  if (state.status === 'idle') state.status = 'running';
+  if (state.status === 'idle') {
+    state.status = 'running';
+    // Only worth animating if the snake actually began as the letter.
+    if (state.startCells.length > 0) state.emergeMs = EMERGE_MS;
+  }
 }
 
 /**

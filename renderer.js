@@ -3,7 +3,7 @@
 
 import {
   CELL_SIZE, COLORS, HUD, HINT, STICKER_SCALE, TWIST, MODIFIERS, EAT_FLARE_MS,
-  DANCE_HEIGHT_FRACTION,
+  DANCE_HEIGHT_FRACTION, EMERGE_MS,
 } from './constants.js';
 import { pickImage } from './images.js';
 import { activeModifier, isFlashing, flashIndex } from './modifiers.js';
@@ -46,15 +46,51 @@ function cellToPixel(grid, cell) {
   };
 }
 
+const lerp = (a, b, t) => a + (b - a) * t;
+
 /**
  * Paint every segment. `inset` shrinks each cell; a negative one grows it,
  * which is how the glow is drawn — the same shape, bigger and fainter.
+ *
+ * While the snake is emerging from the letter it is painted differently: the
+ * three segments start collapsed into a single bar the width of the letter's
+ * stroke, then widen to a full cell and separate. Everything is measured from
+ * the head, so the shape keeps up with a snake that is already moving.
  */
 function paintSnake(ctx, state, inset) {
-  for (const cell of state.snake) {
-    const { x, y } = cellToPixel(state.grid, cell);
-    ctx.fillRect(x + inset, y + inset, CELL_SIZE - inset * 2, CELL_SIZE - inset * 2);
+  const emerging = state.emergeMs > 0 && state.startLetter !== null && state.startHead !== null;
+
+  if (!emerging) {
+    for (const cell of state.snake) {
+      const { x, y } = cellToPixel(state.grid, cell);
+      ctx.fillRect(x + inset, y + inset, CELL_SIZE - inset * 2, CELL_SIZE - inset * 2);
+    }
+    return;
   }
+
+  // 0 the instant it starts, 1 when it is a normal snake.
+  const t = 1 - state.emergeMs / EMERGE_MS;
+  const { inkWidth, inkHeight, inkLeft, inkTop } = state.startLetter;
+
+  // How far the snake has moved since it was the letter. The collapsed shape is
+  // pinned to the letter's real position and then dragged along by this, which
+  // is what keeps it on the glyph on the first frame and with the snake after.
+  const head = cellToPixel(state.grid, state.snake[0]);
+  const from = cellToPixel(state.grid, state.startHead);
+  const travelX = head.x - from.x;
+  const travelY = head.y - from.y;
+
+  const segment = inkHeight / state.snake.length;
+  const width = lerp(inkWidth, CELL_SIZE - inset * 2, t);
+  const height = lerp(segment, CELL_SIZE - inset * 2, t);
+
+  state.snake.forEach((cell, i) => {
+    const target = cellToPixel(state.grid, cell);
+    const x = lerp(inkLeft + travelX, target.x + inset, t);
+    const y = lerp(inkTop + travelY + i * segment, target.y + inset, t);
+
+    ctx.fillRect(x, y, width, height);
+  });
 }
 
 /** The headline's gradient, across the viewport, for the canvas. */
@@ -297,21 +333,29 @@ function drawControlHint(ctx, state) {
   ctx.textAlign = 'left';
 }
 
-/** The restart prompt, low in the page where nothing else is competing. */
+/**
+ * The restart prompt, above the avatar's head.
+ *
+ * It used to sit low in the page, where it landed under the contact link and
+ * read as another piece of page furniture. Over his head it reads as something
+ * being said, and it is where the eye already is.
+ */
 function drawGameOver(ctx, state) {
   if (state.status !== 'over') return;
+
+  const anchor = state.hintAnchor;
+  const x = anchor === null ? window.innerWidth / 2 : anchor.centreX;
+  const y = anchor === null
+    ? window.innerHeight * 0.3
+    : anchor.top - HINT.gapAboveAnchorText;
 
   ctx.fillStyle = COLORS.hint;
   ctx.font = HUD.font;
   ctx.letterSpacing = HUD.letterSpacing;
-  ctx.textBaseline = 'top';
+  ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'center';
 
-  ctx.fillText(
-    usesTouch.matches ? 'TAP TO RESTART' : 'PRESS SPACE TO RESTART',
-    window.innerWidth / 2,
-    window.innerHeight * 0.76,
-  );
+  ctx.fillText(usesTouch.matches ? 'TAP TO RESTART' : 'PRESS SPACE TO RESTART', x, y);
 
   // Leave the context as we found it, or the HUD would start drawing centred.
   ctx.textAlign = 'left';
@@ -376,6 +420,11 @@ function drawFlash(ctx, state, dancers) {
 export function renderSnake(ctx, state) {
   ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
   if (isFlashing(state.twist)) return;
+
+  // While the snake is still standing in for the letter, the letter itself is
+  // on screen doing the job. Drawing a cell-wide block over it would only make
+  // the word look wrong.
+  if (state.status === 'idle' && state.startCells.length > 0) return;
 
   drawSnake(ctx, state);
 }

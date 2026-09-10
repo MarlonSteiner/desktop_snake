@@ -55,6 +55,16 @@ export const COLORS = {
 export const EAT_FLARE_MS = 500;
 
 /**
+ * How long the snake takes to become itself.
+ *
+ * It starts out shaped exactly like the letter it was standing in for — one
+ * solid bar, the width of the stroke — and over this long it widens to a full
+ * cell and splits into its three segments. Long enough to read as a change,
+ * short enough that you are steering a normal snake almost immediately.
+ */
+export const EMERGE_MS = 340;
+
+/**
  * Every modifier, one row each: what colour the snake turns and how much
  * faster it moves (1 = normal). Adding a modifier that only changes speed
  * needs nothing but a new row here — modifiers.js derives its list from this

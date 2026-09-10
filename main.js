@@ -38,9 +38,23 @@ const snakeCtx = snakeCanvas.getContext('2d');
 // than from CSS, so the word is complete for anyone without JavaScript.
 const startLetter = document.getElementById('letter-i');
 
-/** Give the letter back once no part of the snake is still standing on it. */
+/**
+ * Hand the letter over to the snake, and take it back again.
+ *
+ * The letter stays on screen until the first keypress — it is the better
+ * version of the picture, being the actual glyph — and only then hides so the
+ * snake can grow out of its shape. It fades back once no part of the snake is
+ * standing on those cells any more.
+ */
 function updateStartLetter(state) {
-  if (startLetter === null || !startLetter.classList.contains('is-snake')) return;
+  if (startLetter === null || state.startCells.length === 0) return;
+
+  const held = startLetter.classList.contains('is-snake');
+
+  if (!held) {
+    if (state.status !== 'idle' && state.emergeMs > 0) startLetter.classList.add('is-snake');
+    return;
+  }
 
   const stillThere = state.snake.some((cell) => state.startCells.includes(cellKey(cell)));
   if (!stillThere) startLetter.classList.remove('is-snake');
@@ -115,9 +129,6 @@ function setup() {
   resizeCanvas(snakeCanvas, snakeCtx);
 
   state = createGameState({ ...measure(), best: 0 });
-  if (startLetter !== null && state.startCells.length > 0) {
-    startLetter.classList.add('is-snake');
-  }
 }
 
 let resizeTimer = null;

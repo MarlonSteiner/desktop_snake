@@ -69,12 +69,52 @@ export function measureHintAnchor() {
  * the headline is fluid type, so where that letter sits changes with the
  * window.
  */
+// One offscreen context, kept around purely to measure glyphs.
+const inkContext = document.createElement('canvas').getContext('2d');
+
 export function measureStartLetter() {
   const element = document.querySelector('#letter-i');
   if (element === null) return null;
 
   const rect = element.getBoundingClientRect();
-  return { centreX: rect.left + rect.width / 2, top: rect.top, bottom: rect.bottom };
+  const style = getComputedStyle(element);
+
+  // The element's rect is the letter's *advance* — the space it takes in the
+  // line, side bearings included — which is wider than the stroke you can see.
+  // measureText gives the ink box instead, which is what the snake has to match
+  // if it is going to pass for the letter.
+  inkContext.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+  const ink = inkContext.measureText('I');
+
+  const measured = ink.actualBoundingBoxLeft + ink.actualBoundingBoxRight;
+  // Fall back to proportions of the advance box if a browser does not report
+  // ink extents; being slightly wrong is better than being NaN.
+  const inkWidth = measured > 0 ? measured : rect.width * 0.55;
+  const inkHeight = ink.actualBoundingBoxAscent + ink.actualBoundingBoxDescent > 0
+    ? ink.actualBoundingBoxAscent + ink.actualBoundingBoxDescent
+    : rect.height * 0.62;
+
+  // Where the ink actually starts, which is not the top of the rect: the rect
+  // is the line box, and the glyph sits inside it on the baseline. Finding the
+  // baseline first is what makes the snake line up with the letter rather than
+  // hover a few pixels off it.
+  const fontHeight = ink.fontBoundingBoxAscent + ink.fontBoundingBoxDescent;
+  const baseline = fontHeight > 0
+    ? rect.top + (rect.height - fontHeight) / 2 + ink.fontBoundingBoxAscent
+    : rect.bottom;
+  const inkTop = ink.actualBoundingBoxAscent > 0
+    ? baseline - ink.actualBoundingBoxAscent
+    : rect.top + (rect.height - inkHeight) / 2;
+
+  return {
+    centreX: rect.left + rect.width / 2,
+    top: rect.top,
+    bottom: rect.bottom,
+    inkWidth,
+    inkHeight,
+    inkLeft: rect.left + (rect.width - inkWidth) / 2,
+    inkTop,
+  };
 }
 
 /**
