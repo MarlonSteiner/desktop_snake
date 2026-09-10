@@ -65,6 +65,15 @@ export const EAT_FLARE_MS = 500;
 export const EMERGE_MS = 340;
 
 /**
+ * Vibration lengths, in milliseconds.
+ *
+ * Short: a tick you feel rather than a buzz you notice. Anything past about
+ * 30ms on a phone reads as a notification, which is the wrong register for
+ * eating an apple.
+ */
+export const HAPTICS = { eat: 14 };
+
+/**
  * Every modifier, one row each: what colour the snake turns and how much
  * faster it moves (1 = normal). Adding a modifier that only changes speed
  * needs nothing but a new row here — modifiers.js derives its list from this

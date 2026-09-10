@@ -22,15 +22,37 @@ import {
  * leftover pixels. We split them evenly into an origin offset, which centres
  * the playfield instead of leaving a dead strip at the right and bottom.
  */
-export function createGrid(viewportWidth, viewportHeight) {
-  const cols = Math.floor(viewportWidth / CELL_SIZE);
-  const rows = Math.floor(viewportHeight / CELL_SIZE);
+export function createGrid(viewportWidth, viewportHeight, letter = null) {
+  if (letter === null) {
+    const cols = Math.floor(viewportWidth / CELL_SIZE);
+    const rows = Math.floor(viewportHeight / CELL_SIZE);
+
+    return {
+      cols,
+      rows,
+      originX: Math.floor((viewportWidth - cols * CELL_SIZE) / 2),
+      originY: Math.floor((viewportHeight - rows * CELL_SIZE) / 2),
+    };
+  }
+
+  // Line the whole board up with the letter the snake starts as.
+  //
+  // Otherwise the letter's centre falls wherever it falls between two cell
+  // centres — up to half a cell out — and the snake visibly slides sideways as
+  // it grows into its grid position. Nudging the origin instead costs nothing:
+  // it only changes which pixels the leftover margin sits in.
+  const wrap = (value) => ((value % CELL_SIZE) + CELL_SIZE) % CELL_SIZE;
+
+  const originX = wrap(letter.inkLeft + letter.inkWidth / 2 - CELL_SIZE / 2);
+  const originY = wrap(
+    letter.inkTop + letter.inkHeight / 2 - (CELL_SIZE * START_LENGTH) / 2,
+  );
 
   return {
-    cols,
-    rows,
-    originX: Math.floor((viewportWidth - cols * CELL_SIZE) / 2),
-    originY: Math.floor((viewportHeight - rows * CELL_SIZE) / 2),
+    cols: Math.floor((viewportWidth - originX) / CELL_SIZE),
+    rows: Math.floor((viewportHeight - originY) / CELL_SIZE),
+    originX,
+    originY,
   };
 }
 
@@ -70,10 +92,13 @@ function startOnLetter(grid, letter) {
   // on an inline span returns the line box, which is taller than the letter and
   // sits higher than it — aligning to the top left the snake floating above the
   // word by most of a cell.
-  const centreY = (letter.top + letter.bottom) / 2;
-  const col = Math.floor((letter.centreX - grid.originX) / CELL_SIZE);
+  // The grid was built so these land exactly, but round rather than floor so a
+  // grid that was not aligned still picks the nearest cell instead of the one
+  // to its left.
+  const col = Math.round((letter.inkLeft + letter.inkWidth / 2 - grid.originX) / CELL_SIZE - 0.5);
   const headRow = Math.round(
-    (centreY - (CELL_SIZE * START_LENGTH) / 2 - grid.originY) / CELL_SIZE,
+    (letter.inkTop + letter.inkHeight / 2 - (CELL_SIZE * START_LENGTH) / 2 - grid.originY)
+      / CELL_SIZE,
   );
 
   const cells = [];

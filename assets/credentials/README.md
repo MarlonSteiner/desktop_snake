@@ -21,3 +21,8 @@ use a dark version where one exists.
 
 The row hides itself while it is empty, so there is no gap before the first logo
 lands.
+
+## Still to add
+
+ETH Zurich (Autonomous Systems Lab) and le Wagon. Both were sent but did not
+land in Downloads, so save them there and they can go straight in.

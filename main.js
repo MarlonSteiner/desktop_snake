@@ -1,7 +1,7 @@
 // Entry point. This is the only file that talks to both the page and the game:
 // it owns the canvas, the loop, and the wiring between input, state and render.
 
-import { TICKS_PER_SECOND, MAX_FRAME_MS, STICKERS, DANCERS, RESIZE_SETTLE_MS, CELL_SIZE } from './constants.js';
+import { TICKS_PER_SECOND, MAX_FRAME_MS, STICKERS, DANCERS, RESIZE_SETTLE_MS, CELL_SIZE, HAPTICS } from './constants.js';
 import {
   createGrid,
   createGameState,
@@ -23,6 +23,7 @@ import { attachMenu } from './menu.js';
 import { speedMultiplier, isFlashing } from './modifiers.js';
 import { createHeadlineBurst } from './headline.js';
 import { createAvatarGaze, startBlinking } from './avatar.js';
+import { buzz } from './haptics.js';
 import { loadImages } from './images.js';
 import { resizeCanvas, render, renderSnake } from './renderer.js';
 
@@ -113,13 +114,17 @@ function setPageHidden(hidden) {
 
 /** Measure the viewport and the page as they are right now. */
 function measure() {
-  const grid = createGrid(window.innerWidth, window.innerHeight);
+  // The letter first: the grid is aligned to it, so it has to be known before
+  // the grid exists.
+  const startLetter = measureStartLetter();
+  const grid = createGrid(window.innerWidth, window.innerHeight, startLetter);
+
   return {
     grid,
+    startLetter,
     pageCells: computePageCells(grid),
     hintAnchor: measureHintAnchor(),
     hudAnchor: measureHudAnchor(),
-    startLetter: measureStartLetter(),
   };
 }
 
@@ -199,7 +204,10 @@ function frame(now) {
       // `while`, not `if`: a slow frame may owe more than one tick.
       while (accumulator >= tickMs) {
         accumulator -= tickMs;
-        if (step(state)) burstHeadline();
+        if (step(state)) {
+        burstHeadline();
+        buzz(HAPTICS.eat);
+      }
       }
     }
   } else {
