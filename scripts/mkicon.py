@@ -79,7 +79,11 @@ for y in range(H):
                 if 0 <= nx < W and 0 <= ny < H: grown[ny*W+nx] = 1
 mask = grown
 
-CX0, CY0, SIDE = 120, 55, 790
+# Crop, as x, y and side in source pixels. Overridable from the command line so
+# the same script can re-cut the icon when the avatar changes.
+CX0 = int(sys.argv[2]) if len(sys.argv) > 2 else 355
+CY0 = int(sys.argv[3]) if len(sys.argv) > 3 else 52
+SIDE = int(sys.argv[4]) if len(sys.argv) > 4 else 320
 
 def downscale(size, opaque_bg=None):
     """Box filter over premultiplied alpha, so edges blend without a halo."""
