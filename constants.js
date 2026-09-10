@@ -36,7 +36,10 @@ export const COLORS = {
   },
   dark: {
     background: '#101014',
-    hud: '#55555f',
+    // Not the mirror of the light theme's grey. A mid grey on white still
+    // reads; the same move on near-black does not, because there is far less
+    // luminance below the background to work with.
+    hud: '#f5f5f7',
     hint: '#f5f5f7',
     apple: '#f5f5f7',
   },
