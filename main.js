@@ -153,7 +153,25 @@ let state = null;
 
 // Pausing is a page concern, not a game rule, so it lives here rather than on
 // the game state. The state object stays purely about the snake.
-let isPaused = false;
+//
+// Two reasons to pause. A panel is open, and the game resumes when it closes.
+// Or the page has scrolled away from the game to the projects: the canvases
+// fade out, and the game stays paused after you scroll back up until you
+// press a key or swipe, so the snake never runs before you are looking at it.
+let isMenuOpen = false;
+let isHeldByScroll = false;
+
+/** A couple of pixels of give, for iOS rubber-banding at the very top. */
+const AT_TOP_PX = 4;
+const isAtTop = () => window.scrollY <= AT_TOP_PX;
+const isPaused = () => isMenuOpen || isHeldByScroll;
+const isInPlay = () => !isMenuOpen && isAtTop();
+
+function handleScroll() {
+  const away = !isAtTop();
+  document.documentElement.classList.toggle('game-away', away);
+  if (away) isHeldByScroll = true;
+}
 
 // Tracked so the class is only touched when it actually changes, rather than
 // on every one of the sixty frames a second.
@@ -245,7 +263,7 @@ function frame(now) {
   const elapsed = Math.min(now - lastFrameTime, MAX_FRAME_MS);
   lastFrameTime = now;
 
-  if (state.status === 'running' && !isPaused) {
+  if (state.status === 'running' && !isPaused()) {
     // Clocks first: a modifier that expires this frame should not get to
     // govern the ticks that follow it.
     advanceTime(state, elapsed);
@@ -277,7 +295,8 @@ function frame(now) {
     accumulator = 0;
   }
 
-  setPageHidden(isFlashing(state.twist));
+  // Never blank the page while you are reading the projects below.
+  setPageHidden(isFlashing(state.twist) && isAtTop());
 
   // Aim the avatar at the snake's head, in viewport pixels.
   const head = state.snake[0];
@@ -299,21 +318,25 @@ window.addEventListener('resize', handleResize);
 // shape in input.js was for.
 const controls = {
   onDirection: (direction) => {
-    if (isPaused) return;
+    if (!isInPlay()) return;
+    isHeldByScroll = false;
 
     loadArt();
     queueDirection(state, direction);
   },
   onRestart: () => {
-    if (!isPaused) restart();
+    if (isInPlay()) restart();
   },
+  isActive: isInPlay,
 };
 
 attachKeyboardInput(controls);
 attachTouchInput(controls);
 attachMenu({
   onPauseChange: (open) => {
-    isPaused = open;
+    isMenuOpen = open;
   },
 });
+window.addEventListener('scroll', handleScroll, { passive: true });
+handleScroll();
 requestAnimationFrame(frame);

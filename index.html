@@ -32,7 +32,7 @@
 
 <!-- The whole page is plain HTML and works with JavaScript disabled.
      The game canvas is layered BEHIND this content at z-index 0. -->
-<body class="overflow-hidden bg-white text-black antialiased selection:bg-black selection:text-white">
+<body class="overflow-x-hidden bg-white text-black antialiased selection:bg-black selection:text-white">
 
   <!-- The game layer. Fixed to the viewport at z-0 so all page content sits on
        top of it. aria-hidden because the page is fully usable without it. -->
@@ -213,9 +213,9 @@
 
       <!-- Contact, as one group. -->
       <div id="cta-row" class="mt-8 flex flex-wrap items-center justify-center gap-x-9 gap-y-3">
-      <button
+      <a
         id="work-link"
-        type="button"
+        href="#work"
         class="pointer-events-auto flex items-center gap-2 py-3.5 -my-3.5 text-[0.6875rem] font-semibold
                uppercase tracking-[0.2em] transition-opacity hover:opacity-50
                focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4
@@ -228,7 +228,7 @@
             <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" /><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
           </svg>
         See my work
-      </button>
+      </a>
 
       <a
         id="contact-link"
@@ -273,6 +273,92 @@
 
   </div>
 
+  <!-- ── Projects ─────────────────────────────────────────────────────────
+       Below the fold, so the page scrolls now. main.js pauses the game and
+       fades both canvases out as soon as the page leaves the top, and the
+       game waits for a key or swipe once you are back. Screenshots are real
+       captures of each app at 390x844, resized to 600px wide, in
+       assets/projects/. -->
+  <section id="work" aria-labelledby="work-title"
+           class="relative z-30 mx-auto w-full max-w-6xl px-6 pb-16 pt-20 sm:px-10 sm:pb-24 sm:pt-28">
+    <header class="mb-12 sm:mb-16">
+      <h2 id="work-title" class="work-title font-black uppercase tracking-tight">Projects</h2>
+      <p class="mt-3 text-sm font-medium uppercase tracking-[0.18em]">Designed, built and shipped by me</p>
+    </header>
+
+    <h3 class="cv-heading">Building now</h3>
+    <div class="project-grid">
+        <article class="project">
+          <a class="project-shot" href="https://wortschatz-xi-eight.vercel.app" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><img src="assets/projects/hochmund.jpg" alt="HochMund path picker with Zero to Mastery, Sharpen My German, Nurse Path, Integration Path and Swiss German Path" width="600" height="1298" loading="lazy" /></a>
+          <div>
+            <h4 class="cv-role">HochMund</h4>
+            <p class="cv-meta">German learning app &middot; App Store release in progress</p>
+            <p class="project-lede">A German course for people building a life in Germany or Switzerland, from first word to fluent.</p>
+            <ul class="cv-list">
+              <li>Nearly 3,000 words in order of how often they are used, A1 to C2, with spaced-repetition flashcards and every sentence voiced.</li>
+              <li>Accounts that sync across devices, and separate paths for nurses, newcomers to Switzerland and St.&nbsp;Gallen dialect.</li>
+            </ul>
+            <p class="project-stack">JavaScript &middot; Vercel Functions &middot; Vercel Blob &middot; Stripe &middot; Google Cloud TTS</p>
+            <p class="project-links"><a href="https://wortschatz-xi-eight.vercel.app" target="_blank" rel="noopener noreferrer">Try it&nbsp;&#8599;</a></p>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="project-shot"><img src="assets/projects/deduckt.jpg" alt="Deduckt side panel with a drop zone for invoices and folders for business, personal, commute, education and medication" width="600" height="1298" loading="lazy" /></div>
+          <div>
+            <h4 class="cv-role">Deduckt</h4>
+            <p class="cv-meta">Chrome extension &middot; In development</p>
+            <p class="project-lede">Drag invoices out of Gmail and end the year with a tax-ready folder.</p>
+            <ul class="cv-list">
+              <li>Captures PDFs and photos by drag and drop, paste or right-click, and sorts them into business, personal and tax-deduction folders.</li>
+              <li>Everything stays on the device in IndexedDB. Exports a compressed ZIP that splits itself to fit upload limits.</li>
+            </ul>
+            <p class="project-stack">JavaScript &middot; Chrome Manifest V3 &middot; IndexedDB &middot; pdf.js &middot; pdf-lib</p>
+            <p class="project-links"><span>Private repo &middot; demo on request</span></p>
+          </div>
+        </article>
+
+    </div>
+
+    <h3 class="cv-heading mt-14 sm:mt-20">Live</h3>
+    <div class="project-grid">
+        <article class="project">
+          <a class="project-shot" href="https://marlonsteiner.github.io/polymono-manila/" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><img src="assets/projects/polymono-manila.jpg" alt="Polymono Manila start screen with an illustrated Manila board and buttons for a new game and online play" width="600" height="1298" loading="lazy" /></a>
+          <div>
+            <h4 class="cv-role">Polymono Manila</h4>
+            <p class="cv-meta">Board game for iPhone and iPad</p>
+            <p class="project-lede">A property board game set in Manila, played on one phone or together online.</p>
+            <ul class="cv-list">
+              <li>Online games stay in sync by sending only each player&rsquo;s choices. A seeded random generator lets every phone compute the same game.</li>
+              <li>The board and the city are drawn in code as SVG, and it installs like an app.</li>
+            </ul>
+            <p class="project-stack">JavaScript &middot; SVG &middot; Service Worker &middot; MQTT</p>
+            <p class="project-links"><a href="https://marlonsteiner.github.io/polymono-manila/" target="_blank" rel="noopener noreferrer">Play&nbsp;&#8599;</a> <a href="https://github.com/MarlonSteiner/polymono-manila" target="_blank" rel="noopener noreferrer">Code&nbsp;&#8599;</a></p>
+          </div>
+        </article>
+
+        <article class="project">
+          <a class="project-shot" href="https://marlonsteiner.github.io/memory-chiess/" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><img src="assets/projects/memory-chiess.jpg" alt="Memory Chiess start screen with a pink flower mascot, player count and buttons for local and online play" width="600" height="1298" loading="lazy" /></a>
+          <div>
+            <h4 class="cv-role">Memory Chiess</h4>
+            <p class="cv-meta">Memory game for 2 to 4 players</p>
+            <p class="project-lede">A colour memory game for the couch, or online with friends.</p>
+            <ul class="cv-list">
+              <li>Online rooms run over an MQTT relay, encrypted with a key derived from the room code.</li>
+              <li>Accounts on a Vercel backend, and a Capacitor build that runs as a native iOS app.</li>
+            </ul>
+            <p class="project-stack">JavaScript &middot; Vercel &middot; Capacitor &middot; MQTT</p>
+            <p class="project-links"><a href="https://marlonsteiner.github.io/memory-chiess/" target="_blank" rel="noopener noreferrer">Play&nbsp;&#8599;</a> <a href="https://github.com/MarlonSteiner/memory-chiess" target="_blank" rel="noopener noreferrer">Code&nbsp;&#8599;</a></p>
+          </div>
+        </article>
+
+    </div>
+
+    <p class="project-links mt-14 justify-between sm:mt-20">
+      <a href="https://github.com/MarlonSteiner" target="_blank" rel="noopener noreferrer">More on GitHub&nbsp;&#8599;</a>
+      <a href="#page">&uarr;&nbsp;Back to the game</a>
+    </p>
+  </section>
 
   <!-- The snake, drawn on top of the page in `difference` blend mode.
        Anywhere the page is white the snake comes out black, exactly as before;
@@ -362,7 +448,7 @@
           <li><a class="underline underline-offset-2 hover:opacity-50" href="mailto:msteiner.sudo@gmail.com">msteiner.sudo@gmail.com</a></li>
           <li><a class="underline underline-offset-2 hover:opacity-50" href="https://www.linkedin.com/in/marlon-steiner/" target="_blank" rel="noopener noreferrer">linkedin.com/in/marlon-steiner</a></li>
           <li><a class="underline underline-offset-2 hover:opacity-50" href="https://github.com/MarlonSteiner" target="_blank" rel="noopener noreferrer">github.com/MarlonSteiner</a></li>
-          <li><button id="cv-work-link" type="button" class="font-semibold underline underline-offset-2 hover:opacity-50">See my projects&nbsp;&rarr;</button></li>
+          <li><a id="cv-work-link" href="#work" class="font-semibold underline underline-offset-2 hover:opacity-50">See my projects&nbsp;&darr;</a></li>
           <li>St.&nbsp;Gallen, Switzerland &middot; Available immediately</li>
         </ul>
 
@@ -558,126 +644,6 @@
         </ul>
       </section>
 
-    </div>
-  </aside>
-
-  <!-- ── Projects panel ─────────────────────────────────────────────────────
-       Same mechanics as the CV panel (menu.js handles both), wider so the
-       screenshots have room. Screenshots are real captures of each app at
-       390x844, resized to 600px wide, in assets/projects/. -->
-  <aside
-    id="work-panel"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="work-title"
-    inert
-    class="fixed right-0 top-0 z-50 h-full w-full max-w-[44rem] translate-x-full overflow-y-auto
-           border-l border-black bg-white transition-transform duration-300 ease-out"
-  >
-    <div class="px-7 py-8 sm:px-10 sm:py-10">
-
-      <div class="absolute right-5 top-7 flex items-center gap-1 sm:right-8">
-        <a
-          href="de.html#work"
-          hreflang="de"
-          lang="de"
-          aria-label="Projekte auf Deutsch"
-          title="Deutsch"
-          class="flex h-9 items-center px-2 text-xs font-semibold uppercase tracking-[0.2em]
-                 transition-opacity hover:opacity-50 focus-visible:outline focus-visible:outline-2
-                 focus-visible:outline-offset-4 focus-visible:outline-black"
-        >DE</a>
-
-        <button
-          id="work-close"
-          type="button"
-          aria-label="Close projects"
-          title="Close"
-          class="flex h-9 w-9 items-center justify-center rounded-sm transition-opacity
-                 hover:opacity-50 focus-visible:outline focus-visible:outline-2
-                 focus-visible:outline-offset-4 focus-visible:outline-black"
-        >
-          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" aria-hidden="true">
-            <path d="M5 5l14 14M19 5L5 19" />
-          </svg>
-        </button>
-      </div>
-
-      <header class="mb-9 pr-20">
-        <h2 id="work-title" class="text-2xl font-black uppercase tracking-tight sm:text-3xl">Projects</h2>
-        <p class="mt-1 text-sm font-medium uppercase tracking-[0.18em]">Designed, built and shipped by me</p>
-      </header>
-
-      <section class="mb-9">
-        <h3 class="cv-heading">Building now</h3>
-        <article class="project">
-          <a class="project-shot" href="https://wortschatz-xi-eight.vercel.app" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><img src="assets/projects/hochmund.jpg" alt="HochMund path picker with Zero to Mastery, Sharpen My German, Nurse Path, Integration Path and Swiss German Path" width="600" height="1298" loading="lazy" /></a>
-          <div>
-            <h4 class="cv-role">HochMund</h4>
-            <p class="cv-meta">German learning app &middot; App Store release in progress</p>
-            <p class="project-lede">A German course for people building a life in Germany or Switzerland, from first word to fluent.</p>
-            <ul class="cv-list">
-              <li>Nearly 3,000 words in order of how often they are used, A1 to C2, with spaced-repetition flashcards and every sentence voiced.</li>
-              <li>Accounts that sync across devices, and separate paths for nurses, newcomers to Switzerland and St.&nbsp;Gallen dialect.</li>
-            </ul>
-            <p class="project-stack">JavaScript &middot; Vercel Functions &middot; Vercel Blob &middot; Stripe &middot; Google Cloud TTS</p>
-            <p class="project-links"><a href="https://wortschatz-xi-eight.vercel.app" target="_blank" rel="noopener noreferrer">Try it&nbsp;&#8599;</a></p>
-          </div>
-        </article>
-
-        <article class="project">
-          <div class="project-shot"><img src="assets/projects/deduckt.jpg" alt="Deduckt side panel with a drop zone for invoices and folders for business, personal, commute, education and medication" width="600" height="1298" loading="lazy" /></div>
-          <div>
-            <h4 class="cv-role">Deduckt</h4>
-            <p class="cv-meta">Chrome extension &middot; In development</p>
-            <p class="project-lede">Drag invoices out of Gmail and end the year with a tax-ready folder.</p>
-            <ul class="cv-list">
-              <li>Captures PDFs and photos by drag and drop, paste or right-click, and sorts them into business, personal and tax-deduction folders.</li>
-              <li>Everything stays on the device in IndexedDB. Exports a compressed ZIP that splits itself to fit upload limits.</li>
-            </ul>
-            <p class="project-stack">JavaScript &middot; Chrome Manifest V3 &middot; IndexedDB &middot; pdf.js &middot; pdf-lib</p>
-            <p class="project-links"><span>Private repo &middot; demo on request</span></p>
-          </div>
-        </article>
-
-      </section>
-
-      <section class="mb-9">
-        <h3 class="cv-heading">Live</h3>
-        <article class="project">
-          <a class="project-shot" href="https://marlonsteiner.github.io/polymono-manila/" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><img src="assets/projects/polymono-manila.jpg" alt="Polymono Manila start screen with an illustrated Manila board and buttons for a new game and online play" width="600" height="1298" loading="lazy" /></a>
-          <div>
-            <h4 class="cv-role">Polymono Manila</h4>
-            <p class="cv-meta">Board game for iPhone and iPad</p>
-            <p class="project-lede">A property board game set in Manila, played on one phone or together online.</p>
-            <ul class="cv-list">
-              <li>Online games stay in sync by sending only each player&rsquo;s choices. A seeded random generator lets every phone compute the same game.</li>
-              <li>The board and the city are drawn in code as SVG, and it installs like an app.</li>
-            </ul>
-            <p class="project-stack">JavaScript &middot; SVG &middot; Service Worker &middot; MQTT</p>
-            <p class="project-links"><a href="https://marlonsteiner.github.io/polymono-manila/" target="_blank" rel="noopener noreferrer">Play&nbsp;&#8599;</a> <a href="https://github.com/MarlonSteiner/polymono-manila" target="_blank" rel="noopener noreferrer">Code&nbsp;&#8599;</a></p>
-          </div>
-        </article>
-
-        <article class="project">
-          <a class="project-shot" href="https://marlonsteiner.github.io/memory-chiess/" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><img src="assets/projects/memory-chiess.jpg" alt="Memory Chiess start screen with a pink flower mascot, player count and buttons for local and online play" width="600" height="1298" loading="lazy" /></a>
-          <div>
-            <h4 class="cv-role">Memory Chiess</h4>
-            <p class="cv-meta">Memory game for 2 to 4 players</p>
-            <p class="project-lede">A colour memory game for the couch, or online with friends.</p>
-            <ul class="cv-list">
-              <li>Online rooms run over an MQTT relay, encrypted with a key derived from the room code.</li>
-              <li>Accounts on a Vercel backend, and a Capacitor build that runs as a native iOS app.</li>
-            </ul>
-            <p class="project-stack">JavaScript &middot; Vercel &middot; Capacitor &middot; MQTT</p>
-            <p class="project-links"><a href="https://marlonsteiner.github.io/memory-chiess/" target="_blank" rel="noopener noreferrer">Play&nbsp;&#8599;</a> <a href="https://github.com/MarlonSteiner/memory-chiess" target="_blank" rel="noopener noreferrer">Code&nbsp;&#8599;</a></p>
-          </div>
-        </article>
-
-      </section>
-
-      <p class="project-links"><a href="https://github.com/MarlonSteiner" target="_blank" rel="noopener noreferrer">More on GitHub&nbsp;&#8599;</a></p>
     </div>
   </aside>
 

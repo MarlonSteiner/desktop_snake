@@ -7,14 +7,13 @@
 // place.
 
 /**
- * The panels, and what opens each one. Only one is ever open: opening the
- * projects from inside the CV swaps one for the other under the same backdrop.
- * The hash lets a link (the language switch, or a link sent to a recruiter)
- * arrive with a panel already open.
+ * The panels, and what opens each one. Only one is ever open. The hash lets a
+ * link (the language switch, or a link sent to a recruiter) arrive with a
+ * panel already open. The projects are not a panel: they are a section further
+ * down the page, reached by an ordinary #work link.
  */
 const PANELS = [
   { id: 'cv-panel', hash: '#cv', openers: ['menu-button'], close: 'cv-close' },
-  { id: 'work-panel', hash: '#work', openers: ['work-link', 'cv-work-link'], close: 'work-close' },
 ];
 
 /**
@@ -61,7 +60,9 @@ export function attachMenu({ onPauseChange }) {
 
     // Move focus with the panel: into it on open, back where it came from on
     // close, so a keyboard user is never left focused on something invisible.
-    (open === null ? returnFocus : open.closeButton).focus();
+    // preventScroll, because focusing the CV button would yank the page back
+    // to the top, fighting a link that is on its way to the projects.
+    (open === null ? returnFocus : open.closeButton).focus({ preventScroll: true });
 
     onPauseChange(open !== null);
   }
@@ -76,6 +77,12 @@ export function attachMenu({ onPauseChange }) {
       });
     }
     panel.closeButton.addEventListener('click', () => show(null));
+
+    // A link from a panel to somewhere on this page (the CV's "see my
+    // projects") closes the panel and lets the browser scroll there.
+    for (const link of panel.element.querySelectorAll('a[href^="#"]')) {
+      link.addEventListener('click', () => show(null));
+    }
   }
 
   backdrop.addEventListener('click', () => show(null));

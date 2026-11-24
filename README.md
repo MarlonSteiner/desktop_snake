@@ -68,11 +68,17 @@ number in it. See [`assets/cv/README.md`](assets/cv/README.md).
 
 ## Projects
 
-"See my work" on the page and "See my projects" in the CV open a second panel
-(`#work-panel`, same mechanics as the CV, both handled by `menu.js`). Each
-project is an `<article class="project">` with a real screenshot of the app,
-captured at 390x844 and resized to 600px wide into `assets/projects/`. Link
-straight to it with `#work`, e.g. `marlonsteiner.studio/#work`.
+The projects are a section below the game (`#work`), so the page scrolls.
+"See my work" on the page and "See my projects" in the CV are plain `#work`
+links. As soon as the page leaves the top, `main.js` pauses the game, fades
+both canvases out and hands the arrow keys and swipes back to the page. After
+scrolling back up the snake waits for the next key or swipe. On a phone, swipes
+at the top still steer the snake, so the link is the way down.
+
+Each project is an `<article class="project">` with a real screenshot of the
+app, captured at 390x844 and resized to 600px wide into `assets/projects/`.
+Game measurements in `obstacles.js` are taken in top-of-page coordinates
+(`boxOf`), so arriving on `#work` or resizing while scrolled is safe.
 
 ## Languages
 

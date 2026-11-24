@@ -26,9 +26,10 @@ const KEY_MAP = {
   KeyD: 'right',
 };
 
-// Keys that scroll the page by default. Since the page is exactly one screen
-// tall this is barely visible, but Space in particular jumps the view, so we
-// stop them. WASD is left alone; it has no default worth cancelling.
+// Keys that scroll the page by default. While the game is in play (top of the
+// page, no panel open) they belong to the snake, so their default is
+// cancelled. Anywhere else they scroll as normal. WASD is left alone; it has
+// no default worth cancelling.
 const SCROLL_KEYS = new Set([
   'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space',
 ]);
@@ -44,13 +45,16 @@ const SCROLL_KEYS = new Set([
  * @param {object} handlers
  * @param {(direction: {x: number, y: number}) => void} handlers.onDirection
  * @param {() => void} handlers.onRestart
+ * @param {() => boolean} [handlers.isActive] false while the game is out of
+ *   play, so keys keep their normal job (scrolling the projects)
  */
-export function attachKeyboardInput({ onDirection, onRestart }) {
+export function attachKeyboardInput({ onDirection, onRestart, isActive = () => true }) {
   window.addEventListener('keydown', (event) => {
     const isMovement = event.code in KEY_MAP;
     const isRestart = event.code === 'Space';
 
     if (!isMovement && !isRestart) return;
+    if (!isActive()) return;
     if (SCROLL_KEYS.has(event.code)) event.preventDefault();
 
     if (isMovement) onDirection(DIRECTIONS[KEY_MAP[event.code]]);

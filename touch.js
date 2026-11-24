@@ -24,8 +24,10 @@ function closestMatch(target, selector) {
  * @param {object} handlers
  * @param {(direction: {x: number, y: number}) => void} handlers.onDirection
  * @param {() => void} handlers.onRestart
+ * @param {() => boolean} [handlers.isActive] false while the game is out of
+ *   play (scrolled down to the projects), so the page scrolls natively
  */
-export function attachTouchInput({ onDirection, onRestart }) {
+export function attachTouchInput({ onDirection, onRestart, isActive = () => true }) {
   // Where the current gesture started, or null if we are ignoring this one.
   let origin = null;
 
@@ -40,8 +42,9 @@ export function attachTouchInput({ onDirection, onRestart }) {
       }
 
       // Touches inside the CV keep their native behaviour, which is how the
-      // panel still scrolls.
-      if (closestMatch(event.target, '#cv-panel') !== null) {
+      // panel still scrolls. So does everything once the page has scrolled
+      // away from the game.
+      if (!isActive() || closestMatch(event.target, '#cv-panel, #work') !== null) {
         origin = null;
         return;
       }

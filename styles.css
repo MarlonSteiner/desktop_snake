@@ -142,11 +142,14 @@ footer { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
 /* ── Projects ────────────────────────────────────────────────────────
    Screenshot beside the text at every width. Stacked on a phone, a 2:1
    screenshot would push each project's text a full screen down. */
-.project {
-  display: grid; grid-template-columns: 6.5rem 1fr; gap: 1.25rem;
-  align-items: start; margin-bottom: 2.25rem;
+.work-title { font-size: clamp(2.25rem, 8vw, 4.5rem); line-height: 0.9; }
+.project-grid { display: grid; gap: 2.75rem 3.5rem; }
+@media (min-width: 1024px) {
+  .project-grid { grid-template-columns: 1fr 1fr; }
 }
-.project:last-child { margin-bottom: 0; }
+.project {
+  display: grid; grid-template-columns: 6.5rem 1fr; gap: 1.25rem; align-items: start;
+}
 @media (min-width: 640px) {
   .project { grid-template-columns: 9.5rem 1fr; gap: 1.75rem; }
 }
@@ -172,6 +175,21 @@ html.dark .project-shot { border-color: #3a3a46; background: #1f1f26; }
 html.dark .project-stack,
 html.dark .project-links span { color: #9a9aa6; }
 
+/* ── Scrolling away from the game ─────────────────────────────────────
+   The canvases are fixed to the viewport, so once the page moves they would
+   draw over the projects. main.js sets .game-away as soon as the page leaves
+   the top; the game pauses and both canvases fade out. The start letter comes
+   back too, in case the snake was standing in for it. */
+#game, #snake { transition: opacity 160ms ease; }
+html.game-away #game,
+html.game-away #snake { opacity: 0; }
+html.game-away #letter-i { opacity: 1; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 /* ── Avatar ──────────────────────────────────────────────────────────
    The tilt is declared here and driven by two custom properties from
    avatar.js, so the transition that smooths it stays in CSS. Without it the
@@ -187,8 +205,7 @@ html.dark .project-links span { color: #9a9aa6; }
    page and light on a dark one without being told which it is on. */
 html.dark body { background: #101014; color: #f5f5f7; }
 html.dark .credential { filter: grayscale(1) invert(1); }
-html.dark #cv-panel,
-html.dark #work-panel { background: #16161c; border-color: #2c2c36; color: #f5f5f7; }
+html.dark #cv-panel { background: #16161c; border-color: #2c2c36; color: #f5f5f7; }
 html.dark .cv-heading { border-color: #3a3a46; }
 html.dark .cv-meta { color: #9a9aa6; }
 html.dark #cv-backdrop { background: rgb(0 0 0 / 0.5); }
@@ -197,7 +214,7 @@ html.dark .lamp-mid  { fill: #2e2e38; }
 html.dark .lamp-bulb { fill: #ffe6ae; }
 html.dark .lamp-glow { opacity: 1; }
 
-body, #cv-panel, #work-panel { transition: background-color 320ms ease, color 320ms ease; }
+body, #cv-panel { transition: background-color 320ms ease, color 320ms ease; }
 
 /* ── Lamp ────────────────────────────────────────────────────────────
    Charcoal to sit with the chair and the laptop rather than compete with

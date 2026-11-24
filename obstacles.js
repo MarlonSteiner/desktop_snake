@@ -21,6 +21,23 @@ import { cellKey } from './game.js';
  */
 const PAGE_SELECTORS = ['#avatar', '#cta-row', '#text-block', '#logo-row', '#menu-button', '#lang-switch', 'footer'];
 
+/**
+ * An element's box as it sits when the page is scrolled to the top.
+ *
+ * The game only ever plays at the top of the page (main.js pauses and hides it
+ * as soon as you scroll), so every measurement is taken in those coordinates.
+ * Plain getBoundingClientRect would be off by the scroll distance whenever the
+ * page loads or resizes while scrolled down, for example arriving on #work.
+ */
+function boxOf(element) {
+  const rect = element.getBoundingClientRect();
+  const y = window.scrollY;
+  return {
+    left: rect.left, right: rect.right, width: rect.width, height: rect.height,
+    top: rect.top + y, bottom: rect.bottom + y,
+  };
+}
+
 /** Convert one viewport rectangle into the grid cells it covers. */
 function rectToCells(grid, rect, into) {
   // The rect is in viewport pixels; the grid starts at originX/originY, so the
@@ -51,7 +68,7 @@ export function measureHintAnchor() {
   const element = document.querySelector('#avatar');
   if (element === null) return null;
 
-  const rect = element.getBoundingClientRect();
+  const rect = boxOf(element);
   return {
     right: rect.right,
     top: rect.top,
@@ -76,7 +93,7 @@ export function measureStartLetter() {
   const element = document.querySelector('#letter-i');
   if (element === null) return null;
 
-  const rect = element.getBoundingClientRect();
+  const rect = boxOf(element);
   const style = getComputedStyle(element);
 
   // The element's rect is the letter's *advance*: the space it takes in the
@@ -128,7 +145,7 @@ export function measureHudAnchor() {
   const button = document.querySelector('#menu-button');
   if (button === null) return null;
 
-  const rect = button.getBoundingClientRect();
+  const rect = boxOf(button);
   return {
     x: window.innerWidth - rect.right,
     y: rect.top + rect.height / 2,
@@ -148,7 +165,7 @@ export function computePageCells(grid) {
     const element = document.querySelector(selector);
     if (element === null) continue;
 
-    rectToCells(grid, element.getBoundingClientRect(), cells);
+    rectToCells(grid, boxOf(element), cells);
   }
 
   // The score readout is drawn on the canvas, so there is no element to
