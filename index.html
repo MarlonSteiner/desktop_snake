@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Marlon Steiner — Dev Looking For Work</title>
-  <meta name="description" content="Marlon Steiner — developer looking for work. A landing page that is also a playable snake game." />
+  <title>Marlon Steiner | Dev Looking For Work</title>
+  <meta name="description" content="Marlon Steiner is a developer looking for work. A landing page that is also a playable snake game." />
 
   <!-- Two icon files on purpose. The PNG is what modern browsers use, with a
        transparent background so the avatar sits on the tab strip rather than in
@@ -27,7 +27,7 @@
        narrow windows without needing a single media query. */
     /* The 11vw is what phones get, and it was right there. Only the ceiling
        moved: it now caps at 5.5rem instead of 9rem, which starts biting at
-       about 800px wide — so every phone is untouched and laptops stop
+       about 800px wide, so every phone is untouched and laptops stop
        shouting. One number to tune. */
     .headline-line { font-size: clamp(2.25rem, 11vw, 5.5rem); line-height: 0.9; }
     .footer-name   { font-size: clamp(0.75rem, 2vw, 1rem); }
@@ -80,7 +80,7 @@
     }
 
     /* FLASH blanks the page. visibility rather than display so every element
-       keeps its position — obstacles.js measures these boxes. */
+       keeps its position, because obstacles.js measures these boxes. */
     .page-hidden { visibility: hidden; }
 
     /* The letter the snake starts as. Fades back once the snake climbs off it,
@@ -89,7 +89,7 @@
     #letter-i.is-snake { opacity: 0; transition: none; }
 
     /* 100vh on iOS Safari is the viewport with the address bar hidden, so a
-       full-height page puts its footer underneath the bar — and the body does
+       full-height page puts its footer underneath the bar, and the body does
        not scroll, so it is simply unreachable. dvh is the visible height.
        The vh line stays first as a fallback for browsers without dvh. */
     body, #page {
@@ -108,7 +108,7 @@
     }
 
     /* Icon links are 24px of artwork, which is a 24px target. Padding takes
-       the hit area to 44 — the size a fingertip actually needs — and the
+       the hit area to 44, the size a fingertip actually needs, and the
        negative margin puts the layout back where it was. */
     .tap-target { padding: 0.625rem; margin: -0.625rem; }
 
@@ -129,7 +129,7 @@
     }
     .credential:hover { filter: grayscale(0); opacity: 1; }
 
-    /* A lockup — a wordmark plus a divider plus a second line — carries far
+    /* A lockup (a wordmark plus a divider plus a second line) carries far
        more inside the same box than a single wordmark does. Matched on box
        height its type comes out half the size of its neighbour's and reads as
        an accident. Logo rows are balanced by optical weight, not by bounding
@@ -283,7 +283,7 @@
     <!-- ── Centre column ────────────────────────────────────────────────────
          Order is deliberate: who you are looking at, then what he wants, then
          how to reach him. The email and the two profiles are one block because
-         they are one intention — splitting contact details across the page
+         they are one intention. Splitting contact details across the page
          makes a visitor hunt for the thing they already decided to do.
 
          pointer-events-none on <main> lets clicks fall through to the canvas;
@@ -309,13 +309,13 @@
         <img src="assets/avatar/body.png" alt="" class="absolute inset-0 h-full w-full select-none" />
 
         <!-- The head and its closed eyes share a wrapper so the tilt carries
-             both — a blink drawn outside it would stay level while the head
+             both. A blink drawn outside it would stay level while the head
              turned. -->
 
         <!-- The lamp, drawn rather than sourced: flat facets and a limited
              palette so it belongs to the same low-poly world as the figure.
              Its base sits on the desk surface, which measures 53.9% down the
-             avatar box — hence top + height adding to that. -->
+             avatar box, hence top + height adding to that. -->
         <svg
           id="lamp"
           viewBox="0 0 92 130"
@@ -404,7 +404,7 @@
            :empty hides the row entirely until the first logo arrives, so the
            gap does not sit there looking like a mistake. -->
       <!-- Add logos as: <img src="assets/credentials/eth.png" alt="ETH Zurich" class="credential" />
-           Kept literally empty — :empty counts whitespace as content, so a
+           Kept literally empty, because :empty counts whitespace as content, so a
            newline inside these tags would defeat the rule that hides the row. -->
       <div id="credentials" class="mt-11 flex max-w-4xl flex-wrap items-center justify-center gap-x-9 gap-y-6 px-2 sm:gap-x-12"><img src="assets/credentials/eth-asl.png" alt="ETH Zurich Autonomous Systems Lab" class="credential credential--lockup" style="--optical: 1.9%" /><img src="assets/credentials/ironman.png" alt="Ironman" class="credential" style="--optical: -16.3%" /></div>
     </main>
@@ -422,7 +422,7 @@
   <!-- The snake, drawn on top of the page in `difference` blend mode.
        Anywhere the page is white the snake comes out black, exactly as before;
        anywhere it crosses black text the same pixels come out white. That is
-       the whole effect — no mask, no second copy of the headline, and it lands
+       the whole effect: no mask, no second copy of the headline, and it lands
        on the glyphs perfectly because the browser is compositing the real
        text. -->
   <canvas id="snake" class="pointer-events-none fixed inset-0 z-20 block"
@@ -505,8 +505,8 @@
       <section class="mb-9">
         <h3 class="cv-heading">Profile</h3>
         <p class="text-sm leading-relaxed">
-          Full stack developer and founder of Flowton, where I build websites and
-          automation for clients across fintech, space, analytics and retail. Modern
+          Full stack developer and founder of Flowton, where I build websites for
+          clients across fintech, space, analytics and retail. Modern
           web development training on top of 4+ years of technical experience across
           mechanical systems, enterprise software and robotics development.
         </p>
@@ -517,13 +517,12 @@
         <h3 class="cv-heading">Experience</h3>
 
         <article class="cv-entry">
-          <h4 class="cv-role">Founder &mdash; Flowton</h4>
+          <h4 class="cv-role">Founder, Flowton</h4>
           <p class="cv-meta">2025&ndash;present &middot; <a class="underline underline-offset-2 hover:opacity-50" href="https://www.flowton.io" target="_blank" rel="noopener noreferrer">flowton.io</a>, St.&nbsp;Gallen</p>
           <ul class="cv-list">
-            <li>Founded a studio building websites and AI automation for Swiss trades firms &mdash; plumbing, heating and electrical businesses of 5 to 50 people.</li>
-            <li>Won and delivered client work across sectors: fintech (Bees&nbsp;&amp;&nbsp;Bears), space (Stellar&nbsp;Alpina, ESA&nbsp;BIC-backed), team analytics (The&nbsp;Performance&nbsp;Field) and jewellery retail.</li>
-            <li>Ran each project end to end: scoping call, fixed-price quote, build, deployment, domains and ongoing maintenance.</li>
-            <li>Built the automation around the sites &mdash; missed-call SMS follow-up, voice note to quote draft, work report to invoice draft &mdash; wired into the tools each client already used.</li>
+            <li>Founded a studio building websites for Swiss trades firms: plumbing, heating and electrical businesses of 5 to 50 people.</li>
+            <li>Do the whole build myself: UX, UI, front end, back end and invoicing.</li>
+            <li>Self-taught, picking up whatever tool a project needs and keeping current as the field moves.</li>
           </ul>
         </article>
 
@@ -549,7 +548,7 @@
         </article>
 
         <article class="cv-entry">
-          <h4 class="cv-role">Assistant &mdash; Robotics &amp; Software Development</h4>
+          <h4 class="cv-role">Assistant, Robotics &amp; Software Development</h4>
           <p class="cv-meta">2022&ndash;2023 &middot; ETH Z&uuml;rich Autonomous Systems Lab</p>
           <ul class="cv-list">
             <li>Designed UI for computer software in Figma and Qt Creator, alongside software engineers.</li>
@@ -560,7 +559,7 @@
         </article>
 
         <article class="cv-entry">
-          <h4 class="cv-role">Civil Service &mdash; Community Integration</h4>
+          <h4 class="cv-role">Civil Service, Community Integration</h4>
           <p class="cv-meta">2022&ndash;2023 &middot; TISG Refugee Center Rosenau, St.&nbsp;Gallen</p>
           <ul class="cv-list">
             <li>Supported Ukrainian refugees with administrative processes, accommodation and integration services.</li>
@@ -650,8 +649,8 @@
       <section class="mb-9">
         <h3 class="cv-heading">Certifications</h3>
         <ul class="cv-list">
-          <li>Web Development Certificate &mdash; Le Wagon</li>
-          <li>Swiss Federal Certificate in Polymechanics &mdash; Swiss Federal Institute for Vocational Education and Training</li>
+          <li>Web Development Certificate, Le Wagon</li>
+          <li>Swiss Federal Certificate in Polymechanics, Swiss Federal Institute for Vocational Education and Training</li>
           <li>UX Design Fundamentals and Process</li>
           <li>JavaScript Fundamentals</li>
           <li>Responsive Web Design</li>
@@ -663,9 +662,9 @@
       <section>
         <h3 class="cv-heading">Languages</h3>
         <ul class="cv-list">
-          <li>English &mdash; native</li>
-          <li>German &mdash; native</li>
-          <li>Tagalog &mdash; fluent</li>
+          <li>English: native</li>
+          <li>German: native</li>
+          <li>Tagalog: fluent</li>
         </ul>
       </section>
 

@@ -2,7 +2,7 @@
 
 `Marlon_Steiner_CV.pdf` is what the download icon in the panel's corner serves.
 
-It is Marlon's own designed CV, deliberately **without a phone number** — a
+It is Marlon's own designed CV, deliberately **without a phone number**. A
 number in a file linked from a public page gets scraped as readily as one in the
 HTML.
 

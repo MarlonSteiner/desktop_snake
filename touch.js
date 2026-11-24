@@ -1,7 +1,7 @@
 // Swipe controls. A second input source alongside input.js.
 //
 // It imports DIRECTIONS from there and calls the same handlers, so the game
-// never learns that touch exists — this file could be deleted and nothing else
+// never learns that touch exists: this file could be deleted and nothing else
 // would need changing.
 //
 // The hard part is not detecting swipes. It is staying out of the way: the
@@ -69,7 +69,7 @@ export function attachTouchInput({ onDirection, onRestart }) {
       const dy = touch.clientY - origin.y;
 
       // Below the threshold this is still potentially a tap, so we do nothing
-      // at all — no preventDefault, no intent. That silence is what lets the
+      // at all: no preventDefault, no intent. That silence is what lets the
       // browser turn it into a click on a link.
       if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) return;
 
@@ -98,7 +98,7 @@ export function attachTouchInput({ onDirection, onRestart }) {
   window.addEventListener(
     'touchend',
     () => {
-      // A tap on the page — not a swipe, not on a link — is the touch
+      // A tap on the page (not a swipe, not on a link) is the touch
       // equivalent of pressing space. onRestart ignores it unless the game is
       // actually over.
       if (origin !== null && !origin.swiped && !origin.onLink) onRestart();

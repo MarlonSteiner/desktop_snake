@@ -139,7 +139,7 @@ for s in sizes: ico += pngs[s]
 open('favicon.ico','wb').write(ico)
 
 # White behind this one only. iOS fills transparent pixels with black on a home
-# screen, and the icon is mostly dark hair — on black it would lose its top half.
+# screen, and the icon is mostly dark hair; on black it would lose its top half.
 open('apple-touch-icon.png','wb').write(encode_png(downscale(180, opaque_bg=(255,255,255)), 180))
 print('written: favicon.png (64) and favicon.ico (16/32/48) transparent, '
       'apple-touch-icon.png (180) on white')

@@ -72,8 +72,8 @@ while q:
             mask[ny*W+nx] = 1; q.append((nx,ny))
 
 # The border fill only reaches background it can walk to. Everything under the
-# desk is backdrop too, but it is walled in — tabletop above, legs either side,
-# floor shadow below — so the fill never arrives and the snake disappears
+# desk is backdrop too, but it is walled in (tabletop above, legs either side,
+# floor shadow below) so the fill never arrives and the snake disappears
 # behind a solid block.
 #
 # So: sweep up every backdrop-coloured pixel the fill missed and clear the ones
@@ -106,7 +106,7 @@ for group in components(lambda x, y: not mask[y*W+x] and is_bg(x, y)):
     for i in group: mask[i] = 1
 print(f'cleared {pockets} enclosed backdrop pockets')
 
-# The floor shadow is not backdrop and not the figure — it is the figure's
+# The floor shadow is not backdrop and not the figure; it is the figure's
 # shadow on the backdrop. Left solid it swallows the snake in a band across the
 # bottom. Treated as black at partial coverage over white, which is what a
 # shadow physically is, it keeps its softness and the snake shows through it.
@@ -228,7 +228,7 @@ def find_eyes():
 
 eyes = find_eyes()
 if eyes is None:
-    print('no eye pair found — blink layer skipped')
+    print('no eye pair found, blink layer skipped')
 else:
     PAD = 3
     LID_THICKNESS = 3
@@ -276,7 +276,7 @@ else:
     write('assets/avatar/blink.png', blink_layer())
     print('wrote assets/avatar/blink.png')
 
-# Where the head pivots, as a percentage of the shared canvas — CSS
+# Where the head pivots, as a percentage of the shared canvas, because CSS
 # transform-origin wants it in those terms.
 print(f'canvas: {OUT_W}x{OUT_H}')
 print(f'transform-origin: {(NECK_X-X0)/BW*100:.1f}% {(HEAD_BOTTOM-Y0)/BH*100:.1f}%')

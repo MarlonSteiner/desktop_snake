@@ -56,7 +56,7 @@ export const COLORS = {
   flash: ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7'],
   /**
    * The snake's flare after eating. Same stops as the headline gradient in
-   * index.html, so the two effects read as the same event — duplicated on
+   * index.html, so the two effects read as the same event, duplicated on
    * purpose, because a canvas cannot read a CSS gradient.
    */
   rainbow: [
@@ -78,8 +78,8 @@ export const EAT_FLARE_MS = 500;
 /**
  * How long the snake takes to become itself.
  *
- * It starts out shaped exactly like the letter it was standing in for — one
- * solid bar, the width of the stroke — and over this long it widens to a full
+ * It starts out shaped exactly like the letter it was standing in for: one
+ * solid bar, the width of the stroke. Over this long it widens to a full
  * cell and splits into its three segments. Long enough to read as a change,
  * short enough that you are steering a normal snake almost immediately.
  */
@@ -97,7 +97,7 @@ export const HAPTICS = { eat: 14 };
 /**
  * Every modifier, one row each: what colour the snake turns and how much
  * faster it moves (1 = normal). Adding a modifier that only changes speed
- * needs nothing but a new row here — modifiers.js derives its list from this
+ * needs nothing but a new row here, since modifiers.js derives its list from this
  * object. Anything with a stranger effect, like INVERTED, also needs a rule
  * somewhere; INVERTED's lives in queueDirection.
  *
@@ -113,7 +113,7 @@ export const MODIFIERS = {
    * FLASH empties the screen: the page, the snake and everything else vanish
    * and the whole viewport cycles through flat colours. Nothing moves while it
    * runs, so the snake picks up exactly where it left off. `color` and `speed`
-   * are never read for it — the board is not on screen to have a colour.
+   * are never read for it: the board is not on screen to have a colour.
    */
   FLASH: { color: '#ffffff', speed: 1, durationMs: 750 },
 };
@@ -126,7 +126,7 @@ export const MODIFIERS = {
  * full-screen flashes per second, and this fills the whole viewport, so it is
  * three times over that line. That is a deliberate choice, not an oversight.
  *
- * The mitigation that remains is prefers-reduced-motion — anyone who has asked
+ * The mitigation that remains is prefers-reduced-motion: anyone who has asked
  * their system for less motion gets one held colour instead of a cycle, which
  * is handled in renderer.js. Raise this number to soften the effect; 340 was
  * the last value that stayed under the threshold.
@@ -138,7 +138,7 @@ export const FLASH_MS_PER_COLOR = 113;
  *
  * Dragging a window fires resize continuously. Measuring the page and sweeping
  * every cell on each of those events is wasted work, and worse, the text has
- * not finished reflowing yet — so the boxes we measured would already be wrong.
+ * not finished reflowing yet, so the boxes we measured would already be wrong.
  */
 export const RESIZE_SETTLE_MS = 120;
 
@@ -147,7 +147,7 @@ export const RESIZE_SETTLE_MS = 120;
  *
  * `pivot` is where the head layer rotates: the point on the collar where the
  * two images were cut, as a percentage of their shared canvas. It comes out of
- * scripts/mkavatar.py — regenerate the layers and it will print the new value.
+ * scripts/mkavatar.py. Regenerate the layers and it will print the new value.
  */
 export const AVATAR = {
   pivot: '50.3% 32.1%',
@@ -156,7 +156,7 @@ export const AVATAR = {
   /**
    * How far the snake has to be for the head to be turned as far as it goes,
    * as a fraction of the viewport rather than a pixel count. A fixed distance
-   * saturates almost immediately on a wide screen — the head sits pinned at
+   * saturates almost immediately on a wide screen; the head sits pinned at
    * full tilt and stops reacting. Measuring in screen-halves means the turn
    * maps across whatever screen it is actually on.
    */
@@ -171,7 +171,7 @@ export const AVATAR = {
  *
  * The gap is random rather than fixed. A blink on a metronome reads as a
  * flicker in the page; an uneven one reads as a person. The occasional double
- * is the same idea — real eyes do it, and it is the detail that stops the
+ * is the same idea: real eyes do it, and it is the detail that stops the
  * effect feeling like a loop.
  */
 export const BLINK = {
@@ -240,7 +240,7 @@ export const STICKERS = [
  * The box a sticker is fitted into, in cells.
  *
  * A face rendered at 24px is an unreadable smudge, so the sticker overflows its
- * cell — three cells on its longest side. Only the drawing is bigger; the snake
+ * cell, three cells on its longest side. Only the drawing is bigger; the snake
  * still has to reach the one cell the apple actually occupies. Sprites larger
  * than their hitbox are normal in games, and it is the hitbox that has to stay
  * honest.
@@ -252,7 +252,7 @@ export const STICKER_SCALE = 3;
  *
  * The sticker is drawn three cells across while the cell underneath is one, so
  * a hitbox of exactly that cell means aiming at a face and missing it. At 1,
- * the hitbox is the 3x3 block the sticker actually covers — you eat what you
+ * the hitbox is the 3x3 block the sticker actually covers, so you eat what you
  * can see, which is the only version of this that feels fair.
  */
 export const APPLE_REACH = 1;

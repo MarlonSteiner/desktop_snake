@@ -43,8 +43,8 @@ const startLetter = document.getElementById('letter-i');
 /**
  * Hand the letter over to the snake, and take it back again.
  *
- * The letter stays on screen until the first keypress — it is the better
- * version of the picture, being the actual glyph — and only then hides so the
+ * The letter stays on screen until the first keypress, being the better
+ * version of the picture (the actual glyph), and only then hides so the
  * snake can grow out of its shape. It fades back once no part of the snake is
  * standing on those cells any more.
  */
@@ -65,7 +65,7 @@ function updateStartLetter(state) {
 /**
  * The desk scene is the light switch.
  *
- * Clicking the figure, the desk, the laptop or the lamp toggles the theme —
+ * Clicking the figure, the desk, the laptop or the lamp toggles the theme,
  * but only where the picture is actually opaque, so a click on the empty
  * corners of its box does nothing. The lamp is a separate SVG drawn on top and
  * counts wherever it is hit.
@@ -294,7 +294,7 @@ function frame(now) {
 setup();
 window.addEventListener('resize', handleResize);
 // One set of handlers, two sources feeding it. Adding swipe controls needed no
-// change to game.js, renderer.js or input.js — which is what the named-handler
+// change to game.js, renderer.js or input.js, which is what the named-handler
 // shape in input.js was for.
 const controls = {
   onDirection: (direction) => {

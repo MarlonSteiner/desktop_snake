@@ -3,7 +3,7 @@
 // The illustration is two stacked PNGs sharing one canvas size: the body, and
 // the head cut off at the collar. Tilting the head layer about that cut reads
 // as a head turn, and because the layers overlap by a few pixels the seam never
-// opens. Everything here is a CSS transform on one element — no canvas work, no
+// opens. Everything here is a CSS transform on one element: no canvas work, no
 // per-frame layout.
 
 import { AVATAR, BLINK } from './constants.js';
@@ -71,7 +71,7 @@ export function createAvatarGaze(head, frame) {
 
     const centreX = box.left + box.width / 2;
     // Aim from the head rather than the middle of the picture, which includes
-    // the desk and the chair — the eyes are near the top.
+    // the desk and the chair; the eyes are near the top.
     const centreY = box.top + box.height * AVATAR.headHeightFraction;
 
     const reachX = window.innerWidth * AVATAR.reachXFraction;

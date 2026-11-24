@@ -38,7 +38,7 @@ export function createGrid(viewportWidth, viewportHeight, letter = null) {
   // Line the whole board up with the letter the snake starts as.
   //
   // Otherwise the letter's centre falls wherever it falls between two cell
-  // centres — up to half a cell out — and the snake visibly slides sideways as
+  // centres (up to half a cell out), and the snake visibly slides sideways as
   // it grows into its grid position. Nudging the origin instead costs nothing:
   // it only changes which pixels the leftover margin sits in.
   const wrap = (value) => ((value % CELL_SIZE) + CELL_SIZE) % CELL_SIZE;
@@ -73,7 +73,7 @@ function startCellsOnRow(row) {
  *
  * Choosing where to start is the interesting part. Walking outwards from the
  * middle until the cells are clear finds the *nearest* free row, which is the
- * row pressed right up against the headline — the snake appears to be hiding
+ * row pressed right up against the headline; the snake appears to be hiding
  * behind the text. Instead we score every free row by how much clear space
  * surrounds it and take the roomiest, so the snake starts in open page.
  *
@@ -90,7 +90,7 @@ function startOnLetter(grid, letter) {
 
   // Centred on the letter's box, not hung from its top. getBoundingClientRect
   // on an inline span returns the line box, which is taller than the letter and
-  // sits higher than it — aligning to the top left the snake floating above the
+  // sits higher than it, and aligning to the top left the snake floating above the
   // word by most of a cell.
   // The grid was built so these land exactly, but round rather than floor so a
   // grid that was not aligned still picks the nearest cell instead of the one
@@ -181,7 +181,7 @@ export function createGameState({
     // Direction is a unit vector so moving is just head.x + direction.x.
     direction,
     // Where input wants to go. Kept separate from `direction` so a turn only
-    // takes effect on a tick boundary — see step().
+    // takes effect on a tick boundary. See step().
     nextDirection: direction,
     // 'idle' until the first movement key, then 'running', then 'over'. The
     // game never starts on its own, which is also how we respect
@@ -219,7 +219,7 @@ function sameCell(a, b) {
 /**
  * Is `cell` close enough to the apple to eat it?
  *
- * Chebyshev distance — the square block around the apple rather than a circle —
+ * Chebyshev distance (the square block around the apple rather than a circle)
  * because the sticker is drawn as a square box, and the hitbox should be the
  * shape of the thing you are aiming at. It deliberately does not wrap at the
  * edges: the sprite does not wrap either, so neither should the reach.
@@ -235,7 +235,7 @@ function withinReach(cell, apple) {
  * Every cell nothing is currently sitting on.
  *
  * Listing the free cells and picking one is slower than guessing a random cell
- * and retrying until it's empty — but guessing gets arbitrarily slow as the
+ * and retrying until it's empty, but guessing gets arbitrarily slow as the
  * board fills, and never finishes on a full board. A full sweep of ~1600 cells
  * once per apple is nothing, and it cannot hang.
  */
@@ -277,7 +277,7 @@ export function spawnApple(state) {
   return { ...cell, variant: Math.floor(Math.random() * 1000) };
 }
 
-/** True if a cell has fallen off the board — only possible after a resize. */
+/** True if a cell has fallen off the board: only possible after a resize. */
 function isOutsideGrid(grid, cell) {
   return cell.x < 0 || cell.y < 0 || cell.x >= grid.cols || cell.y >= grid.rows;
 }
@@ -295,7 +295,7 @@ function isStranded(state, cell) {
  * wrapping is what the edges already do, so a snake that was near the old right
  * edge simply reappears on the left, which the player can read at a glance.
  *
- * Food is only moved if it has to be — respawning an apple that is still
+ * Food is only moved if it has to be, since respawning an apple that is still
  * perfectly reachable would feel like the game cheating during a resize.
  */
 export function resizeGame(state, { grid, pageCells, hintAnchor, hudAnchor }) {
@@ -352,7 +352,7 @@ export function wrap(grid, cell) {
  * Record where the player wants to go, and start the game if it hasn't begun.
  *
  * The intent is stored rather than applied immediately. Applying it here would
- * let two fast keypresses inside a single tick turn the snake 180 degrees —
+ * let two fast keypresses inside a single tick turn the snake 180 degrees:
  * press up then left while moving right and the head would reverse into its own
  * neck. Deferring to the tick means only one turn per move can ever land.
  */
@@ -381,7 +381,7 @@ export function queueDirection(state, direction) {
  * Advance the game by exactly one grid cell.
  *
  * Returns true if the snake ate anything this tick. The game does not know that
- * eating makes the headline flare — it just reports what happened and lets
+ * eating makes the headline flare; it just reports what happened and lets
  * main.js decide what the page does about it.
  */
 export function step(state) {
@@ -404,7 +404,7 @@ export function step(state) {
   // own content is scenery the snake glides through.
   //
   // The tail is the subtle part: the last segment steps away this tick, so the
-  // cell it is vacating is fair game — unless we are eating, because then the
+  // cell it is vacating is fair game, unless we are eating, because then the
   // tail stays put and the snake really does run into itself.
   const body = ate ? state.snake : state.snake.slice(0, -1);
 
@@ -413,7 +413,7 @@ export function step(state) {
     return false;
   }
 
-  // Grow at the front, shrink at the back — unless we just ate, in which case
+  // Grow at the front, shrink at the back, unless we just ate, in which case
   // skipping the pop is the entire growth mechanic.
   state.snake.unshift(target);
   if (ate) {

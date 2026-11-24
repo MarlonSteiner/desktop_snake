@@ -4,7 +4,7 @@ Run:  python3 scripts/mkdance.py /tmp/pose.png assets/dance/spread.png
 
 These arrive as JPEGs of a transparency checkerboard, so the "transparent"
 background is really two greys baked into the pixels. Both are unsaturated and
-light, which is also true of the white shoes — so the background is found by
+light, which is also true of the white shoes, so the background is found by
 flooding in from the borders rather than by testing colour alone. The shoes are
 enclosed by the figure, so the flood never reaches them.
 """

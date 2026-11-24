@@ -34,7 +34,7 @@ export function loadImages(sources) {
  * Choose one of the loaded images by an arbitrary number.
  *
  * The caller passes a counter or a random variant and the modulo happens here,
- * so nothing else has to know how many images there are — or that any of them
+ * so nothing else has to know how many images there are, or that any of them
  * loaded at all.
  */
 export function pickImage(loaded, variant) {

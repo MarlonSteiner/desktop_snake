@@ -4,12 +4,12 @@ Run:  python3 scripts/trimlogo.py assets/credentials/name.png
 
 Two problems arrive with logo files. Some carry an opaque white rectangle
 behind the artwork, which is invisible on a white page but makes the file's
-bounds meaningless — it will not trim, and it cannot be optically aligned
+bounds meaningless: it will not trim, and it cannot be optically aligned
 against anything. Others carry transparent padding, so sized to a shared height
 one renders smaller than its neighbour and reads as a mistake.
 
 White is removed by flooding in from the borders rather than by testing colour,
-so a white shape *inside* a logo — a white bus on a red circle, say — survives.
+so a white shape *inside* a logo (a white bus on a red circle, say) survives.
 """
 import zlib, struct, sys
 from collections import deque
@@ -58,7 +58,7 @@ if CH == 4:
         r, g, b = PIX[i], PIX[i+1], PIX[i+2]
         # Any alpha, not just solid: the edge of a white backing is
         # anti-aliased, and leaving that behind is what puts a faint haze on
-        # rows that should be empty — which then defeats the trim.
+        # rows that should be empty, which then defeats the trim.
         return PIX[i+3] > 8 and (r+g+b)/3 > 238 and max(r,g,b)-min(r,g,b) < 14
 
     seen = bytearray(W*H); q = deque()
@@ -110,7 +110,7 @@ open(path,'wb').write(b'\x89PNG\r\n\x1a\n'
 print(f'{path}: {W}x{H} -> {NW}x{NH}')
 
 # Where the mark sits inside the trimmed file, so an --optical value can be
-# chosen for it. Rows carrying real weight only — a stray anti-aliased speck
+# chosen for it. Rows carrying real weight only, since a stray anti-aliased speck
 # at the edge would otherwise define the bounds.
 weights = [sum(rows[y][x*4+3]/255 for x in range(NW)) for y in range(NH)]
 peak = max(weights)
@@ -118,5 +118,5 @@ solid = [y for y, w in enumerate(weights) if w > peak*0.35]
 centre = (solid[0]+solid[-1]) / 2 / NH * 100
 print(f'  its heaviest band is rows {solid[0]}-{solid[-1]}, centred at {centre:.1f}%')
 print(f'  a mark centred there wants  --optical: {50-centre:.1f}%')
-print('  (check it against the part of the logo that is the identity — for a')
+print('  (check it against the part of the logo that is the identity: for a')
 print('   lockup that is usually the wordmark, not the whole thing)')

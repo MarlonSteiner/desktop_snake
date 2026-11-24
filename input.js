@@ -28,7 +28,7 @@ const KEY_MAP = {
 
 // Keys that scroll the page by default. Since the page is exactly one screen
 // tall this is barely visible, but Space in particular jumps the view, so we
-// stop them. WASD is left alone — it has no default worth cancelling.
+// stop them. WASD is left alone; it has no default worth cancelling.
 const SCROLL_KEYS = new Set([
   'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space',
 ]);

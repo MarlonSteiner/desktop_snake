@@ -3,7 +3,7 @@
 // The theme lives on <html> as a class, so CSS handles the page and the canvas
 // asks palette() for the four colours it paints itself with. The snake needs
 // nothing: it is drawn on a difference-blend layer, so it inverts against
-// whatever is behind it — black on white, light on dark — without being told.
+// whatever is behind it (black on white, light on dark) without being told.
 
 import { COLORS } from './constants.js';
 

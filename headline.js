@@ -23,7 +23,7 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
  * animation means removing the class, forcing a reflow, and re-adding it, which
  * is a well-known hack; the Web Animations API just layers an independent
  * animation on top. The colour flare is a class, because it needs to *stay* on
- * for a while rather than run once — and CSS can then transition it back out.
+ * for a while rather than run once, and CSS can then transition it back out.
  */
 export function createHeadlineBurst(element) {
   let fadeTimer = null;

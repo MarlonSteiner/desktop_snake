@@ -4,10 +4,10 @@
   <img src="docs/preview.png" alt="Marlon at a desk with a laptop and a lamp, above the words DEV LOOKING FOR WORK" width="620" />
 </p>
 
-### → [marlonsteiner.studio](https://marlonsteiner.studio) — go play it
+### → [marlonsteiner.studio](https://marlonsteiner.studio), go play it
 
 The source for the site above: a landing page that is also a playable snake
-game. The page reads as a normal site first — the game lives on a canvas
+game. The page reads as a normal site first. The game lives on a canvas
 layered behind the content, and everything works if it never starts.
 
 Keyboard on desktop, swipe on touch.
@@ -15,7 +15,7 @@ Keyboard on desktop, swipe on touch.
 ## Stack
 
 Plain JavaScript with native ES modules, HTML Canvas, and Tailwind via the CDN
-script tag. No build step, no npm, no bundler — the files you edit are the files
+script tag. No build step, no npm, no bundler. The files you edit are the files
 the browser runs.
 
 ## Run locally
@@ -39,7 +39,7 @@ added, so use the server.
 | Escape | Close the CV panel |
 
 The screen edges wrap: leave on the right and you come back on the left. The
-snake passes straight through the headline, the logos and the footer — the only
+snake passes straight through the headline, the logos and the footer. The only
 way to lose is to bite yourself. The document icon in the top right opens the
 CV; the game pauses while it is open. The headline flares rainbow for a moment
 each time the snake eats, and is black the rest of the time.
@@ -51,7 +51,7 @@ GitHub Pages serves the repository root. `CNAME` points the site at
 
 ## Build stages
 
-1. ~~Static page — markup, logos, hamburger, footer~~
+1. ~~Static page: markup, logos, hamburger, footer~~
 2. ~~Canvas layered behind, grid from viewport, static snake~~
 3. ~~Movement, fixed-timestep loop, keyboard input~~
 4. ~~Apples, growth, scoring~~
@@ -63,7 +63,7 @@ GitHub Pages serves the repository root. `CNAME` points the site at
 ## CV
 
 The panel holds the CV as editable HTML, and the download icon in its corner
-serves `assets/cv/Marlon_Steiner_CV.pdf` — the designed PDF, with no phone
+serves `assets/cv/Marlon_Steiner_CV.pdf`, the designed PDF, with no phone
 number in it. See [`assets/cv/README.md`](assets/cv/README.md).
 
 ## The avatar
@@ -78,12 +78,12 @@ python3 scripts/mkavatar.py /tmp/desk.png
 ```
 
 It prints the `transform-origin` to paste into `AVATAR.pivot` in
-`constants.js` — that is the point on the collar the head swings around.
+`constants.js`. That is the point on the collar the head swings around.
 
 ## Credentials
 
 Logos under the headline. Drop a file in `assets/credentials/` and add one
-`<img class="credential">` to `#credentials` in `index.html` — see
+`<img class="credential">` to `#credentials` in `index.html`; see
 [`assets/credentials/README.md`](assets/credentials/README.md). The row hides
 itself while it is empty.
 
@@ -102,7 +102,7 @@ testing colour, because the white shoes look exactly like the light squares.
 
 ## Stickers
 
-The snake eats cutouts of me rather than fruit — seven of them, one picked at
+The snake eats cutouts of me rather than fruit, seven of them, one picked at
 random per apple. They are drawn three cells across, and the hitbox is the same
 3x3 block, so you eat what you can see. See
 [`assets/stickers/README.md`](assets/stickers/README.md) for what to drop in and
@@ -113,7 +113,7 @@ still loading, so the game is playable before the assets arrive.
 
 Every 15 seconds a magenta diamond appears somewhere free and stays for 6,
 blinking over its last second and a half. Eating it is worth +5 and starts one
-random modifier for 10 seconds. Only one runs at a time — a new one replaces
+random modifier for 10 seconds. Only one runs at a time; a new one replaces
 whatever was going and resets the clock. The snake changing colour is the only
 announcement; there is no label or countdown.
 
@@ -125,9 +125,9 @@ announcement; there is no label or countdown.
 | FLASH | The page, the snake and everything else vanish and the whole screen cycles through flat colours, with a different dance pose on each. Nothing moves, and the snake picks up exactly where it left off. Three quarters of a second, purely for the look of it. |
 
 The first three change how the snake *handles*, never where it can go. FLASH
-changes nothing at all — it just interrupts.
+changes nothing at all; it just interrupts.
 
-Its colours hold for 113ms each — about nine changes a second across the whole
+Its colours hold for 113ms each, about nine changes a second across the whole
 viewport, which is a real strobe. WCAG 2.3.1 puts the photosensitive-seizure
 threshold at three full-screen flashes per second, so this sits three times over
 that line by choice. Anyone with reduced motion turned on gets a single held
@@ -148,8 +148,8 @@ it looked before; over the black headline the same pixels come out white. So it
 cuts a clean slot through whatever letters it crosses, on the real glyphs, with
 no mask and no second copy of the text.
 
-Because of that, everything the snake is drawn in is stored inverted —
-`inverted()` in `renderer.js` — so that after the blend it appears as intended.
+Because of that, everything the snake is drawn in is stored inverted by
+`inverted()` in `renderer.js`, so that after the blend it appears as intended.
 
 The snake also begins life as the "i" in LOOKING: `obstacles.js` measures that
 span, `game.js` starts the snake standing on it pointing up, and `main.js` hides
@@ -160,7 +160,7 @@ hidden from JavaScript rather than CSS, so the word is intact without scripts.
 
 Resizing keeps the run going rather than starting over. The board is
 re-measured once the dragging stops, and the snake's cells are wrapped into the
-new grid — the same thing the edges already do, so a snake that was near the old
+new grid, the same thing the edges already do, so a snake that was near the old
 right edge reappears on the left. Food only moves if the resize actually
 stranded it.
 
@@ -168,12 +168,12 @@ stranded it.
 
 `input.js` (keyboard) and `touch.js` (swipe) are siblings. Both turn raw events
 into the same named intents and hand them to the same handlers, and neither
-knows the other exists. Adding swipe controls changed no game logic at all —
+knows the other exists. Adding swipe controls changed no game logic at all:
 `game.js`, `renderer.js` and `input.js` were untouched.
 
 ## Dark mode
 
-Click the desk — the figure, the laptop, the lamp, any of it — and the lights
+Click the desk (the figure, the laptop, the lamp, any of it) and the lights
 go off. The click only registers where the picture is actually opaque, so the
 empty corners of its box do nothing.
 
@@ -182,7 +182,7 @@ canvas the four colours it paints with. The snake needs no part of this: it is
 drawn on a `difference`-blend layer, so it comes out black on a white page and
 light on a dark one on its own.
 
-The lamp is drawn in `index.html` as an SVG — flat facets and a short palette,
+The lamp is drawn in `index.html` as an SVG, with flat facets and a short palette,
 so it belongs to the same low-poly world as the figure. Its base sits at 53.9%
 down the avatar box, which is where the desk surface measures.
 

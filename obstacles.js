@@ -16,7 +16,7 @@ import { cellKey } from './game.js';
  *
  * #text-block is the wrapper, not the <h1> inside it. The <h1> scales when the
  * snake eats, and an element's transform changes its own getBoundingClientRect
- * but not its parent's — so measuring the wrapper keeps this box steady while
+ * but not its parent's, so measuring the wrapper keeps this box steady while
  * the headline pops.
  */
 const PAGE_SELECTORS = ['#avatar', '#contact-link', '#text-block', '#logo-row', '#menu-button', 'footer'];
@@ -30,7 +30,7 @@ function rectToCells(grid, rect, into) {
   const firstRow = Math.floor((rect.top - grid.originY) / CELL_SIZE);
   const lastRow = Math.ceil((rect.bottom - grid.originY) / CELL_SIZE) - 1;
 
-  // Clamp, because an element can sit partly outside the grid — the leftover
+  // Clamp, because an element can sit partly outside the grid; the leftover
   // pixels at the edges are not part of any cell.
   for (let y = Math.max(0, firstRow); y <= Math.min(grid.rows - 1, lastRow); y++) {
     for (let x = Math.max(0, firstCol); x <= Math.min(grid.cols - 1, lastCol); x++) {
@@ -79,8 +79,8 @@ export function measureStartLetter() {
   const rect = element.getBoundingClientRect();
   const style = getComputedStyle(element);
 
-  // The element's rect is the letter's *advance* — the space it takes in the
-  // line, side bearings included — which is wider than the stroke you can see.
+  // The element's rect is the letter's *advance*: the space it takes in the
+  // line, side bearings included, which is wider than the stroke you can see.
   // measureText gives the ink box instead, which is what the snake has to match
   // if it is going to pass for the letter.
   inkContext.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
@@ -152,7 +152,7 @@ export function computePageCells(grid) {
   }
 
   // The score readout is drawn on the canvas, so there is no element to
-  // measure — but it takes up space like everything else here, and an apple
+  // measure, but it takes up space like everything else here, and an apple
   // behind it looks unreachable. Reserved from the same anchor the renderer
   // draws it at, so the two cannot disagree.
   const hud = measureHudAnchor();

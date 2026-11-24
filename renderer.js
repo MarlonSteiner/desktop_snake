@@ -1,5 +1,5 @@
 // All canvas drawing lives here. This file never decides what happens in the
-// game — it only draws whatever state it is handed.
+// game, and it only draws whatever state it is handed.
 
 import {
   CELL_SIZE, COLORS, HUD, HINT, STICKER_SCALE, TWIST, MODIFIERS, EAT_FLARE_MS,
@@ -12,7 +12,7 @@ import { palette } from './theme.js';
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 // Describes the primary pointer, so it reports touch on a phone and mouse on a
-// laptop with a touchscreen — which is what decides whether we tell people to
+// laptop with a touchscreen, which is what decides whether we tell people to
 // press keys or to swipe.
 const usesTouch = window.matchMedia('(pointer: coarse)');
 
@@ -51,7 +51,7 @@ const lerp = (a, b, t) => a + (b - a) * t;
 
 /**
  * Paint every segment. `inset` shrinks each cell; a negative one grows it,
- * which is how the glow is drawn — the same shape, bigger and fainter.
+ * which is how the glow is drawn: the same shape, bigger and fainter.
  *
  * While the snake is emerging from the letter it is painted differently: the
  * three segments start collapsed into a single bar the width of the letter's
@@ -109,7 +109,7 @@ function rainbowGradient(ctx) {
  *
  * The snake layer blends with `difference`, so a pixel drawn as C over the
  * white page comes out as 255-C. Painting the inverse of what we want is what
- * makes the snake look exactly as it did before the layer existed — while the
+ * makes the snake look exactly as it did before the layer existed, while the
  * same pixels over black text come out light, which is the point.
  */
 function inverted(hex) {
@@ -121,7 +121,7 @@ function inverted(hex) {
 }
 
 function drawSnake(ctx, state) {
-  // The snake's colour is the only thing announcing a modifier — no label, no
+  // The snake's colour is the only thing announcing a modifier: no label, no
   // countdown. You feel the change and see it on the snake itself.
   const modifier = activeModifier(state.twist);
   ctx.fillStyle = inverted(modifier === null ? COLORS.snake : MODIFIERS[modifier].color);
@@ -135,7 +135,7 @@ function drawSnake(ctx, state) {
 
   // Two passes over the same gradient: an oversized faint one for the halo,
   // then a crisp one on top. Using the gradient for both is what makes the glow
-  // rainbow too, which a shadowBlur could not do — shadows take a single
+  // rainbow too, which a shadowBlur could not do, since shadows take a single
   // colour. Fading the alpha from 1 to 0 is the whole animation; the snake
   // never changes size, so its collisions always match what you see.
   ctx.save();
@@ -152,7 +152,7 @@ function drawSnake(ctx, state) {
 /**
  * Draw the apple: a sticker if one has loaded, otherwise a circle.
  *
- * The circle is not just a fallback for errors — it is what shows during the
+ * The circle is not just a fallback for errors. It is what shows during the
  * first frames while the images are still decoding, so the game is playable
  * before the assets arrive.
  */
@@ -169,7 +169,7 @@ function drawApple(ctx, state, stickers) {
 
   if (sticker !== null) {
     // Fit inside a square box without stretching. Photos are all different
-    // shapes — a full-length one is roughly half as wide as it is tall — so
+    // shapes (a full-length one is roughly half as wide as it is tall), so
     // forcing them into a square would squash every face differently. Scaling
     // by the longest side keeps everyone the right shape.
     const box = CELL_SIZE * STICKER_SCALE;
@@ -218,7 +218,7 @@ function drawGlitch(ctx, state) {
 }
 
 // The prompt teaches once. Kept here rather than on the game state because it
-// is a fact about this visitor's session, not about the snake — and it has to
+// is a fact about this visitor's session, not about the snake, and it has to
 // survive the restarts that replace the state object.
 let hintDismissedAt = null;
 
@@ -277,7 +277,7 @@ function drawControlHint(ctx, state) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
     // Above the avatar on a phone. There is no room beside him, and the gap
-    // below is already spoken for by the headline — the open space is overhead.
+    // below is already spoken for by the headline; the open space is overhead.
     ctx.fillText('SWIPE TO PLAY', anchor.centreX, anchor.top - HINT.gapAboveAnchorText);
     ctx.restore();
     ctx.textAlign = 'left';
@@ -399,7 +399,7 @@ function drawFlash(ctx, state, dancers) {
   const h = dancer.naturalHeight * scale;
 
   // A soft drop shadow, because the shirt is red and one of the colours is
-  // red — without it the figure dissolves into the background on that frame.
+  // red, and without it the figure dissolves into the background on that frame.
   // A shadow works for every pairing, where hand-picking colours that avoid
   // the shirt would only work until the poses changed.
   ctx.save();
@@ -414,7 +414,7 @@ function drawFlash(ctx, state, dancers) {
  * Draw the snake on its own layer, above the page.
  *
  * Separate from render() because this canvas sits on top of the text and
- * blends with it, while everything else — food, score, prompts — belongs
+ * blends with it, while everything else (food, score, prompts) belongs
  * behind. Nothing is drawn during FLASH: the screen is a flat colour and a
  * dancer, and the snake is not part of that.
  */
@@ -433,7 +433,7 @@ export function renderSnake(ctx, state) {
 /** Draw one complete frame of everything behind the page. */
 export function render(ctx, state, art) {
   // FLASH is the whole frame. Returning here is what makes the snake, the
-  // apple and the score vanish — there is no hiding logic anywhere else,
+  // apple and the score vanish; there is no hiding logic anywhere else,
   // they simply are not drawn.
   if (isFlashing(state.twist)) {
     drawFlash(ctx, state, art.dancers);
