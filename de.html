@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<!-- German version of index.html. Same markup, translated text; the
+     comments explaining the structure live in index.html. Change both. -->
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Marlon Steiner | Dev sucht Arbeit</title>
+  <meta name="description" content="Marlon Steiner ist Entwickler und sucht eine Stelle. Eine Landingpage, die gleichzeitig ein spielbares Snake-Game ist." />
+
+  <!-- Two icon files on purpose. The PNG is what modern browsers use, with a
+       transparent background so the avatar sits on the tab strip rather than in
+       a white box. The .ico stays because browsers request /favicon.ico by
+       themselves whatever the page declares, and the only way to stop that 404
+       is for the file to exist; it carries 16, 32 and 48px versions so each
+       slot gets a purpose-made image instead of a smeared downscale.
+
+       apple-touch-icon is deliberately opaque: iOS fills transparent pixels on
+       a home screen with black. -->
+  <link rel="icon" type="image/png" href="favicon.png" sizes="64x64" />
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+  <!-- The same page in two languages. Each names both, so search engines
+       show the right one and never treat them as duplicates. -->
+  <link rel="alternate" hreflang="en" href="https://marlonsteiner.studio/" />
+  <link rel="alternate" hreflang="de" href="https://marlonsteiner.studio/de.html" />
+  <link rel="alternate" hreflang="x-default" href="https://marlonsteiner.studio/" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<!-- The whole page is plain HTML and works with JavaScript disabled.
+     The game canvas is layered BEHIND this content at z-index 0. -->
+<body class="overflow-hidden bg-white text-black antialiased selection:bg-black selection:text-white">
+
+  <!-- The game layer. Fixed to the viewport at z-0 so all page content sits on
+       top of it. aria-hidden because the page is fully usable without it. -->
+  <canvas id="game" class="fixed inset-0 z-0 block" aria-hidden="true"></canvas>
+
+  <!-- Deliberately `relative` with no z-index: that keeps this out of its own
+       stacking context, so #avatar's z-30 below can compete with the snake
+       layer at z-20 instead of being trapped underneath it. It still paints
+       above #game because both are positioned and this one comes later. -->
+  <div id="page" class="relative flex flex-col">
+
+    <!-- ── Top row ──────────────────────────────────────────────────────────
+         Three columns. The left one is empty on purpose: the score is drawn on
+         the canvas underneath, anchored to this same row, so the grid reserves
+         its space without duplicating it in the DOM. -->
+    <header class="grid grid-cols-3 items-center p-5 sm:p-8">
+      <span aria-hidden="true"></span>
+
+      <div id="logo-row" class="flex items-center justify-self-center gap-5 sm:gap-6">
+        <a
+          href="https://www.linkedin.com/in/marlon-steiner/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="LinkedIn"
+          class="tap-target transition-opacity hover:opacity-50 focus-visible:outline
+                 focus-visible:outline-2 focus-visible:outline-offset-4
+                 focus-visible:outline-black"
+        >
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/>
+          </svg>
+        </a>
+
+        <span aria-hidden="true" class="text-xl font-light">&amp;</span>
+
+        <a
+          href="https://github.com/MarlonSteiner"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="GitHub"
+          class="tap-target transition-opacity hover:opacity-50 focus-visible:outline
+                 focus-visible:outline-2 focus-visible:outline-offset-4
+                 focus-visible:outline-black"
+        >
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .3a12 12 0 0 0-3.79 23.4c.6.11.82-.26.82-.58v-2.23c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.11-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6.01 0c2.29-1.55 3.3-1.23 3.3-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.8 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12 12 0 0 0 12 .3z"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="flex items-center gap-2 justify-self-end sm:gap-3">
+      <a
+        id="lang-switch"
+        href="./"
+        hreflang="en"
+        lang="en"
+        aria-label="This page in English"
+        title="English"
+        class="flex h-11 items-center px-2 text-[0.6875rem] font-semibold uppercase tracking-[0.2em]
+               transition-opacity hover:opacity-50 focus-visible:outline focus-visible:outline-2
+               focus-visible:outline-offset-4 focus-visible:outline-black sm:text-xs"
+      >EN</a>
+
+      <button
+        id="menu-button"
+        type="button"
+        aria-expanded="false"
+        aria-controls="cv-panel"
+        aria-label="Lebenslauf öffnen"
+        class="flex h-11 w-11 items-center justify-center rounded-sm
+               transition-opacity hover:opacity-50 focus-visible:outline focus-visible:outline-2
+               focus-visible:outline-offset-4 focus-visible:outline-black"
+      >
+        <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+          <path d="M14 3v5h5" />
+          <path d="M9 13h6M9 17h6" />
+        </svg>
+      </button>
+      </div>
+    </header>
+
+    <!-- ── Centre column ────────────────────────────────────────────────────
+         Order is deliberate: who you are looking at, then what he wants, then
+         how to reach him. The email and the two profiles are one block because
+         they are one intention. Splitting contact details across the page
+         makes a visitor hunt for the thing they already decided to do.
+
+         pointer-events-none on <main> lets clicks fall through to the canvas;
+         the links below re-enable pointer events for themselves. -->
+    <main class="flex flex-1 flex-col items-center justify-center px-4 pointer-events-none">
+
+      <!-- Two stacked images, not one. The head is a separate layer so it can
+           be tilted towards the snake without disturbing the body. They share a
+           canvas size, so `inset-0` lines them up exactly. -->
+      <div
+        id="avatar"
+        role="button"
+        tabindex="0"
+        aria-pressed="false"
+        aria-label="Schreibtischlampe einschalten"
+        title="Klick auf den Schreibtisch, um das Licht umzuschalten"
+        class="pointer-events-auto relative z-30 mb-7 w-[clamp(9rem,22vw,17rem)] shrink-0
+               cursor-pointer rounded-sm
+               focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-8
+               focus-visible:outline-current sm:mb-9"
+        style="aspect-ratio: 640 / 620;"
+      >
+        <img src="assets/avatar/body.png" alt="" class="absolute inset-0 h-full w-full select-none" />
+
+        <!-- The head and its closed eyes share a wrapper so the tilt carries
+             both. A blink drawn outside it would stay level while the head
+             turned. -->
+
+        <!-- The lamp, drawn rather than sourced: flat facets and a limited
+             palette so it belongs to the same low-poly world as the figure.
+             Its base sits on the desk surface, which measures 53.9% down the
+             avatar box, hence top + height adding to that. -->
+        <svg
+          id="lamp"
+          viewBox="0 0 92 130"
+          fill="none"
+          aria-hidden="true"
+          class="pointer-events-auto absolute left-[7%] top-[27.4%] h-[26.5%] w-auto cursor-pointer"
+        >
+          <!-- Light, only ever visible with the lamp on. -->
+          <g class="lamp-glow">
+            <polygon points="74,88 99,102 92,130 40,130" class="lamp-beam" />
+            <ellipse cx="87" cy="96" rx="17" ry="11" class="lamp-halo" />
+          </g>
+
+          <!-- Base -->
+          <polygon points="12,120 56,120 64,130 4,130" class="lamp-dark" />
+          <polygon points="18,115 50,115 56,120 12,120" class="lamp-mid" />
+
+          <!-- Post and arm -->
+          <polygon points="28,115 40,115 44,60 34,60" class="lamp-dark" />
+          <polygon points="34,60 40,58 44,60 40,64" class="lamp-mid" />
+          <polygon points="35,62 44,55 76,84 68,92" class="lamp-dark" />
+          <polygon points="44,55 48,58 72,86 68,92" class="lamp-mid" />
+          <circle cx="39" cy="58" r="6" class="lamp-mid" />
+          <circle cx="72" cy="86" r="5" class="lamp-mid" />
+
+          <!-- Shade: a cone tapering from the arm down to its mouth. The mouth
+               is a rotated ellipse so the opening reads as an opening rather
+               than as a flat end. -->
+          <polygon points="61,70 80,61 99,90 74,103" class="lamp-dark" />
+          <polygon points="61,70 74,103 62,95" class="lamp-mid" />
+          <ellipse cx="87" cy="96" rx="14" ry="7.5" transform="rotate(-31 87 96)" class="lamp-rim" />
+          <ellipse cx="87" cy="96" rx="9" ry="4.5" transform="rotate(-31 87 96)" class="lamp-bulb" />
+        </svg>
+
+        <div id="avatar-head" class="absolute inset-0">
+          <img src="assets/avatar/head.png" alt="" class="absolute inset-0 h-full w-full select-none" />
+          <img id="avatar-blink" src="assets/avatar/blink.png" alt=""
+               class="absolute inset-0 h-full w-full select-none" />
+        </div>
+      </div>
+
+      <!-- Two elements, deliberately.
+           #text-block is the box obstacles.js measures with
+           getBoundingClientRect(). #headline is the thing that flares when the
+           snake eats. A transform changes an element's own bounding rect but
+           not its parent's, so keeping them separate means the measured box
+           stays still while the text reacts. w-fit makes the wrapper hug the
+           text instead of spanning the full width of <main>. -->
+      <div id="text-block" class="w-fit">
+        <h1 id="headline" class="text-center font-black uppercase tracking-tight">
+          <!-- The "i" is wrapped so the snake can start life as that letter:
+               obstacles.js measures this span, game.js starts the snake on it,
+               and main.js hides it until the snake has climbed clear. Hidden by
+               JS rather than by CSS, so with scripts off the word is intact. -->
+          <span class="headline-line block">Dev sucht</span>
+          <span class="headline-line block">Arbe<span id="letter-i">i</span>t</span>
+        </h1>
+      </div>
+
+      <!-- Contact, as one group. -->
+      <a
+        id="contact-link"
+        href="mailto:msteiner.sudo@gmail.com"
+        class="pointer-events-auto mt-8 flex items-center gap-2 py-3.5 -my-3.5 text-[0.6875rem] font-semibold
+               uppercase tracking-[0.2em] transition-opacity hover:opacity-50
+               focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4
+               focus-visible:outline-black sm:text-xs"
+      >
+        <svg class="h-[1.15em] w-[1.15em] shrink-0" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true">
+          <rect x="2.5" y="5" width="19" height="14" rx="3" />
+          <path d="M3.5 7.5l8.5 6 8.5-6" />
+        </svg>
+        Kontakt aufnehmen
+      </a>
+
+      <!-- ── Credentials ────────────────────────────────────────────────────
+           One <img> per logo. Drop the file in assets/credentials/ and add a
+           line here; nothing else needs changing.
+
+           They are set in grey and lifted to full colour on hover, which is the
+           usual treatment: a row of brand colours would out-shout the headline
+           directly above it, and these are supporting evidence, not the point.
+
+           :empty hides the row entirely until the first logo arrives, so the
+           gap does not sit there looking like a mistake. -->
+      <!-- Add logos as: <img src="assets/credentials/eth.png" alt="ETH Zurich" class="credential" />
+           Kept literally empty, because :empty counts whitespace as content, so a
+           newline inside these tags would defeat the rule that hides the row. -->
+      <div id="credentials" class="mt-11 flex max-w-4xl flex-wrap items-center justify-center gap-x-9 gap-y-6 px-2 sm:gap-x-12"><img src="assets/credentials/eth-asl.png" alt="ETH Zürich Autonomous Systems Lab" class="credential credential--lockup" style="--optical: 1.9%" /><img src="assets/credentials/ironman.png" alt="Ironman" class="credential" style="--optical: -16.3%" /></div>
+    </main>
+
+    <!-- ── Bottom center: signature ─────────────────────────────────────── -->
+    <footer class="flex justify-center p-5 sm:p-8">
+      <p class="footer-name font-medium uppercase tracking-[0.2em]">
+        Marlon Steiner<sup class="ml-[2px] text-[0.6em] align-super">&copy;</sup>
+      </p>
+    </footer>
+
+  </div>
+
+
+  <!-- The snake, drawn on top of the page in `difference` blend mode.
+       Anywhere the page is white the snake comes out black, exactly as before;
+       anywhere it crosses black text the same pixels come out white. That is
+       the whole effect: no mask, no second copy of the headline, and it lands
+       on the glyphs perfectly because the browser is compositing the real
+       text. -->
+  <canvas id="snake" class="pointer-events-none fixed inset-0 z-20 block"
+          style="mix-blend-mode: difference;" aria-hidden="true"></canvas>
+
+  <!-- ── CV panel ───────────────────────────────────────────────────────────
+       Plain HTML you can edit directly. `inert` while closed so the links
+       inside are not reachable by Tab; menu.js removes it on open. -->
+  <div
+    id="cv-backdrop"
+    class="pointer-events-none fixed inset-0 z-40 bg-black/20 opacity-0 transition-opacity duration-300"
+  ></div>
+
+  <aside
+    id="cv-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="cv-name"
+    inert
+    class="fixed right-0 top-0 z-50 h-full w-full max-w-[36rem] translate-x-full overflow-y-auto
+           border-l border-black bg-white transition-transform duration-300 ease-out"
+  >
+    <div class="px-7 py-8 sm:px-10 sm:py-10">
+
+      <!-- Download and close, paired in the corner. Icon-only, so both carry a
+           label for screen readers and a title for the hover tooltip. -->
+      <div class="absolute right-5 top-7 flex items-center gap-1 sm:right-8">
+        <a
+          href="./#cv"
+          hreflang="en"
+          lang="en"
+          aria-label="CV in English"
+          title="English"
+          class="flex h-9 items-center px-2 text-xs font-semibold uppercase tracking-[0.2em]
+                 transition-opacity hover:opacity-50 focus-visible:outline focus-visible:outline-2
+                 focus-visible:outline-offset-4 focus-visible:outline-black"
+        >EN</a>
+
+        <a
+          href="assets/cv/Marlon_Steiner_CV.pdf"
+          download
+          aria-label="Lebenslauf als PDF herunterladen (Englisch)"
+          title="Lebenslauf herunterladen (Englisch)"
+          class="flex h-9 w-9 items-center justify-center rounded-sm transition-opacity
+                 hover:opacity-50 focus-visible:outline focus-visible:outline-2
+                 focus-visible:outline-offset-4 focus-visible:outline-black"
+        >
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v12" /><path d="M7 12l5 5 5-5" /><path d="M4 21h16" />
+          </svg>
+        </a>
+
+        <button
+          id="cv-close"
+          type="button"
+          aria-label="Lebenslauf schliessen"
+          title="Schliessen"
+          class="flex h-9 w-9 items-center justify-center rounded-sm transition-opacity
+                 hover:opacity-50 focus-visible:outline focus-visible:outline-2
+                 focus-visible:outline-offset-4 focus-visible:outline-black"
+        >
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M5 5l14 14M19 5L5 19" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Header -->
+      <header class="mb-9 pr-20">
+        <h2 id="cv-name" class="text-2xl font-black uppercase tracking-tight sm:text-3xl">
+          Marlon Steiner
+        </h2>
+        <p class="mt-1 text-sm font-medium uppercase tracking-[0.18em]">
+          Junior Full-Stack-Entwickler
+        </p>
+
+        <!-- Contact. Deliberately no phone number: a mobile number in plain
+             HTML on a public page gets scraped. Email first. -->
+        <ul class="mt-5 space-y-1 text-sm leading-relaxed">
+          <li><a class="underline underline-offset-2 hover:opacity-50" href="mailto:msteiner.sudo@gmail.com">msteiner.sudo@gmail.com</a></li>
+          <li><a class="underline underline-offset-2 hover:opacity-50" href="https://www.linkedin.com/in/marlon-steiner/" target="_blank" rel="noopener noreferrer">linkedin.com/in/marlon-steiner</a></li>
+          <li><a class="underline underline-offset-2 hover:opacity-50" href="https://github.com/MarlonSteiner" target="_blank" rel="noopener noreferrer">github.com/MarlonSteiner</a></li>
+          <li>St.&nbsp;Gallen, Schweiz &middot; Ab sofort verfügbar</li>
+        </ul>
+
+      </header>
+
+      <!-- Intro -->
+      <section class="mb-9">
+        <h3 class="cv-heading">Profil</h3>
+        <p class="text-sm leading-relaxed">
+          Full-Stack-Entwickler und Gründer von Flowton, wo ich Websites für Kunden
+          aus Fintech, Raumfahrt, Analytics und Detailhandel baue. Ausbildung in
+          moderner Webentwicklung, aufbauend auf über 4 Jahren technischer Erfahrung
+          in Mechanik, Unternehmenssoftware und Robotikentwicklung.
+        </p>
+      </section>
+
+      <!-- Experience -->
+      <section class="mb-9">
+        <h3 class="cv-heading">Berufserfahrung</h3>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Gründer &amp; Inhaber, Flowton</h4>
+          <p class="cv-meta">2025&ndash;heute &middot; Einzelfirma &middot; <a class="underline underline-offset-2 hover:opacity-50" href="https://www.flowton.io" target="_blank" rel="noopener noreferrer">flowton.io</a>, St.&nbsp;Gallen</p>
+          <ul class="cv-list">
+            <li>Websites für Kunden aus Fintech, Raumfahrt, Analytics und Detailhandel gebaut. Heute mit Fokus auf Heizungs-, Sanitär- und Elektrofirmen in der Ostschweiz mit 5 bis 50 Mitarbeitenden.</li>
+            <li>Mache alles selbst: Verkauf, UX, UI, Frontend, Backend, Hosting und Rechnungsstellung.</li>
+            <li>Zeige Interessenten schon vor dem ersten Gespräch ein Redesign ihrer eigenen Website, gebaut aus ihren echten Inhalten und Fotos.</li>
+            <li>flowton.io auf Deutsch und Englisch gebaut, mit Impressum, Datenschutz, strukturierten Daten und hreflang für Suchmaschinen.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Freelance E-Commerce-Entwickler</h4>
+          <p class="cv-meta">2025 &middot; Selbstständig, Zürich</p>
+          <ul class="cv-list">
+            <li>Website für Juwelier Mahler auf WordPress gebaut, responsiv auf allen Geräten.</li>
+            <li>Themes angepasst und moderne Webdesign-Prinzipien für einen Auftritt im Luxus-Detailhandel umgesetzt.</li>
+            <li>Auf Hostinger veröffentlicht und gehostet, inklusive Domain-Konfiguration und laufender Wartung.</li>
+            <li>Direkt mit dem Auftraggeber zusammengearbeitet, um Geschäftsanforderungen in eine funktionierende Umsetzung zu bringen.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Spezialist Bestandskontrolle</h4>
+          <p class="cv-meta">2024 &middot; Rheinmetall Air Defence AG, Schweiz</p>
+          <ul class="cv-list">
+            <li>Lagerbestände des Unternehmens in SAP dokumentiert und verwaltet, mit komplexen Datensätzen.</li>
+            <li>Jira und Confluence für Tracking und technische Dokumentation genutzt.</li>
+            <li>Mit bereichsübergreifenden Engineering- und Produktionsteams zusammengearbeitet.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Assistent, Robotik &amp; Softwareentwicklung</h4>
+          <p class="cv-meta">2022&ndash;2023 &middot; ETH Z&uuml;rich Autonomous Systems Lab</p>
+          <ul class="cv-list">
+            <li>Benutzeroberflächen für Software in Figma und Qt Creator gestaltet, gemeinsam mit Softwareentwicklern.</li>
+            <li>UX-Konzepte für Robotikprojekte erforscht und entwickelt, von der Idee bis zur Umsetzung.</li>
+            <li>Beschaffung technischer Komponenten verantwortet und mit Lieferanten koordiniert.</li>
+            <li>Doktorierende und Masterstudierende bei PCB-Löten, 3D-Druck, Laserschneiden und CAD in Fusion 360 unterstützt.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Zivildienst, Integration</h4>
+          <p class="cv-meta">2022&ndash;2023 &middot; TISG Flüchtlingszentrum Rosenau, St.&nbsp;Gallen</p>
+          <ul class="cv-list">
+            <li>Geflüchtete aus der Ukraine bei Behördengängen, Unterkunft und Integration unterstützt.</li>
+            <li>Deutschkurse organisiert und unterrichtet.</li>
+            <li>Dokumentation und Datenbankeinträge in einer Fachsoftware für das Asylwesen geführt.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Polymechaniker</h4>
+          <p class="cv-meta">2020&ndash;2022 &middot; Gietz AG, Schweiz</p>
+          <ul class="cv-list">
+            <li>Präzisionsmontage von Stanz- und Prägemaschinen.</li>
+            <li>Verdrahtung von Elektroschaltschränken nach Schema.</li>
+            <li>Mit Engineering-Teams Fertigungsprozesse optimiert.</li>
+            <li>Qualitätsstandards und technische Dokumentation sichergestellt.</li>
+          </ul>
+        </article>
+      </section>
+
+      <!-- Achievements -->
+      <section class="mb-9">
+        <h3 class="cv-heading">Auszeichnungen</h3>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Gewinner, START HACK 2025</h4>
+          <p class="cv-meta">Okt. 2025 &middot; Base-Track (Coinbase) &middot; St.&nbsp;Gallen</p>
+          <ul class="cv-list">
+            <li>In 36 Stunden mit einem Viererteam eine funktionierende Plattform für den direkten Handel zwischen Aktien und Krypto gebaut, über Atomic Swaps auf Base.</li>
+            <li>Solidity Smart Contracts, Chainlink-Preisfeeds und Gemini für Portfolio-Analysen.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">IRONMAN Switzerland Thun</h4>
+          <p class="cv-meta">Juli 2026 &middot; Finisher</p>
+          <ul class="cv-list">
+            <li>3,8&nbsp;km Schwimmen, 180&nbsp;km Velo und 42,2&nbsp;km Laufen in 12 Stunden. Mein erster Triathlon, neben einem Vollzeitjob.</li>
+          </ul>
+        </article>
+      </section>
+
+      <!-- Skills -->
+      <section class="mb-9">
+        <h3 class="cv-heading">Kenntnisse</h3>
+        <dl class="space-y-3 text-sm leading-relaxed">
+          <div>
+            <dt class="font-semibold">Frontend</dt>
+            <dd>HTML5 &amp; semantisches Markup, CSS3, Sass/SCSS, JavaScript ES6+, Bootstrap, Responsive Design, Cross-Browser-Kompatibilität, Web-Performance, Barrierefreiheit (WCAG)</dd>
+          </div>
+          <div>
+            <dt class="font-semibold">Backend &amp; Daten</dt>
+            <dd>Ruby on Rails, Python, C, SQL, PostgreSQL, Datenbankdesign, REST-API-Integration</dd>
+          </div>
+          <div>
+            <dt class="font-semibold">Tools &amp; Arbeitsweise</dt>
+            <dd>Git, Jira, Confluence, agile Methoden, Software-Engineering-Prinzipien, Datenstrukturen &amp; Algorithmen, Webhosting &amp; Deployment, Domainverwaltung</dd>
+          </div>
+          <div>
+            <dt class="font-semibold">Design &amp; Weiteres</dt>
+            <dd>UX/UI-Design, Figma, Qt Creator, SAP, WordPress, CAD (Fusion 360), 3D-Druck, Blender, Unity</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Education -->
+      <section class="mb-9">
+        <h3 class="cv-heading">Ausbildung</h3>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Le Wagon Web Development Bootcamp</h4>
+          <p class="cv-meta">2025 &middot; Kapstadt, Südafrika</p>
+          <ul class="cv-list">
+            <li>Full-Stack-Webentwicklung mit Schwerpunkt Frontend.</li>
+            <li>JavaScript, Ruby on Rails, PostgreSQL, Bootstrap, Flexbox und Grid.</li>
+            <li>&laquo;Logs AI&raquo; gebaut, eine Audio-Tagebuch-App, die Gesprochenes zusammenfasst.</li>
+            <li>Deployment mit Git und Heroku.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">CS50: Introduction to Computer Science</h4>
+          <p class="cv-meta">2024&ndash;2025 &middot; Harvard University, online</p>
+          <ul class="cv-list">
+            <li>Grundlagen der Informatik, Algorithmen und Datenstrukturen.</li>
+            <li>C, Python, SQL, JavaScript, HTML/CSS.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Selbststudium Informatik &amp; UX-Design</h4>
+          <p class="cv-meta">2023&ndash;2025 &middot; Eigenständig, St.&nbsp;Gallen</p>
+          <ul class="cv-list">
+            <li>Grundlagen der Informatik, UX-Design-Prinzipien und moderne Webtechnologien.</li>
+            <li>Google UX Design Zertifikat.</li>
+          </ul>
+        </article>
+
+        <article class="cv-entry">
+          <h4 class="cv-role">Polymechaniker EFZ</h4>
+          <p class="cv-meta">2016&ndash;2020 &middot; Berufslehre, Schweiz</p>
+          <ul class="cv-list">
+            <li>Vierjährige Lehre mit Schwerpunkt Präzisionsmontage und technische Systeme.</li>
+          </ul>
+        </article>
+      </section>
+
+      <!-- Certifications -->
+      <section class="mb-9">
+        <h3 class="cv-heading">Zertifikate</h3>
+        <ul class="cv-list">
+          <li>Web Development Certificate, Le Wagon</li>
+          <li>Eidgenössisches Fähigkeitszeugnis Polymechaniker EFZ</li>
+          <li>UX Design Fundamentals and Process</li>
+          <li>JavaScript Fundamentals</li>
+          <li>Responsive Web Design</li>
+          <li>Learning How to Learn</li>
+        </ul>
+      </section>
+
+      <!-- Languages -->
+      <section>
+        <h3 class="cv-heading">Sprachen</h3>
+        <ul class="cv-list">
+          <li>Deutsch: Muttersprache</li>
+          <li>Englisch: Muttersprache</li>
+          <li>Tagalog: fliessend</li>
+        </ul>
+      </section>
+
+    </div>
+  </aside>
+
+  <!-- type="module" is what makes the ES module imports work. It also means the
+       script is deferred automatically, so the DOM exists by the time it runs. -->
+  <script type="module" src="main.js"></script>
+</body>
+</html>

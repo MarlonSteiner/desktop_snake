@@ -48,4 +48,8 @@ export function attachMenu({ onPauseChange }) {
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && isOpen) setOpen(false);
   });
+
+  // The language switch inside the panel links to the other page with #cv,
+  // so a reader who changes language mid-CV lands back in the CV.
+  if (window.location.hash === '#cv') setOpen(true);
 }

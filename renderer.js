@@ -8,6 +8,7 @@ import {
 import { pickImage } from './images.js';
 import { activeModifier, isFlashing, flashIndex } from './modifiers.js';
 import { palette } from './theme.js';
+import { text } from './strings.js';
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -278,7 +279,7 @@ function drawControlHint(ctx, state) {
     ctx.textBaseline = 'alphabetic';
     // Above the avatar on a phone. There is no room beside him, and the gap
     // below is already spoken for by the headline; the open space is overhead.
-    ctx.fillText('SWIPE TO PLAY', anchor.centreX, anchor.top - HINT.gapAboveAnchorText);
+    ctx.fillText(text.swipeToPlay, anchor.centreX, anchor.top - HINT.gapAboveAnchorText);
     ctx.restore();
     ctx.textAlign = 'left';
     return;
@@ -356,7 +357,7 @@ function drawGameOver(ctx, state) {
   ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'center';
 
-  ctx.fillText(usesTouch.matches ? 'TAP TO RESTART' : 'PRESS SPACE TO RESTART', x, y);
+  ctx.fillText(usesTouch.matches ? text.tapToRestart : text.spaceToRestart, x, y);
 
   // Leave the context as we found it, or the HUD would start drawing centred.
   ctx.textAlign = 'left';
@@ -373,8 +374,8 @@ function drawHud(ctx, state) {
   // 'middle' so the two lines straddle the button's centre line evenly.
   ctx.textBaseline = 'middle';
 
-  ctx.fillText(`SCORE ${state.score}`, anchor.x, anchor.y - HUD.lineHeight / 2);
-  ctx.fillText(`BEST ${state.best}`, anchor.x, anchor.y + HUD.lineHeight / 2);
+  ctx.fillText(`${text.score} ${state.score}`, anchor.x, anchor.y - HUD.lineHeight / 2);
+  ctx.fillText(`${text.best} ${state.best}`, anchor.x, anchor.y + HUD.lineHeight / 2);
 }
 
 /** The whole viewport in one flat colour, with a dancer on it. */

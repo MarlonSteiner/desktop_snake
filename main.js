@@ -22,6 +22,7 @@ import { attachTouchInput } from './touch.js';
 import { attachMenu } from './menu.js';
 import { speedMultiplier, isFlashing } from './modifiers.js';
 import { createHeadlineBurst } from './headline.js';
+import { text } from './strings.js';
 import { createAvatarGaze, startBlinking } from './avatar.js';
 import { buzz } from './haptics.js';
 import { initTheme, toggleTheme } from './theme.js';
@@ -101,7 +102,7 @@ function attachLampSwitch() {
   const flip = () => {
     const dark = toggleTheme();
     avatar.setAttribute('aria-pressed', String(dark));
-    avatar.setAttribute('aria-label', dark ? 'Turn the desk lamp off' : 'Turn the desk lamp on');
+    avatar.setAttribute('aria-label', dark ? text.lampOff : text.lampOn);
     buzz(HAPTICS.eat);
   };
 

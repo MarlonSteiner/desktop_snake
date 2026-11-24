@@ -66,6 +66,17 @@ The panel holds the CV as editable HTML, and the download icon in its corner
 serves `assets/cv/Marlon_Steiner_CV.pdf`, the designed PDF, with no phone
 number in it. See [`assets/cv/README.md`](assets/cv/README.md).
 
+## Languages
+
+`index.html` is English and `de.html` is German, with the same markup and
+translated text. The styles they share live in `styles.css`. Text the scripts
+draw themselves (the canvas hints, the score, the lamp label) is in
+`strings.js`, picked by the page's `<html lang>`. The DE/EN link in the top bar
+switches page; the one inside the CV links to `#cv`, which opens the CV on
+arrival. The PDF is English only.
+
+When you change the CV or the layout, change both pages.
+
 ## The avatar
 
 `assets/avatar/body.png` and `head.png` are one illustration cut in two at the
