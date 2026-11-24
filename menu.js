@@ -1,55 +1,89 @@
-// Opening and closing the CV panel, and telling the caller when to pause.
+// Opening and closing the side panels (the CV and the projects), and telling
+// the caller when to pause.
 //
-// This file owns the panel's behaviour but not the consequences of it: it
+// This file owns the panels' behaviour but not the consequences of it: it
 // reports open/closed through onPauseChange and lets main.js decide that the
 // game should stop. That keeps the menu reusable and the pause rule in one
 // place.
 
 /**
- * Wire up the CV panel.
+ * The panels, and what opens each one. Only one is ever open: opening the
+ * projects from inside the CV swaps one for the other under the same backdrop.
+ * The hash lets a link (the language switch, or a link sent to a recruiter)
+ * arrive with a panel already open.
+ */
+const PANELS = [
+  { id: 'cv-panel', hash: '#cv', openers: ['menu-button'], close: 'cv-close' },
+  { id: 'work-panel', hash: '#work', openers: ['work-link', 'cv-work-link'], close: 'work-close' },
+];
+
+/**
+ * Wire up the panels.
  *
  * @param {object} handlers
  * @param {(isOpen: boolean) => void} handlers.onPauseChange
  */
 export function attachMenu({ onPauseChange }) {
-  const button = document.getElementById('menu-button');
-  const panel = document.getElementById('cv-panel');
+  const menuButton = document.getElementById('menu-button');
   const backdrop = document.getElementById('cv-backdrop');
-  const closeButton = document.getElementById('cv-close');
 
-  let isOpen = false;
+  const panels = PANELS
+    .map((config) => ({
+      ...config,
+      element: document.getElementById(config.id),
+      closeButton: document.getElementById(config.close),
+    }))
+    .filter((panel) => panel.element !== null);
 
-  function setOpen(next) {
-    if (next === isOpen) return;
-    isOpen = next;
+  let open = null;
+  // Where focus goes back to on close. Remembered only when a panel opens from
+  // the page itself, never when switching between panels, so closing never
+  // leaves focus on a button that is now off-screen.
+  let returnFocus = menuButton;
 
-    button.setAttribute('aria-expanded', String(isOpen));
+  function show(next, opener = null) {
+    if (next === open) return;
+    if (open === null && next !== null) returnFocus = opener ?? menuButton;
+    open = next;
 
-    // `inert` removes the whole subtree from the tab order and from assistive
-    // technology in one attribute. Without it the CV links stay reachable by
-    // keyboard while the panel is parked off-screen.
-    panel.toggleAttribute('inert', !isOpen);
-    panel.classList.toggle('translate-x-full', !isOpen);
+    for (const panel of panels) {
+      const isShown = panel === open;
+      // `inert` removes the whole subtree from the tab order and from
+      // assistive technology in one attribute. Without it the links stay
+      // reachable by keyboard while the panel is parked off-screen.
+      panel.element.toggleAttribute('inert', !isShown);
+      panel.element.classList.toggle('translate-x-full', !isShown);
+    }
 
-    backdrop.classList.toggle('opacity-0', !isOpen);
-    backdrop.classList.toggle('pointer-events-none', !isOpen);
+    menuButton.setAttribute('aria-expanded', String(open !== null && open.id === 'cv-panel'));
+    backdrop.classList.toggle('opacity-0', open === null);
+    backdrop.classList.toggle('pointer-events-none', open === null);
 
-    // Move focus with the panel: into it on open, back to the button on close,
-    // so a keyboard user is never left focused on something invisible.
-    (isOpen ? closeButton : button).focus();
+    // Move focus with the panel: into it on open, back where it came from on
+    // close, so a keyboard user is never left focused on something invisible.
+    (open === null ? returnFocus : open.closeButton).focus();
 
-    onPauseChange(isOpen);
+    onPauseChange(open !== null);
   }
 
-  button.addEventListener('click', () => setOpen(!isOpen));
-  closeButton.addEventListener('click', () => setOpen(false));
-  backdrop.addEventListener('click', () => setOpen(false));
+  for (const panel of panels) {
+    for (const id of panel.openers) {
+      const opener = document.getElementById(id);
+      if (opener === null) continue;
+      // The CV icon toggles; everything else only opens.
+      opener.addEventListener('click', () => {
+        show(opener === menuButton && open === panel ? null : panel, opener);
+      });
+    }
+    panel.closeButton.addEventListener('click', () => show(null));
+  }
+
+  backdrop.addEventListener('click', () => show(null));
 
   window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && isOpen) setOpen(false);
+    if (event.key === 'Escape' && open !== null) show(null);
   });
 
-  // The language switch inside the panel links to the other page with #cv,
-  // so a reader who changes language mid-CV lands back in the CV.
-  if (window.location.hash === '#cv') setOpen(true);
+  const linked = panels.find((panel) => panel.hash === window.location.hash);
+  if (linked !== undefined) show(linked);
 }

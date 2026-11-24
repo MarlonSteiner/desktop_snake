@@ -66,6 +66,14 @@ The panel holds the CV as editable HTML, and the download icon in its corner
 serves `assets/cv/Marlon_Steiner_CV.pdf`, the designed PDF, with no phone
 number in it. See [`assets/cv/README.md`](assets/cv/README.md).
 
+## Projects
+
+"See my work" on the page and "See my projects" in the CV open a second panel
+(`#work-panel`, same mechanics as the CV, both handled by `menu.js`). Each
+project is an `<article class="project">` with a real screenshot of the app,
+captured at 390x844 and resized to 600px wide into `assets/projects/`. Link
+straight to it with `#work`, e.g. `marlonsteiner.studio/#work`.
+
 ## Languages
 
 `index.html` is English and `de.html` is German, with the same markup and

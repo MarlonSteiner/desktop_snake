@@ -107,6 +107,15 @@ footer { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
 }
 .credential:hover { filter: grayscale(0); opacity: 1; }
 
+/* The collab-style cross between the logos. Same grey as the logos at rest,
+   light weight so it reads as punctuation rather than a third mark. */
+.credential-x {
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  font-weight: 300;
+  line-height: 1;
+  opacity: 0.45;
+}
+
 /* A lockup (a wordmark plus a divider plus a second line) carries far
    more inside the same box than a single wordmark does. Matched on box
    height its type comes out half the size of its neighbour's and reads as
@@ -130,6 +139,39 @@ footer { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
 }
 .cv-list > li { margin-bottom: 0.25rem; }
 
+/* ── Projects ────────────────────────────────────────────────────────
+   Screenshot beside the text at every width. Stacked on a phone, a 2:1
+   screenshot would push each project's text a full screen down. */
+.project {
+  display: grid; grid-template-columns: 6.5rem 1fr; gap: 1.25rem;
+  align-items: start; margin-bottom: 2.25rem;
+}
+.project:last-child { margin-bottom: 0; }
+@media (min-width: 640px) {
+  .project { grid-template-columns: 9.5rem 1fr; gap: 1.75rem; }
+}
+.project-shot {
+  display: block; overflow: hidden; border-radius: 1rem;
+  border: 1px solid #000; aspect-ratio: 600 / 1298; background: #f4f4f5;
+}
+.project-shot img {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+  transition: transform 300ms ease;
+}
+a.project-shot:hover img { transform: scale(1.03); }
+.project-lede { margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.55; font-weight: 500; }
+.project-stack { margin-top: 0.5rem; font-size: 0.75rem; line-height: 1.5; color: #525252; }
+.project-links {
+  margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem;
+  font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.16em;
+}
+.project-links a { text-decoration: underline; text-underline-offset: 3px; }
+.project-links a:hover { opacity: 0.5; }
+.project-links span { color: #525252; }
+html.dark .project-shot { border-color: #3a3a46; background: #1f1f26; }
+html.dark .project-stack,
+html.dark .project-links span { color: #9a9aa6; }
+
 /* ── Avatar ──────────────────────────────────────────────────────────
    The tilt is declared here and driven by two custom properties from
    avatar.js, so the transition that smooths it stays in CSS. Without it the
@@ -145,7 +187,8 @@ footer { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
    page and light on a dark one without being told which it is on. */
 html.dark body { background: #101014; color: #f5f5f7; }
 html.dark .credential { filter: grayscale(1) invert(1); }
-html.dark #cv-panel { background: #16161c; border-color: #2c2c36; color: #f5f5f7; }
+html.dark #cv-panel,
+html.dark #work-panel { background: #16161c; border-color: #2c2c36; color: #f5f5f7; }
 html.dark .cv-heading { border-color: #3a3a46; }
 html.dark .cv-meta { color: #9a9aa6; }
 html.dark #cv-backdrop { background: rgb(0 0 0 / 0.5); }
@@ -154,7 +197,7 @@ html.dark .lamp-mid  { fill: #2e2e38; }
 html.dark .lamp-bulb { fill: #ffe6ae; }
 html.dark .lamp-glow { opacity: 1; }
 
-body, #cv-panel { transition: background-color 320ms ease, color 320ms ease; }
+body, #cv-panel, #work-panel { transition: background-color 320ms ease, color 320ms ease; }
 
 /* ── Lamp ────────────────────────────────────────────────────────────
    Charcoal to sit with the chair and the laptop rather than compete with

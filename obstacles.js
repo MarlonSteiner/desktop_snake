@@ -19,7 +19,7 @@ import { cellKey } from './game.js';
  * but not its parent's, so measuring the wrapper keeps this box steady while
  * the headline pops.
  */
-const PAGE_SELECTORS = ['#avatar', '#contact-link', '#text-block', '#logo-row', '#menu-button', '#lang-switch', 'footer'];
+const PAGE_SELECTORS = ['#avatar', '#cta-row', '#text-block', '#logo-row', '#menu-button', '#lang-switch', 'footer'];
 
 /** Convert one viewport rectangle into the grid cells it covers. */
 function rectToCells(grid, rect, into) {
